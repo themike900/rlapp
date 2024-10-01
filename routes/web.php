@@ -24,7 +24,7 @@ Route::resource('chirps', ChirpController::class)
     ->middleware(['auth', 'verified']);
 	
 Route::resource('actions', ActionController::class)
-    ->only(['index', 'create', 'myactions'])
+    ->only(['index', 'create'])
     ->middleware(['auth', 'verified']);
 
 require __DIR__.'/auth.php';

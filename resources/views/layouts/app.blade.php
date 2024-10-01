@@ -16,16 +16,18 @@
     </head>
     <body class="font-sans antialiased">
         <div class="min-h-screen bg-gray-300">
-                <header class="bg-blue-600 shadow">
-                    <div class="max-w-7xl mx-auto py-4 px-5 sm:px-6 lg:px-8">
-        <h2 class="font-semibold text-xl text-gray-200 leading-tight">
-            {{ __('Royal-Louise Aktivitätenplanung') }}
-        </h2>
-                    </div>
-                </header>
+		
+            <!-- Page Heading -->
+            <header class="bg-blue-600 shadow">
+                <div class="max-w-7xl mx-auto py-4 px-5 sm:px-6 lg:px-8">
+					<h2 class="font-semibold text-xl text-gray-200 leading-tight">
+						{{ __('Royal-Louise Aktivitätenplanung') }}
+					</h2>
+                </div>
+            </header>
+			
             @include('layouts.navigation')
 
-            <!-- Page Heading -->
             @isset($header)
                 <header class="bg-blue-100 shadow">
                     <div class="max-w-7xl mx-auto py-4 px-5 sm:px-6 lg:px-8">

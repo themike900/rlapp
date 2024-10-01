@@ -6,12 +6,12 @@
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
                     <a href="{{ route('dashboard') }}">
-                        <x-application-logo class="block h-9 w-auto fill-current text-gray-800" />
+						<img class="w-16" src="{{ asset('/images/rl-icon.jpg') }}">
                     </a>
                 </div>
 
                 <!-- Navigation Links -->
-                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                <div class="hidden space-x-10 sm:-my-px sm:ms-10 sm:flex">
                     <!-- <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         {{ __('Übersicht') }}
                     </x-nav-link>
@@ -20,13 +20,13 @@
 					</x-nav-link>
 					-->
 					<x-nav-link :href="route('actions.index')" :active="request()->routeIs('actions.index')">
-						{{ __('Aktivitäten') }}
+						{{ __('Alle Aktivitäten') }}
+					</x-nav-link>
+					<x-nav-link :href="route('actions.create')" :active="request()->routeIs('actions.create')">
+						{{ __('Meine Aktivitäten') }}
 					</x-nav-link>
 					<x-nav-link :href="route('actions.create')" :active="request()->routeIs('actions.create')">
 						{{ __('Neue Aktivität') }}
-					</x-nav-link>
-					<x-nav-link :href="route('actions.myactions')" :active="request()->routeIs('actions.myactions')">
-						{{ __('Meine Aktivitäten') }}
 					</x-nav-link>
                 </div>
             </div>
