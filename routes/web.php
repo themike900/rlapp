@@ -5,8 +5,12 @@ use App\Http\Controllers\ActionController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
+Route::get('/welcome', function () {
     return view('welcome');
+});
+
+Route::get('/', function () {
+    return view('start');
 });
 
 Route::get('/dashboard', function () {
@@ -24,7 +28,7 @@ Route::resource('chirps', ChirpController::class)
     ->middleware(['auth', 'verified']);
 	
 Route::resource('actions', ActionController::class)
-    ->only(['index', 'create'])
+    ->only(['index', 'create','store'])
     ->middleware(['auth', 'verified']);
 
 require __DIR__.'/auth.php';

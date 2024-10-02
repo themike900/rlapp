@@ -20,13 +20,10 @@
 					</x-nav-link>
 					-->
 					<x-nav-link :href="route('actions.index')" :active="request()->routeIs('actions.index')">
-						{{ __('Alle Aktivitäten') }}
+						{{ __('Fahrtenliste') }}
 					</x-nav-link>
 					<x-nav-link :href="route('actions.create')" :active="request()->routeIs('actions.create')">
-						{{ __('Meine Aktivitäten') }}
-					</x-nav-link>
-					<x-nav-link :href="route('actions.create')" :active="request()->routeIs('actions.create')">
-						{{ __('Neue Aktivität') }}
+						{{ __('Neue Fahrt anlegen') }}
 					</x-nav-link>
                 </div>
             </div>

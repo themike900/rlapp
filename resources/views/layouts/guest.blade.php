@@ -6,6 +6,8 @@
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
         <title>{{ config('app.name', 'Laravel') }}</title>
+		
+		<link rel="shortcut icon" href="{{ config('app.url') }}/favicon.png" />
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
@@ -17,12 +19,11 @@
     <body class="font-sans text-gray-900 antialiased">
         <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-gray-200">
 			<div>
-				<h2 class="text-sm text-gray-500 py-6">Royal-Louise Fahrtenplanung</h2>
+				<h2 class="text-3xl font-bold text-gray-500 py-6">Royal-Louise Fahrtenplanung</h2>
 			</div>
             <div>
                 <a href="/">
 					<img class="w-32" src="{{ asset('/images/rl-icon.jpg') }}">
-                    <!--<x-application-logo class="w-20 h-20 fill-current text-gray-500" />-->
                 </a>
             </div>
 

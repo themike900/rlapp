@@ -1,6 +1,11 @@
 <x-app-layout>
-    <div class="max-w-2xl mx-auto p-4 sm:p-6 lg:p-8">
-		<span class="text-gray-800">Liste der Aktivitäten</span>
+    <x-slot name="header">
+        <h2 class="font-semibold text-lg text-gray-800 leading-tight">
+            {{ __('Liste aller Fahrten') }}
+        </h2>
+    </x-slot>
+
+    <div class="max-w-3xl mx-auto p-4 sm:p-6 lg:p-8">
 		
         <div class="mt-6 bg-white shadow-sm rounded-lg divide-y">
             @foreach ($actions as $action)

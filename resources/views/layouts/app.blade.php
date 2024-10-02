@@ -6,6 +6,8 @@
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
         <title>{{ config('app.name', 'Royal-Louise') }}</title>
+		
+		<link rel="shortcut icon" href="{{ config('app.url') }}/favicon.png" />
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
@@ -20,7 +22,7 @@
             <!-- Page Heading -->
             <header class="bg-blue-600 shadow">
                 <div class="max-w-7xl mx-auto py-4 px-5 sm:px-6 lg:px-8">
-					<h2 class="font-semibold text-xl text-gray-200 leading-tight">
+					<h2 class="font-semibold text-2xl text-gray-200 leading-tight">
 						{{ __('Royal-Louise Aktivitätenplanung') }}
 					</h2>
                 </div>
