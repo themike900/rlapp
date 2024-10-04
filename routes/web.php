@@ -5,9 +5,9 @@ use App\Http\Controllers\ActionController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/welcome', function () {
-    return view('welcome');
-});
+// Route::get('/welcome', function () {
+//    return view('welcome');
+// });
 
 Route::get('/', function () {
     return view('start');
@@ -26,7 +26,7 @@ Route::middleware('auth')->group(function () {
 Route::resource('chirps', ChirpController::class)
     ->only(['index', 'store'])
     ->middleware(['auth', 'verified']);
-	
+
 Route::resource('actions', ActionController::class)
     ->only(['index', 'create','store'])
     ->middleware(['auth', 'verified']);

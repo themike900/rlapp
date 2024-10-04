@@ -11,17 +11,17 @@ use Illuminate\View\View;
 class ActionController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Liste der Aktivitäten anzeigen
      */
     public function index(): View
     {
         return view('actions.index', [
-            'actions' => Action::all(),
+            'actions' => Action::orderBy('action_date')->get(),
         ]);
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Anzeigen des Erstellungsformulars für eine Aktivität
      */
     public function create(): View
     {
@@ -29,14 +29,14 @@ class ActionController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Speichern einer neuen Aktivität
      */
     public function store(Request $request):redirectResponse
     {
         $validated = $request->validate([
             'action_type' => 'required|string|max:50',
         ]);
-		
+
 		$action = new Action;
 		$action->action_type = $request->action_type;
 		$action->action_date = $request->action_date;
@@ -44,15 +44,15 @@ class ActionController extends Controller
 		$action->crew_end_at = $request->crew_end_at;
 		$action->action_start_at = $request->action_start_at;
 		$action->action_end_at = $request->action_end_at;
- 
+
         $action->save();
- 
+
         return redirect(route('actions.index'));
-        
+
     }
 
     /**
-     * Display the specified resource.
+     * Detailansicht einer Aktivität
      */
     public function show(Action $action)
     {
@@ -60,7 +60,7 @@ class ActionController extends Controller
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Aktivität für die Bearbeitung laden
      */
     public function edit(Action $action)
     {
@@ -68,7 +68,7 @@ class ActionController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * Änderungen an der Aktivität speichern
      */
     public function update(Request $request, Action $action)
     {
@@ -76,7 +76,7 @@ class ActionController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Aktivität löschen
      */
     public function destroy(Action $action)
     {
