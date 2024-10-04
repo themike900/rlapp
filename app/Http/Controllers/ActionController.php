@@ -54,9 +54,9 @@ class ActionController extends Controller
     /**
      * Detailansicht einer Aktivität
      */
-    public function show(Action $action)
+    public function show(Action $action): View
     {
-        //
+        return view('actions.show', [ 'action' => $action ]);
     }
 
     /**
