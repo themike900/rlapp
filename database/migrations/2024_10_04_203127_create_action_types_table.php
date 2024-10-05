@@ -11,7 +11,7 @@ return new class extends Migration {
             $table->id();
             $table->smallInteger('order');
             $table->string('name');
-            $table->json('prams');
+            $table->json('params');
             $table->timestamps();
         });
     }
