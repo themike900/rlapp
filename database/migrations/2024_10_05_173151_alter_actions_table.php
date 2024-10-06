@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::table('actions', function (Blueprint $table) {
             $table->bigIncrements('id')->change();
-            $table->foreignId('action_type_id')->change();
+            $table->foreignId('action_type_id');
             $table->foreignId('action_state_id');
 
             $table->string('reason');
