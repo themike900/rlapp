@@ -12,9 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('actions', function (Blueprint $table) {
-            $table->bigIncrements('id')->change();
-            $table->foreignId('action_type_id');
-            $table->foreignId('action_state_id');
+            /**  $table->bigIncrements('id')->change();
+            $table->foreignId('action_type_id')->default(1);
+            $table->foreignId('action_state_id')->default(1);
 
             $table->string('reason');
             $table->string('applicant_name');
@@ -30,11 +30,10 @@ return new class extends Migration
             $table->string('ice_info');
             $table->string('crew_supply');
             $table->text('additional_info');
-
+            */
 
             $table->foreign('action_type_id')->references('id')->on('action_types');
             $table->foreign('action_state_id')->references('id')->on('action_states');
-
 
         });
         //
