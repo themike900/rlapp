@@ -11,14 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('action_user', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
-			$table->integer('user_id')->index();
-			$table->integer('action_id')->index();
-			$table->string('function', 20);
-			$table->smallInteger('guests');
-        });
+        DB::table('action_types')->insert([
+           ['order' => 9, 'name' => 'Aufriggen',     'params' => '{"Teilnehmer": 100}'],
+           ['order' => 10, 'name' => 'Abriggen',     'params' => '{"Teilnehmer": 100}'],
+           ['order' => 11, 'name' => 'Winterarbeit', 'params' => '{"Teilnehmer": 10}'],
+
+        ]);
     }
 
     /**
@@ -26,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('action_user');
+        //
     }
 };

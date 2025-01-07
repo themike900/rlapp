@@ -22,11 +22,11 @@ return new class extends Migration {
                 FROM
                     actions
                     LEFT JOIN action_states a_s
-                        ON actions.action_state_id = a_s.id
+                        ON actions.action_state_sc = a_s.sc
                     LEFT JOIN action_types a_t
-                        ON actions.action_type_id = a_t.id
+                        ON actions.action_type_sc = a_t.sc
                 WHERE
-                    actions.action_date >= CURRENT_DATE() -200
+                    actions.action_date >= CURRENT_DATE()
                 ORDER BY actions.action_date
                 ;
         ");

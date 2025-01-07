@@ -1,8 +1,8 @@
 <?php
 
-use App\Http\Controllers\ChirpController;
 use App\Http\Controllers\ActionController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ApiController;
 use Illuminate\Support\Facades\Route;
 
 // Route::get('/welcome', function () {
@@ -23,13 +23,12 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-/* Route::resource('chirps', ChirpController::class)
-    ->only(['index', 'store'])
-    ->middleware(['auth', 'verified']);
-*/
-
 Route::resource('actions', ActionController::class)
     ->only(['index', 'create', 'store', 'show', 'edit', 'update'])
     ->middleware(['auth', 'verified']);
 
+//Route::resource('api', ApiController::class)
+//    ->only(['list', 'show', 'form', 'store']);
+
 require __DIR__.'/auth.php';
+require __DIR__.'/api.php';

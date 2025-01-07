@@ -15,8 +15,8 @@ return new class extends Migration
             $table->foreignId('user_id')->change();
             $table->foreignId('action_id')->change();
 
-            $table->foreign('user_id')->references('id')->on('users');
-            $table->foreign('action_id')->references('id')->on('actions');
+            //$table->foreign('user_id')->references('id')->on('users');
+            //$table->foreign('action_id')->references('id')->on('actions');
 
         });
     }
