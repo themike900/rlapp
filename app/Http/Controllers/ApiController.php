@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 use App\Models\Action;
 //use function Laravel\Prompts\table;
 
@@ -52,15 +53,39 @@ class ApiController extends Controller
         //$part =
         //$auth = $request.header('X-Auth-Token');
         $action = [
-            'Datum' => 'Mi 12.03.',
-            'Anlass' => 'Gästefahrt',
-            'anBord' => '14:00',
-            'vonBord' => '20:00',
-            'Status1' => 'geschlossen',
-            'Status2' => '-',
-            'ID' => '2',
+            'id' => '2',
+            'action_date' => '2025-03-20',
+            'action_type' => 'Gästefahrt',
+            'crew_start_at' => '14:00',
+            'crew_end_at' => '20:00',
+            'action_start_at' => '15:00',
+            'action_end_at' => '19:00',
+            'action_type_sc' => 'gf',
+            'action_state_sc' => 'of',
+            'reason' => '70. Geburtstag',
+            'applicant_name' => 'Max Mustermann',
+            'applicant_email' => 'max@mustermann.de',
+            'invoice_amount' => '1400',
+            'guest_count' => '20',
+            'catering_info' => 'Butter Lindner liefert',
+            'ice_info' => 'Eis vom VSaW',
+            'crew_supply' => 'Crew ist eingeladen',
+            'additional_info' => ''
         ];
-        return response()->json(['web_id' => $web_id, 'action' => $action, 'action_id' => $action_id]);
+        $carbonDate = Carbon::createFromFormat('Y-m-d', $action['action_date']);
+        $action['action_date'] = $carbonDate->isoFormat('dddd DD.MM.');
+        $anmeldung = [
+            'type' => 'gf',
+            'crew_free' => "6",
+            'service_free' => '2'
+        ];
+        $members = [
+            'captain' => "Gerd K",
+            'crew' => ["Michael S", "Matthias J", "Ulli F"],
+            'service' => ["Silvia B"]
+        ];
+
+        return response()->json(['action' => $action, "anmeldung" => $anmeldung, "members" => $members]);
 
 
     }
