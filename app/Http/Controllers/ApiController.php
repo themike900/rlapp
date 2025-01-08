@@ -8,6 +8,8 @@ use Carbon\Carbon;
 use App\Models\Action;
 //use function Laravel\Prompts\table;
 
+Carbon::setLocale('de');
+
 class ApiController extends Controller
 {
     public function list(Request $request)
@@ -72,8 +74,10 @@ class ApiController extends Controller
             'crew_supply' => 'Crew ist eingeladen',
             'additional_info' => ''
         ];
-        $carbonDate = Carbon::createFromFormat('Y-m-d', $action['action_date']);
-        $action['action_date'] = $carbonDate->isoFormat('dddd DD.MM.');
+        $action['action_date'] = Carbon::createFromFormat('Y-m-d', $action['action_date'])->isoFormat('dddd DD.MM.');
+        $action['crew_info'] = $action['crew_supply'];
+        $action['service_info'] = "{$action['catering_info']}<br>{$action['ice_info']}&nbsp;";
+
         $anmeldung = [
             'type' => 'gf',
             'crew_free' => "6",
@@ -84,6 +88,9 @@ class ApiController extends Controller
             'crew' => ["Michael S", "Matthias J", "Ulli F"],
             'service' => ["Silvia B"]
         ];
+        $members['crew'] = implode("<br>",$members['crew']);
+        $members['service'] = implode("<br>",$members['service']);
+
 
         return response()->json(['action' => $action, "anmeldung" => $anmeldung, "members" => $members]);
 
