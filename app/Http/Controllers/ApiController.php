@@ -11,7 +11,7 @@ class ApiController extends Controller
 {
     public function list(Request $request)
     {
-        $input = $request->all();
+        //$input = $request->all();
         //$actions = DB::select('select * from list_actions where action_type_id in (?) order by action_date',['1, 2']);
         $actions = DB::table('list_actions')->get();
         $list = [
@@ -22,7 +22,7 @@ class ApiController extends Controller
                 'vonBord' => '16:00',
                 'Status1' => 'geschlossen',
                 'Status2' => 'ja',
-                'ID' => '12',
+                'ID' => '1',
             ],
             [
                 'Datum' => 'Mi 12.03.',
@@ -31,7 +31,7 @@ class ApiController extends Controller
                 'vonBord' => '20:00',
                 'Status1' => 'geschlossen',
                 'Status2' => '-',
-                'ID' => '17',
+                'ID' => '2',
             ],
             [
                 'Datum' => 'So 16.03.',
@@ -40,7 +40,7 @@ class ApiController extends Controller
                 'vonBord' => '20:00',
                 'Status1' => 'offen',
                 'Status2' => 'ja',
-                'ID' => '18',
+                'ID' => '3',
             ]
         ];
         return response()->json($list);
@@ -48,10 +48,19 @@ class ApiController extends Controller
 
     public function details(Request $request, int $web_id, int $action_id)
     {
-        $action = Action::find($action_id);
+        //$action = Action::find($action_id);
         //$part =
-        $auth = $request.header('X-Auth-Token');
-        return response()->json(['web_id' => $web_id, 'action' => $action, 'auth' => $auth]);
+        //$auth = $request.header('X-Auth-Token');
+        $action = [
+            'Datum' => 'Mi 12.03.',
+            'Anlass' => 'Gästefahrt',
+            'anBord' => '14:00',
+            'vonBord' => '20:00',
+            'Status1' => 'geschlossen',
+            'Status2' => '-',
+            'ID' => '2',
+        ];
+        return response()->json(['web_id' => $web_id, 'action' => $action, 'action_id' => $action_id]);
 
 
     }
