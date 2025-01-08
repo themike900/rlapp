@@ -51,10 +51,10 @@ class ApiController extends Controller
 
     public function details(Request $request, int $web_id, int $action_id)
     {
-        //$action = Action::find($action_id);
+        $action = Action::find($action_id);
         //$part =
         //$auth = $request.header('X-Auth-Token');
-        $action = [
+        /*$action = [
             'id' => '2',
             'action_date' => '2025-03-20',
             'action_type' => 'Gästefahrt',
@@ -73,10 +73,10 @@ class ApiController extends Controller
             'ice_info' => 'Eis vom VSaW',
             'crew_supply' => 'Crew ist eingeladen',
             'additional_info' => ''
-        ];
+        ];*/
         $action['action_date'] = Carbon::createFromFormat('Y-m-d', $action['action_date'])->isoFormat('dddd DD.MM.');
         $action['crew_info'] = $action['crew_supply'];
-        $action['service_info'] = "{$action['catering_info']}<br>{$action['ice_info']}&nbsp;";
+        $action['service_info'] = "Catering: {$action['catering_info']},<br>Eis: {$action['ice_info']}";
 
         $anmeldung = [
             'type' => 'gf',
@@ -86,7 +86,7 @@ class ApiController extends Controller
         $members = [
             'captain' => "Gerd K",
             'crew' => ["Michael S", "Matthias J", "Ulli F"],
-            'service' => ["Silvia B"]
+            'service' => ["Silvia B", "Waltraud"]
         ];
         $members['crew'] = implode("<br>",$members['crew']);
         $members['service'] = implode("<br>",$members['service']);
