@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use App\Models\Action;
+use App\Models\Members;
 //use function Laravel\Prompts\table;
 
 Carbon::setLocale('de');
@@ -14,39 +15,27 @@ class ApiController extends Controller
 {
     public function list(Request $request)
     {
-        //$input = $request->all();
+        // POST-Daten in Members speichern, wenn webid noch nicht existiert
+        $webid = $request->input('webid');
+
+        if (!Members::where('webid', $webid)->exists()) {
+            $member = new Members();
+            $member->webid = $request->input('webid');
+            $member->name = $request->input('name');
+            $member->firstname = $request->input('firstname');
+            $member->nickname = $request->input('nickname');
+            $member->email = $request->input('email');
+            $member->action_types = "vf,af,vt,mv,ar,abr";
+            $member->save();
+        }
+
         //$actions = DB::select('select * from list_actions where action_type_id in (?) order by action_date',['1, 2']);
-        $actions = DB::table('list_actions')->get();
-        $list = [
-            [
-                'Datum' => 'Sa 08.03.',
-                'Anlass' => 'Vereinsfahrt',
-                'anBord' => '12:00',
-                'vonBord' => '16:00',
-                'Status1' => 'geschlossen',
-                'Status2' => 'ja',
-                'ID' => '1',
-            ],
-            [
-                'Datum' => 'Mi 12.03.',
-                'Anlass' => 'Gästefahrt',
-                'anBord' => '14:00',
-                'vonBord' => '20:00',
-                'Status1' => 'geschlossen',
-                'Status2' => '-',
-                'ID' => '2',
-            ],
-            [
-                'Datum' => 'So 16.03.',
-                'Anlass' => 'Übungsfahrt',
-                'anBord' => '16:00',
-                'vonBord' => '20:00',
-                'Status1' => 'offen',
-                'Status2' => 'ja',
-                'ID' => '3',
-            ]
-        ];
-        return response()->json($list);
+        $actions = DB::table('list_actions')
+            //->where('action_type_sc', 'vf')
+            //->select('action_date', 'action_type', 'crew_start_at', 'crew_end_at')
+            ->get();
+
+        return response()->json($actions);
     }
 
     public function details(Request $request, int $web_id, int $action_id)
@@ -88,18 +77,12 @@ class ApiController extends Controller
             'crew' => ["Michael S", "Matthias J", "Ulli F"],
             'service' => ["Silvia B", "Waltraud"]
         ];
-        $members['crew'] = implode("<br>",$members['crew']);
-        $members['service'] = implode("<br>",$members['service']);
+        $members['crew'] = implode("<br>", $members['crew']);
+        $members['service'] = implode("<br>", $members['service']);
 
 
         return response()->json(['action' => $action, "anmeldung" => $anmeldung, "members" => $members]);
 
 
-    }
-
-    public function register(Request $request)
-    {
-        $input = $request->all();
-        return response()->json(['input' => $input]);
     }
 }

@@ -14,8 +14,3 @@ Route::post('list', [ApiController::class, 'list'])->name('api.list');
 // Holen der Detail-Informationen einer Aktivität und der Anmelde-Informationen für das Anmelde-Formular
 Route::post('details/{webid}/{actionid}', [ApiController::class, 'details'])->name('api.details');
 
-
-// POST zum Speichern der Anmeldedaten.
-Route::post('register', [ApiController::class, ('register')])->name('api.register');
-
-
