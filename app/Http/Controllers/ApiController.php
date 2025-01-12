@@ -39,7 +39,7 @@ class ApiController extends Controller
 
         //$actions = DB::select('select * from list_actions where action_type_id in (?) order by action_date',['1, 2']);
         $actions = DB::table('actions')
-            ->where('action_type_sc', 'vf')
+            //->where('action_type_sc', 'vf')
             ->select('action_date', 'action_type', 'crew_start_at', 'crew_end_at')
             ->get();
 
