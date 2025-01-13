@@ -56,10 +56,10 @@ class ApiController extends Controller
         //$auth = $request.header('X-Auth-Token');
 
         DB::table('action_members')->insert([
-            ['member_id' => 201,],
-            ['action_id' => 4,],
-            ['group' => 'cr',],
-            ['guests' => 0,]
+            'member_id' => 201,
+            'action_id' => 4,
+            'group' => 'cr',
+            'guests' => 0
         ]);
 
         $action = Action::find($action_id);
