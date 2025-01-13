@@ -13,12 +13,20 @@ Carbon::setLocale('de');
 
 class ApiController extends Controller
 {
+    /**
+     * Schritt 1: Neuenanlegen eines Memebers, wenn er nicht schon extiert, aus den POST-Daten.
+     * Schritt 2: Holen der Member-Daten aus der DB
+     * Schritt 3: Aus der DB die Member-spezifischen Fahrtendaten holen und für die Webseite aufbereiten
+     *
+     * @param Request $request Member-Daten von der Webseite
+     * @return \Illuminate\Http\JsonResponse Fahrtenlisten-Daten für die Webseite
+     */
     public function list(Request $request)
     {
         // POST-Daten in Members speichern, wenn webid noch nicht existiert
-        $webid = $request->input('webid');
+        $web_id = $request->input('webid');
 
-        if (DB::table('members')->where('webid', $webid)->doesntExist()) {
+        if (DB::table('members')->where('webid', $web_id)->doesntExist()) {
 
             DB::table('members')->insert([
                 'webid' => $request->input('webid'),
@@ -34,38 +42,67 @@ class ApiController extends Controller
             ]);
         }
 
-        // Memberdaten aus der DB holen
-        $member = DB::table('members')->where('webid', $webid)->first();
+        // Memberdaten aus der DB holen für seine Fahrtentypen
+        $member_action_types = DB::table('members')
+            ->where('webid', $web_id)
+            ->select('action_types')
+            ->first();
+        $member_action_types = explode(',', $member_action_types->action_types);
 
-        //$actions = DB::select('select * from list_actions where action_type_id in (?) order by action_date',['1, 2']);
+        // für ihn sichtbare Fahrten holen
         $actions = DB::table('list_actions')
-            //->where('action_type_sc', 'vf')
-            //->select('action_id','action_date', 'action_type', 'crew_start_at', 'crew_end_at')
+            ->whereIn('action_type', $member_action_types)
             ->get();
-        /*foreach ($actions as $key => $action) {
-            //$a = 0;
-            $actions[$key]['action_date'] = "test";
-            //$action['action_date'] = Carbon::createFromFormat('Y-m-d', $action['action_date'])->isoFormat('d DD.MM.');
-        }*/
+
+        // in allen Fahrten Datum umformatieren und Anmeldestaus holen
+        foreach ($actions as $action) {
+            $action->action_date = Carbon::createFromFormat('Y-m-d', $action->action_date)->isoFormat('dd DD.MM.');
+            if (DB::table('action_members')->where("member_id", $web_id)->where('action_id', $action->action_id)->exists()) {
+                $action->reg = 'ja';
+            } else {
+                $action->reg = '&nbsp;';
+            }
+        }
 
         return response()->json($actions);
     }
 
+    /**
+     * Schritt 1: Speichern eventuell mitgelieferter Anmelde-Daten aus den POST-Daten
+     * Schritt 2: Zusammenstellen der Daten für die Anmelde-Webseite
+     *
+     * @param Request $request Anmelde-Daten oder leer
+     * @param int $web_id ID des Webseiten-Nutzers
+     * @param int $action_id ID der Fahrt
+     * @return \Illuminate\Http\JsonResponse Daten für die Anmelde-Webseite
+     */
     public function details(Request $request, int $web_id, int $action_id)
     {
         //$auth = $request.header('X-Auth-Token');
 
-        DB::table('action_members')->insert([
-            'member_id' => 201,
-            'action_id' => 4,
-            'group' => 'cr',
-            'guests' => 0
-        ]);
+        if (DB::table('action_members')
+            ->where('member_id', $web_id)
+            ->where('action_id', $action_id)
+            ->doesntExist()) {
+
+            DB::table('action_members')->insert([
+                'member_id' => 201,
+                'action_id' => 4,
+                'group' => 'cr',
+                'guests' => 0,
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now()
+            ]);
+        }
 
         $action = Action::find($action_id);
         $action['action_date'] = Carbon::createFromFormat('Y-m-d', $action['action_date'])->isoFormat('dddd DD.MM.');
         $action['crew_info'] = $action['crew_supply'];
         $action['service_info'] = "Catering: {$action['catering_info']},<br>Eis: {$action['ice_info']}";
+
+        $registered = DB::table('action_members')
+            ->where('member_id', $web_id)
+            ->get();
 
         $anmeldung = [
             'type' => 'gf',
