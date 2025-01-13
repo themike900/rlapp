@@ -17,7 +17,7 @@ return new class extends Migration {
                     `actions`.`action_start_at` AS `action_start_at`,
                     `actions`.`action_end_at`   AS `action_end_at`,
                     `actions`.`reason`          AS `reason`,
-                    `actions`.`action_type_cs`  AS `action_type`,
+                    `actions`.`action_type_sc`  AS `action_type`,
                     `a_s`.`name`                AS `action_state_name`,
                     `a_t`.`name`                AS `action_type_name`
                 FROM
