@@ -81,8 +81,8 @@ class ApiController extends Controller
         $members['service'] = implode("<br>", $members['service']);
 
 
-        //return response()->json(['action' => $action, "anmeldung" => $anmeldung, "members" => $members]);
-        return $request;
+        return response()->json(['action' => $action, "anmeldung" => $anmeldung, "members" => $members]);
+        //return $request;
 
 
     }
