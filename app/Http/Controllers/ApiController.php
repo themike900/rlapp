@@ -38,10 +38,15 @@ class ApiController extends Controller
         $member = DB::table('members')->where('webid', $webid)->first();
 
         //$actions = DB::select('select * from list_actions where action_type_id in (?) order by action_date',['1, 2']);
-        $actions = DB::table('actions')
+        $actions = DB::table('list_actions')
             //->where('action_type_sc', 'vf')
-            ->select('action_date', 'action_type', 'crew_start_at', 'crew_end_at')
+            //->select('action_id','action_date', 'action_type', 'crew_start_at', 'crew_end_at')
             ->get();
+        /*foreach ($actions as $key => $action) {
+            //$a = 0;
+            $actions[$key]['action_date'] = "test";
+            //$action['action_date'] = Carbon::createFromFormat('Y-m-d', $action['action_date'])->isoFormat('d DD.MM.');
+        }*/
 
         return response()->json($actions);
     }
