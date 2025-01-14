@@ -51,7 +51,9 @@ class ApiController extends Controller
 
         // für ihn sichtbare Fahrten holen
         $actions = DB::table('list_actions')
-            ->whereIn('action_type', $member_action_types)
+            //->whereIn('action_type', $member_action_types)
+            ->whereIn('action_state', ['of','gs'])
+            ->orderBy('action_date', 'asc')
             ->get();
 
         // in allen Fahrten Datum umformatieren und Anmeldestaus holen
@@ -80,21 +82,26 @@ class ApiController extends Controller
     {
         //$auth = $request.header('X-Auth-Token');
 
-        if (DB::table('action_members')
-            ->where('member_id', $web_id)
-            ->where('action_id', $action_id)
-            ->doesntExist()) {
+        // wenn POST-Data und wenn kein Eintrag in action_members, dann eintragen
+        if (!empty($request->input())) {
 
-            DB::table('action_members')->insert([
-                'member_id' => 201,
-                'action_id' => 4,
-                'group' => 'cr',
-                'guests' => 0,
-                'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now()
-            ]);
+            if (DB::table('action_members')
+                ->where('member_id', $web_id)
+                ->where('action_id', $action_id)
+                ->doesntExist()) {
+
+                DB::table('action_members')->insert([
+                    'member_id' => $web_id,
+                    'action_id' => $action_id,
+                    'group' => $request->input('group'),
+                    'guests' => $request->input('guests', 0),
+                    'created_at' => Carbon::now(),
+                    'updated_at' => Carbon::now()
+                ]);
+            }
         }
 
+        // diese action holen und formatieren
         $action = Action::find($action_id);
         $action['action_date'] = Carbon::createFromFormat('Y-m-d', $action['action_date'])->isoFormat('dddd DD.MM.');
         $action['crew_info'] = $action['crew_supply'];
@@ -102,7 +109,8 @@ class ApiController extends Controller
 
         $registered = DB::table('action_members')
             ->where('member_id', $web_id)
-            ->get();
+            ->first();
+        $registered->group_name = DB::table('groups')->where('sc', $registered->group)->value('name');
 
         $anmeldung = [
             'type' => 'gf',
@@ -118,7 +126,7 @@ class ApiController extends Controller
         $members['service'] = implode("<br>", $members['service']);
 
 
-        return response()->json(['action' => $action, "anmeldung" => $anmeldung, "members" => $members]);
+        return response()->json(['action' => $action, "anmeldung" => $anmeldung, "members" => $members , "registered" => $registered ]);
         //return $request;
 
 
