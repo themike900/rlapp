@@ -32,7 +32,7 @@ class ApiController extends Controller
                 'webid' => $request->input('webid'),
                 'name' => $request->input('name'),
                 'firstname' => $request->input('firstname'),
-                'nickname' => $request->input('nickname'),
+                'nickname' => $request->input('firstname') . ' ' . substr($request->input('lastname'), 0, 1),
                 'email' => $request->input('email'),
                 'action_types' => "vf,af,vt,mv,ar,abr",
                 'created_at' => Carbon::now(),
@@ -107,31 +107,65 @@ class ApiController extends Controller
         $action['crew_info'] = $action['crew_supply'];
         $action['service_info'] = "Catering: {$action['catering_info']},<br>Eis: {$action['ice_info']}";
 
+        // Registrierungsdaten holen, wenn für diese Fahrt registriert
         $registered = DB::table('action_members')
             ->join('groups', 'action_members.group', '=', 'groups.sc')
             ->where('action_members.member_id', $web_id)
             ->where('action_members.action_id', $action_id)
             //->select('id','group','name','guests')
             ->first();
-        //$registered->group_name = DB::table('groups')->where('sc', $registered->group)->value('name');
 
+        // TODO Anmeldung nur möglich, wenn Maximalzahlen nicht überschritten
         $anmeldung = [
             'type' => 'gf',
             'crew_free' => "6",
             'service_free' => '2'
         ];
-        $members = [
-            'captain' => "Gerd K",
-            'crew' => ["Michael S", "Matthias J", "Ulli F"],
-            'service' => ["Silvia B", "Waltraud"]
-        ];
-        $members['crew'] = implode("<br>", $members['crew']);
-        $members['service'] = implode("<br>", $members['service']);
 
+        // Nickname vom Kapitän holen
+        $members = [];
+        $captain = DB::table('action_members')
+            ->join('members', 'members.webid', '=', 'action_members.member_id')
+            ->where('action_members.action_id', $action_id)
+            ->where('action_members.group', 'kp')
+            ->select('nickname')
+            ->first();
+        if (!empty($captain)) { $members['captain'] = $captain->nickname; } else { $members['captain'] = '&nbsp;'; }
+
+        //Nicknames der Crew-Mitglieder holen
+        $crew = DB::table('action_members')
+            ->join('members', 'members.webid', '=', 'action_members.member_id')
+            ->where('action_members.action_id', $action_id)
+            ->where('action_members.group', 'cr')
+            ->select('nickname')
+            ->get();
+        $members['crew'] = "&nbsp;";
+        if (!empty($crew)) {
+            $members['crew'] = [];
+            foreach ($crew as $cr) {
+                $members['crew'][] = $cr->nickname;
+            }
+            $members['crew'] = implode("<br>", $members['crew']);
+        }
+
+        // Nicknames der Service-Mitglider holen
+        $service = DB::table('action_members')
+            ->join('members', 'members.webid', '=', 'action_members.member_id')
+            ->where('action_members.action_id', $action_id)
+            ->where('action_members.group', 'sv')
+            ->select('nickname')
+            ->get();
+        $members['service'] = "&nbsp;";
+        if (!empty($service)) {
+            $members['service'] = [];
+            foreach ($service as $sv) {
+                $members['service'][] = $sv->nickname;
+            }
+            $members['service'] = implode("<br>", $members['service']);
+        }
 
         return response()->json(['action' => $action, "anmeldung" => $anmeldung, "members" => $members , "registered" => $registered, "request" => $request->input() ]);
         //return $request;
-
 
     }
 }
