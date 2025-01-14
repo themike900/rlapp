@@ -108,9 +108,12 @@ class ApiController extends Controller
         $action['service_info'] = "Catering: {$action['catering_info']},<br>Eis: {$action['ice_info']}";
 
         $registered = DB::table('action_members')
-            ->where('member_id', $web_id)
+            ->join('groups', 'action_members.group', '=', 'groups.sc')
+            ->where('action_members.member_id', $web_id)
+            ->where('action_members.action_id', $action_id)
+            //->select('id','group','name','guests')
             ->first();
-        $registered->group_name = DB::table('groups')->where('sc', $registered->group)->value('name');
+        //$registered->group_name = DB::table('groups')->where('sc', $registered->group)->value('name');
 
         $anmeldung = [
             'type' => 'gf',
@@ -126,7 +129,7 @@ class ApiController extends Controller
         $members['service'] = implode("<br>", $members['service']);
 
 
-        return response()->json(['action' => $action, "anmeldung" => $anmeldung, "members" => $members , "registered" => $registered ]);
+        return response()->json(['action' => $action, "anmeldung" => $anmeldung, "members" => $members , "registered" => $registered, "request" => $request->input() ]);
         //return $request;
 
 
