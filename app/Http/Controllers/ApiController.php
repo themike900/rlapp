@@ -32,7 +32,7 @@ class ApiController extends Controller
                 'webid' => $request->input('webid'),
                 'name' => $request->input('name'),
                 'firstname' => $request->input('firstname'),
-                'nickname' => $request->input('firstname') . ' ' . substr($request->input('lastname'), 0, 1),
+                'nickname' => $request->input('firstname') . ' ' . substr($request->input('name'), 0, 1),
                 'email' => $request->input('email'),
                 'action_types' => "vf,af,vt,mv,ar,abr",
                 'created_at' => Carbon::now(),
@@ -42,7 +42,7 @@ class ApiController extends Controller
             ]);
         }
 
-        // Memberdaten aus der DB holen für seine Fahrtentypen
+        // Memberdaten aus der DB holen für seine Fahrtentypen, derzeit nicht verwendet!!!
         $member_action_types = DB::table('members')
             ->where('webid', $web_id)
             ->select('action_types')
@@ -82,13 +82,16 @@ class ApiController extends Controller
     {
         //$auth = $request.header('X-Auth-Token');
 
-        // wenn POST-Data und wenn kein Eintrag in action_members, dann eintragen
+        // wenn POST-Data kommen und wenn kein Eintrag in action_members ist, dann eintragen
         if (!empty($request->input())) {
 
             if (DB::table('action_members')
                 ->where('member_id', $web_id)
                 ->where('action_id', $action_id)
-                ->doesntExist()) {
+                ->doesntExist()
+                and
+                empty($request->input('abmeldung'))
+                ) {
 
                 DB::table('action_members')->insert([
                     'member_id' => $web_id,
@@ -98,6 +101,12 @@ class ApiController extends Controller
                     'created_at' => Carbon::now(),
                     'updated_at' => Carbon::now()
                 ]);
+            } elseif ($request->input('abmeldung') == 1 ) {
+
+                DB::table('action_members')
+                    ->where('member_id', $web_id)
+                    ->where('action_id', $action_id)
+                    ->delete();
             }
         }
 
@@ -106,8 +115,11 @@ class ApiController extends Controller
         $action['action_date'] = Carbon::createFromFormat('Y-m-d', $action['action_date'])->isoFormat('dddd DD.MM.');
         $action['crew_info'] = $action['crew_supply'];
         $action['service_info'] = "Catering: {$action['catering_info']},<br>Eis: {$action['ice_info']}";
+        $action['action_name'] = DB::table('action_types')
+            ->where('sc', $action['action_type_sc'])
+            ->value('name');
 
-        // Registrierungsdaten holen, wenn für diese Fahrt registriert
+        //Registrierungsdaten holen, wenn für diese Fahrt registriert, ansonsten NULL
         $registered = DB::table('action_members')
             ->join('groups', 'action_members.group', '=', 'groups.sc')
             ->where('action_members.member_id', $web_id)
@@ -115,24 +127,47 @@ class ApiController extends Controller
             //->select('id','group','name','guests')
             ->first();
 
-        // TODO Anmeldung nur möglich, wenn Maximalzahlen nicht überschritten
+        // Anmeldung nur möglich, wenn Maximalzahlen nicht überschritten
+        $crew_count = DB::table('action_members')
+            ->where('action_id', $action_id)
+            ->where('group', 'cr')
+            ->count();
+        $serv_count = DB::table('action_members')
+            ->where('action_id', $action_id)
+            ->where('group', 'sv')
+            ->count();
+        $pass_count = DB::table('action_members')
+            ->where('action_id', $action_id)
+            ->where('group', 'mf')
+            ->count();
+        $guest_count = DB::table('action_members')
+            ->where('action_id', $action_id)
+            ->sum('guests');
+
+        $max = DB::table('action_types')
+            ->where('sc', $action['action_type_sc'])
+            ->value('groups');
+        $max_array = json_decode($max, true);
+
         $anmeldung = [
-            'type' => 'gf',
-            'crew_free' => "6",
-            'service_free' => '2'
+            'type' => $action['action_type_sc'],
+            'crew_free' => (!empty($max_array['cr'])) ? $max_array['cr'] - $crew_count : '',
+            'service_free' => (!empty($max_array['sv'])) ? $max_array['sv'] - $serv_count : '',
+            'pass_free' => (!empty($max_array['mf'])) ? $max_array['mf'] - $pass_count - $guest_count : '',
+            'guests_free' =>  $action['guest_count'] - $guest_count,
         ];
 
-        // Nickname vom Kapitän holen
+        // Nickname vom Kapitän holen (alle Fahrten)
         $members = [];
-        $captain = DB::table('action_members')
+        $captain = (array) DB::table('action_members')
             ->join('members', 'members.webid', '=', 'action_members.member_id')
             ->where('action_members.action_id', $action_id)
             ->where('action_members.group', 'kp')
             ->select('nickname')
             ->first();
-        if (!empty($captain)) { $members['captain'] = $captain->nickname; } else { $members['captain'] = '&nbsp;'; }
+        if (!empty($captain)) { $members['captain'] = $captain['nickname']; } else { $members['captain'] = '&nbsp;'; }
 
-        //Nicknames der Crew-Mitglieder holen
+        //Nicknames der Crew-Mitglieder holen (alle Fahrten)
         $crew = DB::table('action_members')
             ->join('members', 'members.webid', '=', 'action_members.member_id')
             ->where('action_members.action_id', $action_id)
@@ -148,7 +183,7 @@ class ApiController extends Controller
             $members['crew'] = implode("<br>", $members['crew']);
         }
 
-        // Nicknames der Service-Mitglider holen
+        // Nicknames der Service-Mitglider holen (Gästefahrt, Vereinsfahrt)
         $service = DB::table('action_members')
             ->join('members', 'members.webid', '=', 'action_members.member_id')
             ->where('action_members.action_id', $action_id)
@@ -164,7 +199,45 @@ class ApiController extends Controller
             $members['service'] = implode("<br>", $members['service']);
         }
 
-        return response()->json(['action' => $action, "anmeldung" => $anmeldung, "members" => $members , "registered" => $registered, "request" => $request->input() ]);
+        // Nicknames der Mitfahrer holen (Vereinsfahrt)
+        $passengers = DB::table('action_members')
+            ->join('members', 'members.webid', '=', 'action_members.member_id')
+            ->where('action_members.action_id', $action_id)
+            ->where('action_members.group', 'mf')
+            ->select('nickname')
+            ->get();
+        $members['passengers'] = "&nbsp;";
+        if (!empty($passengers)) {
+            $members['passengers'] = [];
+            foreach ($passengers as $ps) {
+                $members['passengers'][] = $ps->nickname;
+            }
+            $members['passengers'] = implode("<br>", $members['passengers']);
+        }
+
+        // Nicknames der Teilnehmer holen (Vereinstreffen, Shanty-Chor, ...)
+        $participants = DB::table('action_members')
+            ->join('members', 'members.webid', '=', 'action_members.member_id')
+            ->where('action_members.action_id', $action_id)
+            ->where('action_members.group', 'tn')
+            ->select('nickname')
+            ->get();
+        $members['participants'] = "&nbsp;";
+        if (!empty($participants)) {
+            $members['participants'] = [];
+            foreach ($participants as $pp) {
+                $members['participants'][] = $pp->nickname;
+            }
+            $members['participants'] = implode("<br>", $members['participants']);
+        }
+
+        $members['guests'] = $guest_count;
+        //$anmeldung = [];
+        //$registered = [];
+        //$members = [];
+        //$max_array = [];
+
+        return response()->json(['action' => $action, "anmeldung" => $anmeldung, "members" => $members , "registered" => $registered, "request" => $request->input(), "max_array" => $max_array ]);
         //return $request;
 
     }
