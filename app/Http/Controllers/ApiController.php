@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use App\Models\Action;
-use App\Models\Members;
 //use function Laravel\Prompts\table;
 
 Carbon::setLocale('de');
@@ -14,12 +15,12 @@ Carbon::setLocale('de');
 class ApiController extends Controller
 {
     /**
-     * Schritt 1: Neuenanlegen eines Memebers, wenn er nicht schon extiert, aus den POST-Daten.
+     * Schritt 1: Neunanlegen eines Members, wenn er nicht schon existiert, aus den POST-Daten.
      * Schritt 2: Holen der Member-Daten aus der DB
      * Schritt 3: Aus der DB die Member-spezifischen Fahrtendaten holen und für die Webseite aufbereiten
      *
      * @param Request $request Member-Daten von der Webseite
-     * @return \Illuminate\Http\JsonResponse Fahrtenlisten-Daten für die Webseite
+     * @return JsonResponse Fahrtenlisten-Daten für die Webseite
      */
     public function list(Request $request)
     {
@@ -42,7 +43,7 @@ class ApiController extends Controller
             ]);
         }
 
-        // Memberdaten aus der DB holen für seine Fahrtentypen, derzeit nicht verwendet!!!
+        // Memberdaten aus der DB holen für seine Fahrtentypen, derzeit nicht verwendet
         $member_action_types = DB::table('members')
             ->where('webid', $web_id)
             ->select('action_types')
@@ -53,7 +54,7 @@ class ApiController extends Controller
         $actions = DB::table('list_actions')
             //->whereIn('action_type', $member_action_types)
             ->whereIn('action_state', ['of', 'gs'])
-            ->orderBy('action_date', 'asc')
+            ->orderBy('action_date')
             ->get();
 
         // in allen Fahrten Datum umformatieren und Anmeldestaus holen
@@ -76,7 +77,7 @@ class ApiController extends Controller
      * @param Request $request Anmelde-Daten oder leer
      * @param int $web_id ID des Webseiten-Nutzers
      * @param int $action_id ID der Fahrt
-     * @return \Illuminate\Http\JsonResponse Daten für die Anmelde-Webseite
+     * @return JsonResponse Daten für die Anmelde-Webseite
      */
     public function details(Request $request, int $web_id, int $action_id)
     {
@@ -150,7 +151,6 @@ class ApiController extends Controller
         $max_array = json_decode($max, true);
 
         $free = [
-            'type' => $action['action_type_sc'],
             'crew_free' => (!empty($max_array['cr'])) ? $max_array['cr'] - $crew_count : '',
             'service_free' => (!empty($max_array['sv'])) ? $max_array['sv'] - $serv_count : '',
             'pass_free' => (!empty($max_array['mf'])) ? $max_array['mf'] - $pass_count - $guest_count : '',
@@ -204,7 +204,7 @@ class ApiController extends Controller
             $members['crew'] = implode("<br>", $members['crew']);
         }
 
-        // Nicknames der Service-Mitglider holen (Gästefahrt, Vereinsfahrt)
+        // Nicknames der Service-Mitglieder holen (Gästefahrt, Vereinsfahrt)
         $service = DB::table('action_members')
             ->join('members', 'members.webid', '=', 'action_members.member_id')
             ->where('action_members.action_id', $action_id)
@@ -268,11 +268,11 @@ class ApiController extends Controller
      * Schritt 2: Zusammenstellen der Daten für die Anmelde-Webseite
      *
      * @param Request $request Anmelde-Daten
-     * @return \Illuminate\Http\JsonResponse Daten für die Anmelde-Webseite
+     * @return RedirectResponse Daten für die Anmelde-Webseite
      */
     public function rlreg(Request $request)
     {
-        return redirect()->away("https://rlweb.schummel.de/details?id=".$request->input("id"));
+        return redirect()->away("https://rlweb.schummel.de/details?id=".$request->input("actionid"));
     }
 
 }
