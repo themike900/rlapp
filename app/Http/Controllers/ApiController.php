@@ -253,13 +253,18 @@ class ApiController extends Controller
         }
 
         $members['guests'] = $guest_count;
+        $members['guest_max'] = $action['guest_count'];
         //$anmeldung = [];
         //$registered = [];
         //$members = [];
         //$max_array = [];
 
-        return response()->json(['action' => $action, "anmeldung" => $anmeldung, "members" => $members, "registered" => $registered, "request" => $request->input(), "max_array" => $max_array]);
-        //return $request;
+        return response()->json([
+            'action' => $action,
+            "anmeldung" => $anmeldung,
+            "members" => $members,
+            "registered" => $registered,
+            "max_array" => $max_array]);
 
     }
 
@@ -272,6 +277,34 @@ class ApiController extends Controller
      */
     public function rlreg(Request $request)
     {
+        // wenn POST-Data kommen und wenn kein Eintrag in action_members ist, dann eintragen
+        if (!empty($request->input())) {
+
+            if (DB::table('action_members')
+                    ->where('member_id', $request->input('webid'))
+                    ->where('action_id', $request->input('actionid'))
+                    ->doesntExist()
+                and
+                empty($request->input('abmeldung'))
+            ) {
+
+                DB::table('action_members')->insert([
+                    'member_id' => $request->input('webid'),
+                    'action_id' => $request->input('actionid'),
+                    'group' => $request->input('group'),
+                    'guests' => $request->input('guests', 0),
+                    'created_at' => Carbon::now(),
+                    'updated_at' => Carbon::now()
+                ]);
+            } elseif ($request->input('abmeldung') == 1) {
+
+                DB::table('action_members')
+                    ->where('member_id', $request->input('webid'))
+                    ->where('action_id', $request->input('actionid'))
+                    ->delete();
+            }
+        }
+
         return redirect()->away("https://rlweb.schummel.de/details?id=".$request->input("actionid"));
     }
 
