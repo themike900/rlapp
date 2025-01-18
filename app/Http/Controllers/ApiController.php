@@ -305,8 +305,10 @@ class ApiController extends Controller
             }
         }
 
-        return redirect()->away("https://rlweb.schummel.de/details?id=".$request->input("actionid"));
-        //return [$request->input(), $del];
+        //return redirect()->away("https://rlweb.schummel.de/details?id=".$request->input("actionid"));
+        return redirect()->away("https://www.royal-louise.de/intern/fahrtendetails?id=".$request->input("actionid"));
+
+        /// //return [$request->input(), $del];
     }
 
 }
