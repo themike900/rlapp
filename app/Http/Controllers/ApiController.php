@@ -74,7 +74,7 @@ class ApiController extends Controller
      * Schritt 1: Speichern eventuell mitgelieferter Anmelde-Daten aus den POST-Daten
      * Schritt 2: Zusammenstellen der Daten für die Anmelde-Webseite
      *
-     * @param Request $request Anmelde-Daten oder leer
+     * @param Request $request leer
      * @param int $web_id ID des Webseiten-Nutzers
      * @param int $action_id ID der Fahrt
      * @return JsonResponse Daten für die Anmelde-Webseite
@@ -84,7 +84,7 @@ class ApiController extends Controller
         //$auth = $request.header('X-Auth-Token');
 
         // wenn POST-Data kommen und wenn kein Eintrag in action_members ist, dann eintragen
-        if (!empty($request->input())) {
+/*        if (!empty($request->input())) {
 
             if (DB::table('action_members')
                     ->where('member_id', $web_id)
@@ -110,7 +110,7 @@ class ApiController extends Controller
                     ->delete();
             }
         }
-
+*/
         // diese action holen und formatieren
         $action = Action::find($action_id);
         $action['action_date'] = Carbon::createFromFormat('Y-m-d', $action['action_date'])->isoFormat('dddd DD.MM.');
