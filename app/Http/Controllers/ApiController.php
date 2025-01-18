@@ -296,9 +296,9 @@ class ApiController extends Controller
                     'created_at' => Carbon::now(),
                     'updated_at' => Carbon::now()
                 ]);
-            } elseif ($request->input('abmeldung') == 1) {
+            } elseif (!empty($request->input('abmeldung'))) {
 
-                DB::table('action_members')
+                $del = DB::table('action_members')
                     ->where('member_id', $request->input('webid'))
                     ->where('action_id', $request->input('actionid'))
                     ->delete();
@@ -306,6 +306,7 @@ class ApiController extends Controller
         }
 
         return redirect()->away("https://rlweb.schummel.de/details?id=".$request->input("actionid"));
+        //return [$request->input(), $del];
     }
 
 }
