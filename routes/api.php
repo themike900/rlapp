@@ -12,7 +12,7 @@ use App\Http\Controllers\ApiController;
 Route::post('list', [ApiController::class, 'list'])->name('api.list');
 
 // Holen der Detail-Informationen einer Aktivität und der Anmelde-Informationen für das Anmelde-Formular
-Route::post('details/{webid}/{actionid}', [ApiController::class, 'details'])->name('api.details');
+Route::get('details/{webid}/{actionid}', [ApiController::class, 'details'])->name('api.details');
 
 // Teilnahme an einer Aktivität anmelden
 Route::post('rlreg', [ApiController::class, 'rlReg'])->name('api.rlreg');

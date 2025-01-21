@@ -43,6 +43,23 @@ class ApiController extends Controller
             ]);
         }
 
+        // Falls mehrfache member Datensätze entstehen, alle außer den ersten löschen,
+        //  weil gelegentlich bei der Erstanlage mehrere entstehen
+        if (DB::table('members')
+                ->where('webid', $web_id)
+                ->count() > 1) {
+
+            $first = DB::table('members')
+                ->where('webid', $web_id)
+                ->orderBy('id')
+                ->min('id');
+
+            DB::table('members')
+                ->where('webid', $web_id)
+                ->where('id', '>', $first)
+                ->delete();
+        }
+
         // Memberdaten aus der DB holen für seine Fahrtentypen, derzeit nicht verwendet
         $member_action_types = DB::table('members')
             ->where('webid', $web_id)
@@ -83,34 +100,6 @@ class ApiController extends Controller
     {
         //$auth = $request.header('X-Auth-Token');
 
-        // wenn POST-Data kommen und wenn kein Eintrag in action_members ist, dann eintragen
-/*        if (!empty($request->input())) {
-
-            if (DB::table('action_members')
-                    ->where('member_id', $web_id)
-                    ->where('action_id', $action_id)
-                    ->doesntExist()
-                and
-                empty($request->input('abmeldung'))
-            ) {
-
-                DB::table('action_members')->insert([
-                    'member_id' => $web_id,
-                    'action_id' => $action_id,
-                    'group' => $request->input('group'),
-                    'guests' => $request->input('guests', 0),
-                    'created_at' => Carbon::now(),
-                    'updated_at' => Carbon::now()
-                ]);
-            } elseif ($request->input('abmeldung') == 1) {
-
-                DB::table('action_members')
-                    ->where('member_id', $web_id)
-                    ->where('action_id', $action_id)
-                    ->delete();
-            }
-        }
-*/
         // diese action holen und formatieren
         $action = Action::find($action_id);
         $action['action_date'] = Carbon::createFromFormat('Y-m-d', $action['action_date'])->isoFormat('dddd DD.MM.');
