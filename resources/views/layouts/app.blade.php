@@ -20,10 +20,10 @@
         <div class="min-h-screen bg-gray-300">
 
             <!-- Page Heading -->
-            <header class="bg-blue-600 shadow">
-                <div class="max-w-7xl mx-auto py-4 px-5 sm:px-6 lg:px-8">
+            <header class="bg-blue-500 shadow">
+                <div class="max-w-5xl mx-auto py-4 px-5 sm:px-6 lg:px-8">
 					<h2 class="font-semibold text-2xl text-gray-200 leading-tight">
-						{{ __('Royal-Louise Aktivitätenplanung') }}
+						Royal-Louise Aktivitätenplanung
 					</h2>
                 </div>
             </header>
@@ -32,7 +32,7 @@
 
             @isset($header)
                 <header class="bg-blue-100 shadow">
-                    <div class="max-w-3xl mx-auto py-4 px-5 sm:px-6 lg:px-8">
+                    <div class="max-w-5xl mx-auto py-4 px-5 sm:px-6 lg:px-8">
                         {{ $header }}
                     </div>
                 </header>
@@ -40,7 +40,9 @@
 
             <!-- Page Content -->
             <main>
-                {{ $slot }}
+                <div class="max-w-5xl mx-auto p-4 bg-white min-h-full m-3 rounded-md">
+                    {{ $slot }}
+                </div>
             </main>
         </div>
     </body>
