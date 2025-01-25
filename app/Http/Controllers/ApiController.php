@@ -68,7 +68,7 @@ class ApiController extends Controller
             ->select('action_types')
             ->first();
         $member_action_types = explode(',', $member_action_types->action_types);
-        Log::debug("Request: ".$member_action_types);
+        //Log::debug($member_action_types);
 
         // für ihn sichtbare Fahrten holen
         $actions = DB::table('list_actions')
@@ -76,6 +76,7 @@ class ApiController extends Controller
             ->whereIn('action_state', ['of', 'gs'])
             ->orderBy('action_date')
             ->get();
+        Log::debug("actions: ".json_encode($actions));
 
         // in allen Fahrten Datum umformatieren und Anmeldestaus holen
         foreach ($actions as $action) {
