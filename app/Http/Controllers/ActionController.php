@@ -86,7 +86,7 @@ class ActionController extends Controller
             $action->am_mf = DB::table('action_members')->where('action_id', $action->id)->where('group','mf')->count();
             $action->am_tn = DB::table('action_members')->where('action_id', $action->id)->where('group','tn')->count();
             $action->am_gs = DB::table('action_members')->where('action_id', $action->id)->sum('guests');
-            Log::debug($action);
+            //Log::debug($action);
         }
 
         //Log::debug($actions);
@@ -99,9 +99,11 @@ class ActionController extends Controller
     public function create(Request $request): View
     {
         Log::debug($request);
-        //$action_type_sc = $request->input('action_type_sc') ?? 'gf';
 
         $def_vals = ['selected' => 'gf', 'action_type' => 'Gästefahrt', 'guests_max' => 20 ];
+        if (!empty($request->input())) {
+            $def_vals = '';
+        }
 
         return view('actions.action_create', compact('def_vals'));
     }

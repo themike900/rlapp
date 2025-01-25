@@ -7,7 +7,7 @@
 
         <title>{{ config('app.name', 'Royal-Louise') }}</title>
 
-		<link rel="shortcut icon" href="{{ config('app.url') }}images/favicon.png" />
+		<link rel="shortcut icon" href="{{ config('app.url') }}/favicon.png" />
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">

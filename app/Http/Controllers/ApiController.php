@@ -100,6 +100,7 @@ class ApiController extends Controller
     {
         //$auth = $request.header('X-Auth-Token');
 
+        Log::debug($request.inpu();
         // diese action holen und formatieren
         $action = Action::find($action_id);
         $action['action_date'] = Carbon::createFromFormat('Y-m-d', $action['action_date'])->isoFormat('dddd DD.MM.');

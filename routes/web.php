@@ -3,6 +3,7 @@
 use App\Http\Controllers\ActionController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ImportController;
 
 // Route::get('/welcome', function () {
 //    return view('welcome');
@@ -29,6 +30,11 @@ Route::middleware('auth')->group(function () {
     Route::match(['get', 'post'], '/actions/edit', [ActionController::class, 'edit'])->name('actions.edit');
     Route::match(['get', 'post'], '/actions/update', [ActionController::class, 'update'])->name('actions.update');
 });
+
+Route::get('/members/import', function () {
+        return view('members.members_import');
+    })->middleware(['auth', 'verified'])->name('members.import');
+Route::post('/import', [ImportController::class, 'importMembers'])->name('import');
 
 
 //Route::resource('actions', ActionController::class)

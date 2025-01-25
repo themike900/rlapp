@@ -21,6 +21,9 @@
                     <x-nav-link :href="route('actions.create')" :active="request()->routeIs('actions.create')">
                         Mitglieder
                     </x-nav-link>
+                    <x-nav-link :href="route('members.import')" :active="request()->routeIs('members.import')">
+                        Import
+                    </x-nav-link>
                 </div>
             </div>
 
