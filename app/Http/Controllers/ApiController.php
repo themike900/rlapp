@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use App\Models\Action;
+use Illuminate\Support\Facades\Log;
 //use function Laravel\Prompts\table;
 
 Carbon::setLocale('de');
@@ -24,6 +25,7 @@ class ApiController extends Controller
      */
     public function list(Request $request)
     {
+        Log::debug("Request: ".$request);
         // POST-Daten in Members speichern, wenn webid noch nicht existiert
         $web_id = $request->input('webid');
 
@@ -66,6 +68,7 @@ class ApiController extends Controller
             ->select('action_types')
             ->first();
         $member_action_types = explode(',', $member_action_types->action_types);
+        Log::debug("Request: ".$member_action_types);
 
         // für ihn sichtbare Fahrten holen
         $actions = DB::table('list_actions')
@@ -88,8 +91,8 @@ class ApiController extends Controller
     }
 
     /**
-     * Schritt 1: Speichern eventuell mitgelieferter Anmelde-Daten aus den POST-Daten
-     * Schritt 2: Zusammenstellen der Daten für die Anmelde-Webseite
+     *
+     * Schritt 1: Zusammenstellen der Daten für die Anmelde-Webseite
      *
      * @param Request $request leer
      * @param int $web_id ID des Webseiten-Nutzers
@@ -100,7 +103,6 @@ class ApiController extends Controller
     {
         //$auth = $request.header('X-Auth-Token');
 
-        Log::debug($request.inpu();
         // diese action holen und formatieren
         $action = Action::find($action_id);
         $action['action_date'] = Carbon::createFromFormat('Y-m-d', $action['action_date'])->isoFormat('dddd DD.MM.');
@@ -109,6 +111,7 @@ class ApiController extends Controller
         $action['action_name'] = DB::table('action_types')
             ->where('sc', $action['action_type_sc'])
             ->value('name');
+        Log::debug($action);
 
         //Registrierungsdaten holen, wenn für diese Fahrt registriert, ansonsten NULL
         $registered = DB::table('action_members')
@@ -268,6 +271,8 @@ class ApiController extends Controller
     public function rlreg(Request $request)
     {
         // wenn POST-Data kommen und wenn kein Eintrag in action_members ist, dann eintragen
+        Log::debug($request->input());
+
         if (!empty($request->input())) {
 
             if (DB::table('action_members')
