@@ -25,7 +25,7 @@ class ApiController extends Controller
      */
     public function list(Request $request)
     {
-        Log::debug("Request: ".$request);
+        //Log::debug("Request: ".$request);
         // POST-Daten in Members speichern, wenn webid noch nicht existiert
         $web_id = $request->input('webid');
 
@@ -62,6 +62,19 @@ class ApiController extends Controller
                 ->delete();
         }
 
+        // Auswahl für Anzeigeliste festlegen
+        $list_type = match ($request->input('list_type')) {
+            'Segeltermin' => 'sl',
+            'Veranstaltungen' => 'vl',
+            'Gästefahrten' => 'gl',
+            default => 'sl',
+        };
+        $list_action_types = DB::table('action_types')
+            ->where('web_list', $list_type)
+            ->pluck('sc')
+            ->toArray();
+        Log::debug($list_action_types);
+
         // Memberdaten aus der DB holen für seine Fahrtentypen, derzeit nicht verwendet
         $member_action_types = DB::table('members')
             ->where('webid', $web_id)
@@ -72,7 +85,7 @@ class ApiController extends Controller
 
         // für ihn sichtbare Fahrten holen
         $actions = DB::table('list_actions')
-            //->whereIn('action_type', $member_action_types)
+            ->whereIn('action_type', $list_action_types)
             ->whereIn('action_state', ['of', 'gs'])
             ->orderBy('action_date')
             ->get();
@@ -260,7 +273,8 @@ class ApiController extends Controller
             "registered" => $registered,
             "max_array" => $max_array,
             "webid" => $web_id,
-            "actionid" => $action_id
+            "actionid" => $action_id,
+            "hello" => "hello"
         ]);
 
     }
