@@ -112,7 +112,7 @@ class ApiController extends Controller
         $action['action_name'] = DB::table('action_types')
             ->where('sc', $action['action_type_sc'])
             ->value('name');
-        Log::debug($action);
+        //Log::debug($action);
 
         //Registrierungsdaten holen, wenn für diese Fahrt registriert, ansonsten NULL
         $registered = DB::table('action_members')
@@ -258,7 +258,10 @@ class ApiController extends Controller
             "anmeldung" => $anmeldung,
             "members" => $members,
             "registered" => $registered,
-            "max_array" => $max_array]);
+            "max_array" => $max_array,
+            "webid" => $web_id,
+            "actionid" => $action_id
+        ]);
 
     }
 
