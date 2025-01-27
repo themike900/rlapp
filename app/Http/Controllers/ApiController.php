@@ -41,7 +41,6 @@ class ApiController extends Controller
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
                 'groups' => ''
-
             ]);
         }
 
@@ -64,16 +63,17 @@ class ApiController extends Controller
 
         // Auswahl für Anzeigeliste festlegen
         $list_type = match ($request->input('list_type')) {
-            'Segeltermin' => 'sl',
-            'Veranstaltungen' => 'vl',
-            'Gästefahrten' => 'gl',
-            default => 'sl',
+            'Segeltermine' => ['sl',],
+            'Veranstaltungen' => ['vl',],
+            'Bereitschaft' => ['bm','slbm'],
+            default => ['sl',]
         };
+        //Log::debug($list_type);
         $list_action_types = DB::table('action_types')
-            ->where('web_list', $list_type)
+            ->whereIn('web_list', $list_type)
             ->pluck('sc')
             ->toArray();
-        Log::debug($list_action_types);
+        //Log::debug($list_action_types);
 
         // Memberdaten aus der DB holen für seine Fahrtentypen, derzeit nicht verwendet
         $member_action_types = DB::table('members')
@@ -85,8 +85,8 @@ class ApiController extends Controller
 
         // für ihn sichtbare Fahrten holen
         $actions = DB::table('list_actions')
-            ->whereIn('action_type', $list_action_types)
-            ->whereIn('action_state', ['of', 'gs'])
+            ->whereIn('action_type_sc', $list_action_types)
+            ->whereIn('action_state_sc', ['of', 'gs'])
             ->orderBy('action_date')
             ->get();
         Log::debug("actions: ".json_encode($actions));
@@ -94,10 +94,20 @@ class ApiController extends Controller
         // in allen Fahrten Datum umformatieren und Anmeldestaus holen
         foreach ($actions as $action) {
             $action->action_date = Carbon::createFromFormat('Y-m-d', $action->action_date)->isoFormat('dd DD.MM.');
-            if (DB::table('action_members')->where("member_id", $web_id)->where('action_id', $action->action_id)->exists()) {
-                $action->reg = 'ja';
+            $action->start_at_text = (empty($action->crew_start_at)) ? 'Beginn' : 'an Bord';
+            $action->end_at_text = (empty($action->crew_end_at)) ? 'Ende' : 'von Bord';
+            $action->start_at = (empty($action->crew_start_at)) ? $action->action_start_at : $action->crew_start_at;
+            $action->end_at = (empty($action->crew_end_at)) ? $action->action_end_at : $action->crew_end_at;
+            $reg = DB::table('action_members')
+                ->join('reg_state', 'action_members.reg_state', '=', 'reg_state.sc')
+                ->where("member_id", $web_id)
+                ->where('action_id', $action->action_id)
+                ->first();
+            if (!empty($reg)) {
+
+                $action->reg_state_name = $reg->name;
             } else {
-                $action->reg = '&nbsp;';
+                $action->reg_state_name = '&nbsp;';
             }
         }
 
