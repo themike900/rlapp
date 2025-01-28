@@ -11,6 +11,8 @@ use App\Models\Action;
 use Illuminate\Support\Facades\Log;
 //use function Laravel\Prompts\table;
 
+//use function Laravel\Prompts\table;
+
 Carbon::setLocale('de');
 
 class ApiController extends Controller
@@ -43,6 +45,7 @@ class ApiController extends Controller
                 'groups' => ''
             ]);
         }
+        DB::table('members')->where('webid', $web_id)->update(['last_access' => Carbon::now()]);
 
         // Falls mehrfache member Datensätze entstehen, alle außer den ersten löschen,
         //  weil gelegentlich bei der Erstanlage mehrere entstehen
@@ -65,8 +68,7 @@ class ApiController extends Controller
         $list_type = match ($request->input('list_type')) {
             'Segeltermine' => ['sl',],
             'Veranstaltungen' => ['vl',],
-            'Bereitschaft' => ['bm','slbm'],
-            default => ['sl',]
+            'Bereitschaft' => ['bm','slbm']
         };
         //Log::debug($list_type);
         $list_action_types = DB::table('action_types')
@@ -310,14 +312,19 @@ class ApiController extends Controller
                 and
                 empty($request->input('abmeldung'))
             ) {
-
+                $group = $request->input('group');
+                $reg_state = match($group) {
+                    'cr', 'sv' => 'br',
+                    default => 'ang'
+                };
                 DB::table('action_members')->insert([
                     'member_id' => $request->input('webid'),
                     'action_id' => $request->input('actionid'),
-                    'group' => $request->input('group'),
-                    'guests' => $request->input('guests', 0),
+                    'group' => $group,
+                    'guests' => 0,
                     'created_at' => Carbon::now(),
-                    'updated_at' => Carbon::now()
+                    'updated_at' => Carbon::now(),
+                    'reg_state' => $reg_state
                 ]);
             } elseif (!empty($request->input('abmeldung'))) {
 
@@ -328,10 +335,17 @@ class ApiController extends Controller
             }
         }
 
-        //return redirect()->away("https://rlweb.schummel.de/details?id=".$request->input("actionid"));
-        return redirect()->away("https://www.royal-louise.de/intern/fahrtendetails?id=".$request->input("actionid"));
+        $referer = $request->headers->get('Referer');
+        $origin = $request->headers->get('Origin');
+        $hostname = ($referer) ? parse_url($referer, PHP_URL_HOST) : null;
+        $hostname = ($origin) ? parse_url($referer, PHP_URL_HOST) : $hostname;
 
-        /// //return [$request->input(), $del];
+        Log::debug($hostname);
+
+        return redirect()->away("https://rlweb.schummel.de/intern/details?id=".$request->input("actionid")."&host=".$hostname);
+        //return redirect()->away("https://www.royal-louise.de/intern/fahrtendetails?id=".$request->input("actionid"));
+
+        //return response()->json(['request' => $request->input(), ]);
     }
 
 }
