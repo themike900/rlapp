@@ -31,9 +31,24 @@ class ApiController extends Controller
         // POST-Daten in Members speichern, wenn webid noch nicht existiert
         $web_id = $request->input('webid');
 
-        if (DB::table('members')->where('webid', $web_id)->doesntExist()) {
+        $member_id = DB::table('members')
+            ->where('webid', $request->input('webid'))
+            ->value('id');
+        if (empty($member_id)) {
+            $member_id = DB::table('members')
+                ->where('email', $request->input('email'))
+                ->value('id');
+        }
+        if (empty($member_id)) {
+            $member_id = DB::table('members')
+                ->where('name', $request->input('name'))
+                ->where('firstname', $request->input('firstname'))
+                ->value('id');
+        }
 
-            DB::table('members')->insert([
+        if ( empty($member_id)) {
+
+            $member_id = DB::table('members')->insertGetId([
                 'webid' => $request->input('webid'),
                 'name' => $request->input('name'),
                 'firstname' => $request->input('firstname'),
@@ -43,9 +58,13 @@ class ApiController extends Controller
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
                 'groups' => ''
-            ]);
+                ]);
+        } else {
+            DB::table('members')
+                ->where('id', $member_id)
+                ->update(['webid' => $web_id]);
         }
-        DB::table('members')->where('webid', $web_id)->update(['last_access' => Carbon::now()]);
+        DB::table('members')->where('id', $member_id)->update(['last_access' => Carbon::now()]);
 
         // Falls mehrfache member Datensätze entstehen, alle außer den ersten löschen,
         //  weil gelegentlich bei der Erstanlage mehrere entstehen
@@ -66,7 +85,7 @@ class ApiController extends Controller
 
         // Auswahl für Anzeigeliste festlegen
         $list_type = match ($request->input('list_type')) {
-            'Segeltermine' => ['sl',],
+            'Segeltermine' => ['sl','slbm'],
             'Veranstaltungen' => ['vl',],
             'Bereitschaft' => ['bm','slbm']
         };
@@ -335,14 +354,15 @@ class ApiController extends Controller
             }
         }
 
-        $referer = $request->headers->get('Referer');
-        $origin = $request->headers->get('Origin');
-        $hostname = ($referer) ? parse_url($referer, PHP_URL_HOST) : null;
-        $hostname = ($origin) ? parse_url($referer, PHP_URL_HOST) : $hostname;
+        //$referer = $request->headers->get('Referer');
+        //$origin = $request->headers->get('Origin');
+        //$hostname = ($referer) ? parse_url($referer, PHP_URL_HOST) : null;
+        //$hostname = ($origin) ? parse_url($referer, PHP_URL_HOST) : $hostname;
 
-        Log::debug($hostname);
+        $hostname = $request->input('host');
+        Log::debug("hostname: ".$hostname);
 
-        return redirect()->away("https://rlweb.schummel.de/intern/details?id=".$request->input("actionid")."&host=".$hostname);
+        return redirect()->away("https://{$hostname}/intern/details?id=".$request->input("actionid"));
         //return redirect()->away("https://www.royal-louise.de/intern/fahrtendetails?id=".$request->input("actionid"));
 
         //return response()->json(['request' => $request->input(), ]);

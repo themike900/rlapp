@@ -53,7 +53,7 @@ function rl_details() {
 
     <table style="width:100%; border-collapse: collapse">
 
-        <tr><td style="background-color: #b1d4fd"><b>Fahrteninformationen</b></td></tr>
+        <tr><td style="background-color: #b1d4fd"><b>Details</b></td></tr>
 
         <tr>
             <td style="background-color: #d6e8ff;">
