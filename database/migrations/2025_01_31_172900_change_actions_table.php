@@ -12,9 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('actions', function (Blueprint $table) {
-            $table->string('ac_max_guests', 6)->after('reg_state_tn');
-            $table->string('ac_max_pers', 6)->after('reg_state_tn');
-            $table->string('ac_mit_wl', 6)->after('reg_state_tn');
+            $table->string('ac_max_guests', 6)->after('ac_reg_state_tn');
+            $table->string('ac_max_pers', 6)->after('ac_reg_state_tn');
+            $table->string('ac_with_wl', 6)->after('ac_reg_state_tn');
         });
     }
 
