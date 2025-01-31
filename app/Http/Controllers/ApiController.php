@@ -229,8 +229,10 @@ class ApiController extends Controller
         $anmeldung['ac_reg_state_tn']  = $action['ac_reg_state_tn'];
         $anmeldung['ac_reg_state_cr']  = $action['ac_reg_state_cr'];
         $anmeldung['ac_reg_state_sv']  = $action['ac_reg_state_sv'];
-        $anmeldung['member_reg_state'] = $registered->reg_state;
-        $anmeldung['member_reg_group'] = $registered->group;
+        if (!empty($registered)) {
+            $anmeldung['member_reg_state'] = $registered->reg_state;
+            $anmeldung['member_reg_group'] = $registered->group;
+        }
 
         $max = DB::table('action_types')
             ->where('sc', $action['action_type_sc'])
