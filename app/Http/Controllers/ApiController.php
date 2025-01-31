@@ -148,7 +148,12 @@ class ApiController extends Controller
     {
         //$auth = $request.header('X-Auth-Token');
 
-        // diese action holen und formatieren
+        /*++++++++++++++++++++++++++++++++++++++++++++++++++
+         * Die daten der Aktivität holen und formatieren
+         *
+         * in $action bereitlegen
+         * +++++++++++++++++++++++++++++++++++++++++++++++++
+         */
         $action = Action::find($action_id);
         $action['action_date'] = Carbon::createFromFormat('Y-m-d', $action['action_date'])->isoFormat('dddd DD.MM.');
         $action['crew_info'] = $action['crew_supply'];
@@ -156,38 +161,47 @@ class ApiController extends Controller
         $action['action_name'] = DB::table('action_types')
             ->where('sc', $action['action_type_sc'])
             ->value('name');
-        //Log::debug($action);
 
-        //Registrierungsdaten holen, wenn für diese Fahrt registriert, ansonsten NULL
+        /*++++++++++++++++++++++++++++++++++++++++++++++++++
+         * Die Daten einer eventuell vorhanden Anmeldung holen
+         *
+         * in $registered bereitlegen
+         * +++++++++++++++++++++++++++++++++++++++++++++++++
+         */
         $registered = DB::table('action_members')
-            ->join('groups', 'action_members.group', '=', 'groups.sc')
-            ->where('action_members.member_id', $web_id)
-            ->where('action_members.action_id', $action_id)
+            ->where('member_id', $web_id)
+            ->where('action_id', $action_id)
             //->select('id','group','name','guests')
             ->first();
 
+        /*++++++++++++++++++++++++++++++++++++++++++++++++++
+         * Die Daten für die Anmeldeoptionen zusammenstellen
+         *
+         * in $anmeldung bereitlegen
+         * +++++++++++++++++++++++++++++++++++++++++++++++++
+         */
         // Anmeldung nur möglich, wenn Maximalzahlen nicht überschritten
-        $crew_count = DB::table('action_members')
+        // Anzahl Bereitschafsmeldungen (Crew und Service)
+        $br_count = DB::table('action_members')
             ->where('action_id', $action_id)
-            ->where('group', 'cr')
+            ->where('reg_state', 'br')
             ->count();
-        $serv_count = DB::table('action_members')
+        // Anzahl angenommene Crew/Service/Teilnehmer
+        $ang_count = DB::table('action_members')
             ->where('action_id', $action_id)
-            ->where('group', 'sv')
+            ->where('reg_state', 'ang')
             ->count();
-        $pass_count = DB::table('action_members')
-            ->where('action_id', $action_id)
-            ->where('group', 'mf')
-            ->count();
+        // Anzahl angenommene Gäste
         $guest_count = DB::table('action_members')
             ->where('action_id', $action_id)
-            ->sum('guests');
+            ->join('guests', 'action_members.id', '=', 'guests.reg_id')
+            ->count();
 
         $max = DB::table('action_types')
             ->where('sc', $action['action_type_sc'])
             ->value('groups');
         $max_array = json_decode($max, true);
-
+/*
         $free = [
             'crew_free' => (!empty($max_array['cr'])) ? $max_array['cr'] - $crew_count : '',
             'service_free' => (!empty($max_array['sv'])) ? $max_array['sv'] - $serv_count : '',
@@ -210,14 +224,32 @@ class ApiController extends Controller
         if ($action['action_type_sc'] ==  'vt' or $action['action_type_sc'] ==  'sc') {
             if ([$free['crew_free'] > 0]) $anmeldung[] = ['group' => 'tn', 'text' => 'Anmeldung als Teilnehmer', 'guests' => 0];
         }
+*/
+        $anmeldung['action_state']     = $action['action_state_sc'];
+        $anmeldung['ac_reg_state_tn']  = $action['ac_reg_state_tn'];
+        $anmeldung['ac_reg_state_cr']  = $action['ac_reg_state_cr'];
+        $anmeldung['ac_reg_state_sv']  = $action['ac_reg_state_sv'];
+        $anmeldung['member_reg_state'] = $registered->reg_state;
+        $anmeldung['member_reg_group'] = $registered->group;
 
+        $max = DB::table('action_types')
+            ->where('sc', $action['action_type_sc'])
+            ->value('groups');
+        $max_array = json_decode($max, true);
+        $anmeldung['tn_wl'] = $max_array['tnwl'] ?? 0;
 
+        /*++++++++++++++++++++++++++++++++++++++++++++++++++
+         * Die die Nicknames aller angemeldeten Teilnehmer holen
+         *
+         * in $members bereitlegen
+         * +++++++++++++++++++++++++++++++++++++++++++++++++
+         */
         // Nickname vom Kapitän holen (alle Fahrten)
         $members = [];
         $captain = (array)DB::table('action_members')
             ->join('members', 'members.webid', '=', 'action_members.member_id')
             ->where('action_members.action_id', $action_id)
-            ->where('action_members.group', 'kp')
+            ->where('action_members.group', 'sf')
             ->select('nickname')
             ->first();
         if (!empty($captain)) {
@@ -230,7 +262,7 @@ class ApiController extends Controller
         $crew = DB::table('action_members')
             ->join('members', 'members.webid', '=', 'action_members.member_id')
             ->where('action_members.action_id', $action_id)
-            ->where('action_members.group', 'cr')
+            ->whereLike('action_members.group', '%cr%')
             ->select('nickname')
             ->get();
         $members['crew'] = "&nbsp;";
@@ -242,11 +274,11 @@ class ApiController extends Controller
             $members['crew'] = implode("<br>", $members['crew']);
         }
 
-        // Nicknames der Service-Mitglieder holen (Gästefahrt, Vereinsfahrt)
+        // Nicknames der Service-Mitglieder holen (Gästefahrt, Vereinsfahrt, Ausbildungsfahrt)
         $service = DB::table('action_members')
             ->join('members', 'members.webid', '=', 'action_members.member_id')
             ->where('action_members.action_id', $action_id)
-            ->where('action_members.group', 'sv')
+            ->whereLike('action_members.group', '%sv%')
             ->select('nickname')
             ->get();
         $members['service'] = "&nbsp;";
@@ -259,7 +291,7 @@ class ApiController extends Controller
         }
 
         // Nicknames der Mitfahrer holen (Vereinsfahrt)
-        $passengers = DB::table('action_members')
+/*        $passengers = DB::table('action_members')
             ->join('members', 'members.webid', '=', 'action_members.member_id')
             ->where('action_members.action_id', $action_id)
             ->where('action_members.group', 'mf')
@@ -273,8 +305,8 @@ class ApiController extends Controller
             }
             $members['passengers'] = implode("<br>", $members['passengers']);
         }
-
-        // Nicknames der Teilnehmer holen (Vereinstreffen, Shanty-Chor, ...)
+*/
+        // Nicknames der Teilnehmer holen (Vereinsfahrt, Vereinstreffen, Shanty-Chor, ...)
         $participants = DB::table('action_members')
             ->join('members', 'members.webid', '=', 'action_members.member_id')
             ->where('action_members.action_id', $action_id)
@@ -292,6 +324,7 @@ class ApiController extends Controller
 
         $members['guests'] = $guest_count;
         $members['guest_max'] = $action['guest_count'];
+
         //$anmeldung = [];
         //$registered = [];
         //$members = [];
@@ -305,7 +338,7 @@ class ApiController extends Controller
             "max_array" => $max_array,
             "webid" => $web_id,
             "actionid" => $action_id,
-            "hello" => "hello"
+            //"hello" => "hello"
         ]);
 
     }
@@ -331,26 +364,34 @@ class ApiController extends Controller
                 and
                 empty($request->input('abmeldung'))
             ) {
-                $group = $request->input('group');
-                $reg_state = match($group) {
-                    'cr', 'sv' => 'br',
-                    default => 'ang'
-                };
-                DB::table('action_members')->insert([
-                    'member_id' => $request->input('webid'),
-                    'action_id' => $request->input('actionid'),
-                    'group' => $group,
-                    'guests' => 0,
-                    'created_at' => Carbon::now(),
-                    'updated_at' => Carbon::now(),
-                    'reg_state' => $reg_state
-                ]);
+                Log::debug($request->input('groups'));
+                Log::debug(implode(',', $request->input('groups')));
+                /*if (in_array('cr', $groups) || in_array('sv', $groups)) {
+                    $reg_state = 'br';
+                }*/
+                if (!empty($request->input('groups'))) {
+                    DB::table('action_members')->insert([
+                        'member_id' => $request->input('webid'),
+                        'action_id' => $request->input('actionid'),
+                        'group' => implode(',', $request->input('groups')),
+                        'created_at' => Carbon::now(),
+                        'updated_at' => Carbon::now(),
+                        'reg_state' => $request->input('reg_state'),
+                    ]);
+                }
             } elseif (!empty($request->input('abmeldung'))) {
 
-                $del = DB::table('action_members')
+                $reg_id = DB::table('action_members')
                     ->where('member_id', $request->input('webid'))
                     ->where('action_id', $request->input('actionid'))
+                    ->value('id');
+
+                DB::table('action_members')
+                    ->where('id', $reg_id)
                     ->delete();
+
+                DB::table('guests')
+                    ->where('reg_id', $reg_id)->delete();
             }
         }
 
@@ -360,9 +401,9 @@ class ApiController extends Controller
         //$hostname = ($origin) ? parse_url($referer, PHP_URL_HOST) : $hostname;
 
         $hostname = $request->input('host');
-        Log::debug("hostname: ".$hostname);
+        //Log::debug("hostname: ".$hostname);
 
-        return redirect()->away("https://{$hostname}/intern/details?id=".$request->input("actionid"));
+        return redirect()->away("https://".$hostname."/intern/details?id=".$request->input("actionid"));
         //return redirect()->away("https://www.royal-louise.de/intern/fahrtendetails?id=".$request->input("actionid"));
 
         //return response()->json(['request' => $request->input(), ]);
