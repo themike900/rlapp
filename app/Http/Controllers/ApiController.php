@@ -97,11 +97,11 @@ class ApiController extends Controller
         //Log::debug($list_action_types);
 
         // Memberdaten aus der DB holen für seine Fahrtentypen, derzeit nicht verwendet
-        $member_action_types = DB::table('members')
-            ->where('webid', $web_id)
-            ->select('action_types')
-            ->first();
-        $member_action_types = explode(',', $member_action_types->action_types);
+        //$member_action_types = DB::table('members')
+        //    ->where('webid', $web_id)
+        //    ->select('action_types')
+        //    ->first();
+        //$member_action_types = explode(',', $member_action_types->action_types);
         //Log::debug($member_action_types);
 
         // für ihn sichtbare Fahrten holen
@@ -147,9 +147,10 @@ class ApiController extends Controller
     public function details(Request $request, int $web_id, int $action_id)
     {
         //$auth = $request.header('X-Auth-Token');
+        $web_list = $request->input('liste');
 
         /*++++++++++++++++++++++++++++++++++++++++++++++++++
-         * Die daten der Aktivität holen und formatieren
+         * Die Daten der Aktivität holen und formatieren
          *
          * in $action bereitlegen
          * +++++++++++++++++++++++++++++++++++++++++++++++++
@@ -163,7 +164,28 @@ class ApiController extends Controller
             ->value('name');
 
         /*++++++++++++++++++++++++++++++++++++++++++++++++++
+         * Die Daten des aufrufenden Mitglieds holen
+         *
+         * in $ac_guests_free bereitlegen
+         * +++++++++++++++++++++++++++++++++++++++++++++++++
+         */
+        $member = DB::table('members')
+            ->where('webid', $web_id)
+            ->first();
+        $mem_groups = explode(',', $member->groups); // string to array
+
+
+
+        /*++++++++++++++++++++++++++++++++++++++++++++++++++
+         * Teil1
+         * Daten für die Anmeldeoptionen zusammenstellen
+         *
+         * in $anm_opt zurückgeben
+         * +++++++++++++++++++++++++++++++++++++++++++++++++
+         */
+        /*++++++++++++++++++++++++++++++++++++++++++++++++++
          * Die Daten einer eventuell vorhanden Anmeldung holen
+         * und reg_state und group zusammensetzen
          *
          * in $registered bereitlegen
          * +++++++++++++++++++++++++++++++++++++++++++++++++
@@ -171,74 +193,236 @@ class ApiController extends Controller
         $registered = DB::table('action_members')
             ->where('member_id', $web_id)
             ->where('action_id', $action_id)
-            //->select('id','group','name','guests')
             ->first();
 
+        $reg_reg_state = null;
+        if (!empty($registered)){
+            $reg_reg_state = str_replace(',', '', $registered->group) . '_' . $registered->reg_state;
+        }
+
         /*++++++++++++++++++++++++++++++++++++++++++++++++++
-         * Die Daten für die Anmeldeoptionen zusammenstellen
+         * Wenn angemeldet: Die Daten meiner Gäste holen
          *
-         * in $anmeldung bereitlegen
+         * in $anm_opt und $reg_guests_count bereitlegen
          * +++++++++++++++++++++++++++++++++++++++++++++++++
          */
-        // Anmeldung nur möglich, wenn Maximalzahlen nicht überschritten
-        // Anzahl Bereitschafsmeldungen (Crew und Service)
-        $br_count = DB::table('action_members')
-            ->where('action_id', $action_id)
-            ->where('reg_state', 'br')
-            ->count();
-        // Anzahl angenommene Crew/Service/Teilnehmer
-        $ang_count = DB::table('action_members')
-            ->where('action_id', $action_id)
-            ->where('reg_state', 'ang')
-            ->count();
-        // Anzahl angenommene Gäste
-        $guest_count = DB::table('action_members')
-            ->where('action_id', $action_id)
-            ->join('guests', 'action_members.id', '=', 'guests.reg_id')
-            ->count();
+        $reg_guests_count = 0;
+        if (!empty($registered)) {
 
+            // Name und Staus meiner Gäste
+            $anm_opt['reg_guests'] = DB::table('guests')
+                ->where('reg_id', $registered->id)
+                ->get();
+
+            // Anzahl meiner Gäste
+            $reg_guests_count = DB::table('guests')
+                ->where('gst_action_id', $action_id)
+                ->where('reg_id', '=', $registered->id)
+                ->count();
+
+        }
+
+        /*++++++++++++++++++++++++++++++++++++++++++++++++++
+         * Die Anzahl der angemeldeten Gäste für diese Fahrt holen
+         * wird auch für die Anmeldeoptionen benötigt
+         *
+         * in $ac_guests_free bereitlegen
+         * +++++++++++++++++++++++++++++++++++++++++++++++++
+         */
+        // Anzahl angenommener Gäste für diese Fahrt
+        $ac_guests_angn = DB::table('guests')
+            ->where('gst_action_id', $action_id)
+            ->where('gst_state', 'angenommen')
+            ->count();
+        $ac_guests_free = $action['ac_max_guests'] - $ac_guests_angn;
+
+
+        /*++++++++++++++++++++++++++++++++++++++++++++++++++
+         * Testdaten bereitstellen
+         *
+         * in $anm_test bereitlegen
+         * +++++++++++++++++++++++++++++++++++++++++++++++++
+         */
+        $anm_test['web_list'] = $web_list;
+        $anm_test['mem_groups'] = $mem_groups;
+        $anm_test['action_state_sc'] = $action['action_state_sc'];
+        $anm_test['ac_reg_state_tn'] = $action['ac_reg_state_tn'];
+        $anm_test['ac_reg_state_cr'] = $action['ac_reg_state_cr'];
+        $anm_test['ac_reg_state_sv'] = $action['ac_reg_state_sv'];
+        $anm_test['ac_guests_angn'] = $ac_guests_angn;
+        $anm_test['ac_guests_free'] = $ac_guests_free;
+        $anm_test['reg_reg_state'] = $reg_reg_state;
+        $anm_test['reg_guests_count'] = $reg_guests_count;
+
+
+
+        /*++++++++++++++++++++++++++++++++++++++++++++++++++
+         * Anmeldeoptionen für die Webseiten auswählen
+         *
+         * in $anm_opt bereitlegen
+         * +++++++++++++++++++++++++++++++++++++++++++++++++
+         */
+        // Segelterminliste, Teilnehmer An-Abmeldung -------------------------------------------------------------------
+        if ($web_list == 'Segeltermine' or $web_list == 'Veranstaltung') {
+            // Mitglied nicht angemeldet
+            if (in_array($reg_reg_state, [null, 'cr_abgl', 'sv_abgl'], true)) {
+                // Fahrtenplanung offen.
+                if ($action['action_state_sc'] == 'of') {
+                    // Teilnehmer-Anmeldung noch offen, TN < max
+                    if ($action['ac_reg_state_tn'] == 'tnon') { $anm_opt[] = 'anm_tn'; }     // Teilnehmer-Anmeldung.
+                    // Teilnehmer-Anmeldung belegt
+                    if ($action['ac_reg_state_tn'] == 'tnbl') {
+                        if ($action['action_state_sc'] == 'of') { $anm_opt[] = 'anm_wl'; }   // Teilnehmer-Anmeldung Warteliste.
+                    }
+                }
+                // Fahrtenplanung abgeschlossen
+                if ($action['action_state_sc'] == 'gs') { $anm_opt[] = 'anm_tn_geschl'; }    // Fahrtenplanung abgeschlossen.
+            }
+            if ($reg_reg_state == 'tn_ang') {
+                if ($action['action_state_sc'] == 'of') {
+                    $anm_opt[] = 'abm_tn';                                                   // Abmelden Teilnehmer
+                    if ($ac_guests_free > 0) { $anm_opt[] = 'anfr_gst'; }                    // Anfrage Gäste
+                    if ($reg_guests_count > 0) { $anm_opt[] = 'gst_list'; }                     // Anzeige Gästeliste
+                }
+                if ($action['action_state_sc'] == 'gs') {
+                    $anm_opt[] = 'abm_tn_tel';                                               // Geschlossen, angemeldet
+                    if ($reg_guests_count > 0) { $anm_opt[] = 'gst_list_no_del'; }              // Anzeige Gästeliste, no delete
+                }
+            }
+            if ($reg_reg_state == 'tn_wl') {
+                if ($action['action_state_sc'] == 'of') {
+                    $anm_opt[] = 'abm_tn_wl';                                                 // abmeldung Warteliste
+                }
+            }
+            if (in_array($reg_reg_state, ['cr_gpl','sv_gpl','cr_br','sv_br'])) {
+                $anm_opt[] = 'bereit_link';                                                   // Link zur Bereitschaftsliste
+            }
+
+        }
+
+        // Crew-Bereitschaftsliste, und gehört das Mitglied zu CR oder SV
+        if ($web_list == 'Bereitschaft' and !empty(array_intersect($mem_groups, ['cr','sv']))) {
+            if ( empty($reg_reg_state) ) {
+                if ($action['ac_reg_state_cr'] == 'crbr' and $action['ac_reg_state_sv'] == 'svbr') {
+                    $anm_opt[] = 'bereit_crsv';                                                         // Bereitschaftsmeldung CR/SV
+                }
+                if ($action['ac_reg_state_cr'] == 'crbr' and $action['ac_reg_state_sv'] == 'svgp') {
+                    $anm_opt[] = 'bereit_cr';                                                           // Bereitschaftsmeldung CR
+                }
+                if ($action['ac_reg_state_cr'] == 'crgp' and $action['ac_reg_state_sv'] == 'svbr') {
+                    $anm_opt[] = 'bereit_sv';                                                           // Bereitschaftsmeldung SV
+                }
+                if ($action['ac_reg_state_cr'] == 'crgp' and $action['ac_reg_state_sv'] == 'svgp') {
+                    $anm_opt[] = 'fertig_crsv';                                                         // Bereitschaft fertig geplant
+                }
+            }
+            if ($reg_reg_state == 'cr_br') {
+                if ($action['ac_reg_state_cr'] == 'crbr') {
+                    $anm_opt[] = 'abm_cr';                                                 // CR angemeldet, Abmeldung online
+                    if ($action['action_state_sc'] == 'of') {
+                        if ($ac_guests_free > 0) { $anm_opt[] = 'anfr_gst'; }   // Anfrage Gäste
+                        if ($reg_guests_count > 0) { $anm_opt[] = 'gst_list'; }             // Anzeige Gästeliste
+                    }
+                    if ($action['action_state_sc'] == 'gs') {
+                        if ($reg_guests_count > 0) { $anm_opt[] = 'gst_list_no_del'; }      // Anzeige Gästeliste, no delete
+                    }
+                }
+                if ($action['ac_reg_state_cr'] == 'crgp') {
+                    $anm_opt[] = 'abm_cr_tel';                                             // CR angemeldet, Abmeldung per Tel
+                }
+            }
+            if ($reg_reg_state == 'cr_abgl') {
+                if ($action['ac_reg_state_cr'] == 'crgp') {
+                    $anm_opt[] = 'cr_abgl';
+                }
+            }
+            if ($reg_reg_state == 'sv_abg') {
+                if ($action['ac_reg_state_cr'] == 'svgp') {
+                    $anm_opt[] = 'sv_abgl';
+                }
+            }
+            if ($reg_reg_state == 'sv_br'){
+                if ($action['ac_reg_state_sv'] == 'svbr') {
+                    $anm_opt[] = 'abm_sv';                                                 // SV angemeldet, Abmeldung online
+                    if ($action['action_state_sc'] == 'of') {
+                        if ($ac_guests_free > 0) { $anm_opt[] = 'anfr_gst'; }   // Anfrage Gäste
+                        if ($reg_guests_count > 0) { $anm_opt[] = 'gst_list'; }             // Anzeige Gästeliste
+                    }
+                    if ($action['action_state_sc'] == 'gs') {
+                        if ($reg_guests_count > 0) { $anm_opt[] = 'gst_list_no_del'; }      // Anzeige Gästeliste, no delete
+                    }
+                }
+                if ($action['ac_reg_state_sv'] == 'svgp') {
+                    $anm_opt[] = 'abm_sv_tel';                                             // SV angemeldet, Abmeldung per Tel
+                }
+            }
+            if (in_array($reg_reg_state, ['tn_ang','tn_wl'])) {
+                $anm_opt[] = 'segeltn_link';                                             // Link zur Segelterminliste
+            }
+            if ($reg_reg_state == 'crsv_br') {
+                $anm_opt[] = 'abm_crsv';                                             // CR/SV bereit gemeldet, Abmeldung beide
+                if ($action['action_state_sc'] == 'of') {
+                    if ($ac_guests_free > 0) { $anm_opt[] = 'anfr_gst'; }   // Anfrage Gäste
+                    if ($reg_guests_count > 0) { $anm_opt[] = 'gst_list'; }             // Anzeige Gästeliste
+                }
+                if ($action['action_state_sc'] == 'gs') {
+                    if ($reg_guests_count > 0) { $anm_opt[] = 'gst_list_no_del'; }      // Anzeige Gästeliste, no delete
+                }
+            }
+        }
+        //if ($web_list == 'Veranstaltung') {}
+
+        // falls noch kein Wert gesetzt ist:
+        if ( empty($anm_opt) ) {
+            $anm_opt[] = 'no_anm';
+        }
+
+        /*++++++++++++++++++++++++++++++++++++++++++++++++++
+         * Teil 2
+         * Ab hier werden die Daten für den Teilnehmerbereich der Fahrt zusammenstellen
+         *
+         *
+         * +++++++++++++++++++++++++++++++++++++++++++++++++
+         */
+/*
+        $max_pers = $action['ac_max_pers'];
+        $captain = 1;
+        $crew_final = 5;
+        //$service_final = 1;
+        //$max_guests = $action['ac_max_guests'];
+        $free['tn_free'] = $max_pers - $captain - $crew_final;
+
+       // maximale Zahlen der Gruppen aus dem Fahrtentyp
         $max = DB::table('action_types')
             ->where('sc', $action['action_type_sc'])
             ->value('groups');
         $max_array = json_decode($max, true);
-/*
+
+
         $free = [
             'crew_free' => (!empty($max_array['cr'])) ? $max_array['cr'] - $crew_count : '',
             'service_free' => (!empty($max_array['sv'])) ? $max_array['sv'] - $serv_count : '',
             'pass_free' => (!empty($max_array['mf'])) ? $max_array['mf'] - $pass_count - $guest_count : '',
             'guests_free' => $action['guest_count'] - $guest_count,
+            'all_free' =>
         ];
-        $anmeldung = [];
-        if ($action['action_type_sc'] == 'gf') {
-            if ([$free['crew_free'] > 0]) $anmeldung[] = ['group' => 'cr', 'text' => 'Anmeldung für Decks-Crew', 'guests' => 0];
-            if ([$free['service_free'] > 0]) $anmeldung[] = ['group' => 'sv', 'text' => 'Anmeldung für Service-Crew', 'guests' => 0];
-        }
-        if ($action['action_type_sc'] == 'vf') {
-            if ([$free['crew_free'] > 0]) $anmeldung[] = ['group' => 'cr', 'text' => 'Anmeldung für Decks-Crew', 'guests' => $free['guests_free']];
-            if ([$free['service_free'] > 0]) $anmeldung[] = ['group' => 'sv', 'text' => 'Anmeldung für Service-Crew', 'guests' => $free['guests_free']];
-            if ([$free['pass_free'] > 0]) $anmeldung[] = ['group' => 'mf', 'text' => 'Anmeldung als Mitfahrer', 'guests' => $free['guests_free']];
-        }
-        if ($action['action_type_sc'] ==  'af' or $action['action_type_sc'] ==  'uf') {
-            if ([$free['crew_free'] > 0]) $anmeldung[] = ['group' => 'cr', 'text' => 'Anmeldung für Decks-Crew', 'guests' => 0];
-        }
-        if ($action['action_type_sc'] ==  'vt' or $action['action_type_sc'] ==  'sc') {
-            if ([$free['crew_free'] > 0]) $anmeldung[] = ['group' => 'tn', 'text' => 'Anmeldung als Teilnehmer', 'guests' => 0];
-        }
 */
-        $anmeldung['action_state']     = $action['action_state_sc'];
-        $anmeldung['ac_reg_state_tn']  = $action['ac_reg_state_tn'];
-        $anmeldung['ac_reg_state_cr']  = $action['ac_reg_state_cr'];
-        $anmeldung['ac_reg_state_sv']  = $action['ac_reg_state_sv'];
-        if (!empty($registered)) {
-            $anmeldung['member_reg_state'] = $registered->reg_state;
-            $anmeldung['member_reg_group'] = $registered->group;
-        }
 
-        $max = DB::table('action_types')
-            ->where('sc', $action['action_type_sc'])
-            ->value('groups');
-        $max_array = json_decode($max, true);
-        $anmeldung['tn_wl'] = $max_array['tnwl'] ?? 0;
+        /*++++++++++++++++++++++++++++++++++++++++++++++++++
+         * Anzahl der Teilnehmer in den Gruppen für diese Fahrt
+         *
+         * in array $regs_count bereitlegen
+         * +++++++++++++++++++++++++++++++++++++++++++++++++
+         */
+        $regs = DB::table('action_members')
+            ->where('action_id', $action_id)
+            ->select(['group', 'reg_state'])
+            ->get();
+        $regs_array = [];
+        foreach ($regs as $reg) {
+            $regs_array[] = str_replace(',', '', $reg->group) . '_' . $reg->reg_state;
+        }
+        $regs_count = array_count_values($regs_array);
 
         /*++++++++++++++++++++++++++++++++++++++++++++++++++
          * Die die Nicknames aller angemeldeten Teilnehmer holen
@@ -292,22 +476,6 @@ class ApiController extends Controller
             $members['service'] = implode("<br>", $members['service']);
         }
 
-        // Nicknames der Mitfahrer holen (Vereinsfahrt)
-/*        $passengers = DB::table('action_members')
-            ->join('members', 'members.webid', '=', 'action_members.member_id')
-            ->where('action_members.action_id', $action_id)
-            ->where('action_members.group', 'mf')
-            ->select('nickname')
-            ->get();
-        $members['passengers'] = "&nbsp;";
-        if (!empty($passengers)) {
-            $members['passengers'] = [];
-            foreach ($passengers as $ps) {
-                $members['passengers'][] = $ps->nickname;
-            }
-            $members['passengers'] = implode("<br>", $members['passengers']);
-        }
-*/
         // Nicknames der Teilnehmer holen (Vereinsfahrt, Vereinstreffen, Shanty-Chor, ...)
         $participants = DB::table('action_members')
             ->join('members', 'members.webid', '=', 'action_members.member_id')
@@ -324,7 +492,7 @@ class ApiController extends Controller
             $members['participants'] = implode("<br>", $members['participants']);
         }
 
-        $members['guests'] = $guest_count;
+        //$members['guests'] = $ac_gst_count;
         $members['guest_max'] = $action['guest_count'];
 
         //$anmeldung = [];
@@ -334,13 +502,10 @@ class ApiController extends Controller
 
         return response()->json([
             'action' => $action,
-            "anmeldung" => $anmeldung,
+            "anm_opt" => $anm_opt,
+            "anm_test" => $anm_test,
             "members" => $members,
-            "registered" => $registered,
-            "max_array" => $max_array,
-            "webid" => $web_id,
-            "actionid" => $action_id,
-            //"hello" => "hello"
+            "regs_count" => $regs_count,
         ]);
 
     }

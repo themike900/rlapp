@@ -1,9 +1,10 @@
 <?php
 
 function rl_details() {
+    //echo '<pre>';
 
     $user_id = get_current_user_id();
-    $meta_weblist = get_user_meta($user_id, 'weblist',true) ?? 'Segelterminliste';
+    $meta_weblist = get_user_meta($user_id, 'weblist',true) ?? 'Segeltermine';
     //print_r($meta_weblist);
     $list_path = match($meta_weblist) {
         'Segeltermine' => '/intern/segeltermine-neu',
@@ -28,7 +29,8 @@ function rl_details() {
     $webId = um_profile_id();
 
     // API-Request vorbereiten und ausführen
-    $api_url = "rlapp.schummel.de/api/details/{$webId}/{$actionId}";
+    $api_url = "rlapp.schummel.de/api/details/{$webId}/{$actionId}?liste={$meta_weblist}";
+	//print_r($api_url);
     $ch = curl_init($api_url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_TIMEOUT, 30);
@@ -45,19 +47,60 @@ function rl_details() {
     } else {
         $data = json_decode($response, true);
         $ac = $data['action'];
-        $reg = $data['registered'];
+        //$reg = $data['registered'];
         $mem = $data['members'];
-        $anm = $data['anmeldung'];
+        //$anm = $data['anmeldung'];
+        $anm_opt = $data['anmeldung']['anm_opt'] ?? 'no_anm';
     }
-
+    $anm_opt="all";
     // Zusammenbau der Webseite durchführen
+    //print_r($reg);
+
+    //echo '</pre>';
     ob_start();
-    //print_r($ac);
 
     ?>
+    <style>
+        /* Container-Klasse für Isolation */
+        .sc-container .custom-table-btn {
+            background-color: #007BFF;
+            border: 2px solid #0056b3;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 16px;
+            display: inline-block;
+            margin: 1px;
+        }
+        /* Hover-Effekt mit höherer Spezifität */
+        .sc-container .custom-table-btn:hover {
+            background-color: #4da1ff !important;
+            border-color: #0056b3 !important;
+            transform: scale(1.02) !important;
+        }
+        /* Tabellen-Reset */
+        .sc-container table {
+            border-collapse: collapse !important;
+            margin: 20px 0 !important;
+			font-size: 16px;
+			line-height: 1.3;
+        }
+        .sc-container td {
+            padding: 8px !important;
+            text-align: left !important;
+        }
+        .checkbox {
+            transform: scale(1.5);
+            margin-right: 5px;
+        }
+    </style>
+
     <p style="text-align: right"><a href="<?php echo $list_path; ?>?id=<?php echo $actionId?>"><?php echo $list_name ?></a></p>
 
-    <table style="width:100%; border-collapse: collapse">
+    <div class="sc-container"> <!-- Wrapper für Isolation -->
+    <table>
 
         <tr><td style="background-color: #b1d4fd"><b>Fahrteninformationen</b></td></tr>
 
@@ -124,145 +167,376 @@ function rl_details() {
 
         <tr><td style="background-color: #b1d4fd"><b>An- oder Abmeldung</b></td></tr>
 
-            <tr>
-                <td style="background-color: #d6e8ff">
-                    <div style="display: flex; flex-direction: column; align-items: center">
-                        <table style="width:90%; border-collapse: collapse; background-color: white">
+		<tr>
+			<td style="background-color: #d6e8ff">
+				<div style="display: flex; flex-direction: column; align-items: center">
+					<table style="width:90%; border-collapse: collapse; background-color: white">
 
+						<?php if ($anm_opt == 'anm_tn' or $anm_opt == 'all') { ?>
                             <tr>
-                                <td style="text-align: right;"><b>Anmeldung als mitfahrendes Vereinsmitglied</b></td>
-                                <td>
-                                    <form action="https://rlapp.schummel.de/api/rlreg" method="POST">
-                                        <input type="hidden" name="webid" value="<?php echo $webId ?>">
-                                        <input type="hidden" name="actionid" value="<?php echo $actionId ?>">
-                                        <input type="hidden" name="group" value="tn">
-                                        <input type="hidden" name="host" value="<?php echo $_SERVER['SERVER_NAME']?>">
-                                        &nbsp;<button type="submit">Anmelden</button>
-                                    </form>
-                                </td>
+                                <td colspan="2">Du bist bisher nicht angemeldet</td>
                             </tr>
+							<tr>
+								<td>Anmeldung als <b>mitfahrendes Vereinsmitglied</b></td>
+								<td>
+									<form action="https://rlapp.schummel.de/api/rlreg" method="POST">
+										<input type="hidden" name="webid" value="<?php echo $webId ?>">
+										<input type="hidden" name="actionid" value="<?php echo $actionId ?>">
+										<input type="hidden" name="group" value="tn">
+										<input type="hidden" name="host" value="<?php echo $_SERVER['SERVER_NAME']?>">
+										<input type="hidden" name="anm_pot" value="<?php echo $anm_opt ?>">
+										<button type="submit" class="custom-table-btn">Anmelden</button>
+									</form>
+								</td>
+							</tr>
+						<?php } ?>
 
+					<!-- segeltl, mem_groups alle, no reg, action_state offen, ac_reg_state_tn belegt-->
+						<?php if ($anm_opt == 'anm_wl' or $anm_opt == 'all') { ?>
                             <tr>
-                                <td style="text-align: right;"><b>Die Fahrt ist bereits ausgebucht.<br>Du kannst dich auf die Warteliste setzen.</b></td>
-                                <td>
-                                    <form action="https://rlapp.schummel.de/api/rlreg" method="POST">
-                                        <input type="hidden" name="webid" value="<?php echo $webId ?>">
-                                        <input type="hidden" name="actionid" value="<?php echo $actionId ?>">
-                                        <input type="hidden" name="group" value="tnwl">
-                                        <input type="hidden" name="host" value="<?php echo $_SERVER['SERVER_NAME']?>">
-                                        <button type="submit">auf Warteliste</button>
-                                    </form>
-                                </td>
+                                <td colspan="2">Du bist bisher nicht angemeldet</td>
                             </tr>
+							<tr>
+								<td>Die <b>Fahrt</b> ist bereits <b>ausgebucht</b>.Du kannst dich aber auf die <b>Warteliste</b> setzen.</td>
+								<td>
+									<form action="https://rlapp.schummel.de/api/rlreg" method="POST">
+										<input type="hidden" name="webid" value="<?php echo $webId ?>">
+										<input type="hidden" name="actionid" value="<?php echo $actionId ?>">
+										<input type="hidden" name="group" value="tnwl">
+										<input type="hidden" name="host" value="<?php echo $_SERVER['SERVER_NAME']?>">
+										<input type="hidden" name="anm_pot" value="<?php echo $anm_opt ?>">
+										<button type="submit" class="custom-table-btn">auf Warteliste</button>
+									</form>
+								</td>
+							</tr>
+						<?php } ?>
 
+					<!-- segeltl, alle, TN angem, offen, belegt egal-->
+						<?php if ($anm_opt == 'abm_tn' or $anm_opt == 'all') { ?>
                             <tr>
-                                <td>Du bist als Teilnehmer angemeldet, und kannst Deine Teilnahme wieder abmelden.<br>Eventuelle Gäste werden auch mit abgemeldet.</td>
+                                <td colspan="2">Du bist als <b>Teilnehmer</b> angemeldet &#x2705;</td>
+                            </tr>
+							<tr>
+								<td>Du kannst Deine Teilnahme wieder abmelden.<br>Eventuelle Gäste werden auch mit abgemeldet!!</td>
+								<td>
+									<form action="https://rlapp.schummel.de/api/rlreg" method="POST">
+										<input type="hidden" name="webid" value="<?php echo $webId?>">
+										<input type="hidden" name="actionid" value="<?php echo $actionId?>">
+										<input type="hidden" name="host" value="<?php echo $_SERVER['SERVER_NAME']?>">
+										<input type="hidden" name="abmeldung" value="1">
+										<input type="hidden" name="anm_pot" value="<?php echo $anm_opt ?>">
+										<button type="submit" class="custom-table-btn">Abmelden</button>
+									</form>
+								</td>
+							</tr>
+						<?php } ?>
+
+					<!-- segeltl, alle, TN WL, offen, belegt egal-->
+						<?php if ($anm_opt == 'abm_tn_wl' or $anm_opt == 'all') { ?>
+                            <tr>
+                                <td colspan="2">Du stehst auf der <b>Warteliste</b> &#x2705;</td>
+                            </tr>
+							<tr>
+								<td>Du kannst dich wieder herausnehmen.<br>Eventuelle Gäste werden auch mit abgemeldet!!</td>
+								<td>
+									<form action="https://rlapp.schummel.de/api/rlreg" method="POST">
+										<input type="hidden" name="webid" value="<?php echo $webId?>">
+										<input type="hidden" name="actionid" value="<?php echo $actionId?>">
+										<input type="hidden" name="host" value="<?php echo $_SERVER['SERVER_NAME']?>">
+										<input type="hidden" name="abmeldung" value="1">
+										<input type="hidden" name="anm_pot" value="<?php echo $anm_opt ?>">
+										<button type="submit" class="custom-table-btn">Abmelden</button>
+									</form>
+								</td>
+							</tr>
+						<?php } ?>
+
+					<!-- segeltl, alle, TN angem, geschlossen, belegt egal-->
+						<?php if ($anm_opt == 'abm_tn_tel' or $anm_opt == 'all') { ?>
+							<tr>
+								<td colspan="2">Du bist als <b>Teilnehmer angemeldet</b> &#x2705;. Die Planung ist abgeschlossen,<br>Abmeldungen sind nur noch über den Schiffsführer möglich.</td>
+							</tr>
+						<?php } ?>
+
+					<!-- segeltl, alle, TN nicht ang, geschlossen, belegt egal-->
+						<?php if ($anm_opt == 'anm_tn_geschl' or $anm_opt == 'all') { ?>
+							<tr>
+								<td colspan="2">Die Planung ist abgeschlossen, <b>du bist nicht dabei</b> &#x1F622;,<br>Anmeldungen sind nicht mehr möglich.</td>
+							</tr>
+						<?php } ?>
+
+					<!-- bereitschaft, action_type_sc GF/AF, mem_group CR/SV, no reg, action_state egal, ac_reg_state_cr/sv bereit-->
+						<?php if ($anm_opt == 'bereit_crsv' or $anm_opt == 'all') { ?>
+                            <tr>
+                                <td colspan="2">Du bist bisher nicht angemeldet</td>
+                            </tr>
+							<tr>
+                                <td>Du kannst hier deine <b>Crew-Bereitschaftsmeldung</b> abgeben.<br><br>
+                                    Wähle aus, ob du deine Bereitschaft für die <b>Decks-Crew</b> oder die <b>Service-Crew</b>, oder beide melden möchtest.
+								</td>
+								<td style="vertical-align: top;">
+									<form action="https://rlapp.schummel.de/api/rlreg" method="POST">
+										<div style="display: flex; align-items: flex-start;">
+											<!-- Checkbox-Container -->
+											<div style="display: flex; flex-direction: column; gap: 2px; margin-right: 20px;">
+											  <label><input type="checkbox" class="checkbox" name="groups[]" value="cr"> Crew</label>
+											  <label><input type="checkbox" class="checkbox" name="groups[]" value="sv"> Service</label>
+											</div>
+											<input type="hidden" name="webid" value="<?php echo $webId ?>">
+											<input type="hidden" name="actionid" value="<?php echo $actionId ?>">
+											<input type="hidden" name="host" value="<?php echo $_SERVER['SERVER_NAME']?>">
+											<input type="hidden" name="anm_pot" value="<?php echo $anm_opt ?>">
+											<button type="submit" class="custom-table-btn">Melden</button>
+										</div>
+									</form>
+								</td>
+							</tr>
+						<?php } ?>
+
+                        <?php if ($anm_opt == 'bereit_cr' or $anm_opt == 'all') { ?>
+                            <tr>
+                                <td colspan="2">Du bist bisher nicht angemeldet</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Du kannst hier deine <b>Crew-Bereitschaftsmeldung</b> für die <b>Decks-Crew</b> abgeben.<br><br>
+                                </td>
                                 <td>
                                     <form action="https://rlapp.schummel.de/api/rlreg" method="POST">
+                                        <input type="hidden" name="groups[]" value="cr">
                                         <input type="hidden" name="webid" value="<?php echo $webId?>">
                                         <input type="hidden" name="actionid" value="<?php echo $actionId?>">
                                         <input type="hidden" name="host" value="<?php echo $_SERVER['SERVER_NAME']?>">
-                                        <input type="hidden" name="abmeldung" value="1">
-                                        <button type="submit">Abmelden</button>
+                                        <input type="hidden" name="anm_opt" value="<?php echo $anm_opt ?>">
+                                        <button type="submit" class="custom-table-btn">Bereitschaft melden</button>
                                     </form>
                                 </td>
                             </tr>
+                        <?php } ?>
 
+                        <?php if ($anm_opt == 'bereit_sv' or $anm_opt == 'all') { ?>
                             <tr>
-                                <td>Du stehst auf der Warteliste, und kannst dich wieder herausnehmen.<br>Eventuelle Gäste werden auch mit abgemeldet.</td>
+                                <td colspan="2">Du bist bisher nicht angemeldet</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Du kannst hier deine <b>Crew-Bereitschaftsmeldung</b> für die <b>Service-Crew</b> abgeben.<br><br>
+                                </td>
                                 <td>
                                     <form action="https://rlapp.schummel.de/api/rlreg" method="POST">
+                                        <input type="hidden" name="groups[]" value="cr">
                                         <input type="hidden" name="webid" value="<?php echo $webId?>">
                                         <input type="hidden" name="actionid" value="<?php echo $actionId?>">
                                         <input type="hidden" name="host" value="<?php echo $_SERVER['SERVER_NAME']?>">
-                                        <input type="hidden" name="abmeldung" value="1">
-                                        <button type="submit">Abmelden</button>
+                                        <input type="hidden" name="anm_opt" value="<?php echo $anm_opt ?>">
+                                        <button type="submit" class="custom-table-btn">Bereitschaft melden</button>
                                     </form>
                                 </td>
                             </tr>
+                        <?php } ?>
 
+
+                        <!-- bereitschaft, action_type_sc VF/GF/AF, mem_group CR/SV, reg SV, action_state egal, ac_reg_state_cr/sv bereit-->
+						<?php if ($anm_opt == 'abm_cr' or $anm_opt == 'all') { ?>
                             <tr>
-                                <td>Du bist als Teilnehmer angemeldet. Die Fahrtenplanung ist abgeschlossen,<br>Abmeldungen sind nur noch über den Schiffsführer möglich.</td>
-                                <td><b>Status: Teilnehmer</b></td>
+                                <td colspan="2">Du hast Deine Bereitschaft für <b>Decks-Crew</b> gemeldet</td>
                             </tr>
-
+                        <?php } ?>
+                        <?php if ($anm_opt == 'abm_sv' or $anm_opt == 'all') { ?>
                             <tr>
-                                <td>Die Fahrtenplanung ist abgeschlossen,<br>Anmeldungen sind nicht mehr möglich.</td>
-                                <td><b>Status: nicht dabei</b></td>
+                                <td colspan="2">Du hast Deine Bereitschaft für <b>Service-Crew</b> gemeldet</td>
                             </tr>
-
+                        <?php } ?>
+                        <?php if ($anm_opt == 'abm_crsv' or $anm_opt == 'all') { ?>
                             <tr>
-                                <td style="text-align: right;">Du kannst hier deine Crew-Bereitschaftsmeldung abgeben.<br>
-                                Wähle aus, ob du deine Bereitschaft für die Decks-Crew oder die Service-Crew, oder beide melden möchtest,
-                                und ob du bei Ablehnung als normaler Teilnehmer mitfahren möchtest, oder nicht.</td>
-                                <td style="vertical-align: top;">
-                                    <form action="https://rlapp.schummel.de/api/rlreg" method="POST">
-                                        <div style="display: flex; align-items: flex-start;">
-                                            <!-- Checkbox-Container -->
-                                            <div style="display: flex; flex-direction: column; gap: 10px; margin-right: 20px;">
-                                              <label><input type="checkbox" name="groups[]" value="cr"> Crew</label>
-                                              <label><input type="checkbox" name="groups[]" value="sv"> Service</label>
-                                              <label><input type="checkbox" name="groups[]" value="tn"> Teilnehmer</label>
+                                <td colspan="2">Du hast Deine Bereitschaft für <b>Decks-Crew</b> und <b>Service-Crew</b> gemeldet</td>
+                            </tr>
+                        <?php } ?>
+                        <?php if (in_array($anm_opt, ['abm_sv','abm_cr','abm_crsv']) or ($anm_opt == 'all')) { ?>
+							<tr>
+								<td>Du kannst Deine Bereitschaft wieder abmelden.<br>Eventuelle Gäste werden auch mit abgemeldet!!</td>
+								<td>
+									<form action="https://rlapp.schummel.de/api/rlreg" method="POST">
+										<input type="hidden" name="webid" value="<?php echo $webId?>">
+										<input type="hidden" name="actionid" value="<?php echo $actionId?>">
+										<input type="hidden" name="host" value="<?php echo $_SERVER['SERVER_NAME']?>">
+										<input type="hidden" name="abmeldung" value="1">
+										<input type="hidden" name="anm_opt" value="<?php echo $anm_opt ?>">
+										<button type="submit" class="custom-table-btn">Abmelden</button>
+									</form>
+								</td>
+							</tr>
+						<?php } ?>
+
+					<!-- bereitschaft, action_type_sc VF/GF/AF, mem_group CR/SV, reg CR, action_state egal, ac_reg_state_cr geplant-->
+						<?php if ($anm_opt == 'abm_cr_tel' or $anm_opt == 'all') { ?>
+							<tr>
+								<td colspan="2">Du bist für die <b>Decks-Crew angenommen</b>. &#x2705; Die Crew-Planung ist abgeschlossen,<br>Abmeldungen sind nur noch über den Schiffsführer möglich.</td>
+							</tr>
+						<?php } ?>
+
+					<!-- bereitschaft, action_type_sc VF/GF/AF, mem_group CR/SV, reg CR/SV abgelehnt, action_state egal, ac_reg_state_cr geplant-->
+						<?php if ($anm_opt == 'fertig_crsv' or $anm_opt == 'all') { ?>
+							<tr>
+								<td colspan="2">Die Crew- und Service-Planung sind abgeschlossen, <b>du bist nicht dabei.</b> &#x1F622;<br>Anmeldungen sind nicht mehr möglich.</td>
+							</tr>
+						<?php } ?>
+
+						<?php if ($anm_opt == 'abm_sv_tel' or $anm_opt == 'all') { ?>
+							<tr>
+								<td colspan="2">Du bist für die <b>Service-Crew angenommen</b> &#x2705;. Die Planung ist abgeschlossen,<br>Abmeldungen sind nur noch über den Schiffsführer möglich.</td>
+							</tr>
+						<?php } ?>
+
+						<?php if ($anm_opt == 'crsv_abgl' or $anm_opt == 'all') { ?>
+							<tr>
+								<td colspan="2">Die Service-Planung ist abgeschlossen, <b>du bist nicht dabei.</b> &#x1F622;<br>Anmeldungen sind nicht mehr möglich.</td>
+							</tr>
+						<?php } ?>
+
+						<?php if ($anm_opt == 'gst_list' or $anm_opt == 'all') { ?>
+                            <style>
+                                .guest-container {
+                                    display: grid;
+                                    grid-template-columns: auto auto auto;
+                                    gap: 1px;
+                                    background-color: #ddd;
+                                }
+                                .row {
+                                    display: contents;
+                                    gap: 1px;
+                                }
+                                .cell {
+                                    background: white;
+                                    padding: 10px;
+                                }
+                            </style>
+                            <tr>
+								<td colspan="2">Deine angefragten oder angenommen Gäste sind:
+                                    <div class="guest-container">
+
+                                        <div class="row">
+                                            <div class="cell">Karl-Heinz<br>Familie</div>
+                                            <div class="cell">angefragt</div>
+                                            <div class="cell">
+                                                <form action="/action1">
+                                                    <button type="submit" class="custom-table-btn">abmelden</button>
+                                                </form>
                                             </div>
-                                            <input type="hidden" name="webid" value="<?php echo $webId ?>">
-                                            <input type="hidden" name="actionid" value="<?php echo $actionId ?>">
-                                            <input type="hidden" name="host" value="<?php echo $_SERVER['SERVER_NAME']?>">
-                                            <button type="submit">Melden</button>
                                         </div>
-                                    </form>
-                                </td>
-                            </tr>
 
-                            <tr>
-                                <td>Deine angefragten oder angenommen Gäste sind:<br>
-                                - Karl-Heinz. Familie, angefragt<br>
-                                - Lieselotte, Familie, angenommen<br>
-                                - Friedrich Wilhelm Ganzlanger Name, befreundet, angenommen
-                               </td>
-                                <td>&nbsp;</td>
-                            </tr>
-
-                            <tr>
-                                <td style="text-align: right;">Du kannst hier deine Crew-Bereitschaftsmeldung abgeben.<br>
-                                Wähle aus, ob du deine Bereitschaft für die Decks-Crew oder die Service-Crew, oder beide melden möchtest.
-                                </td>
-                                <td style="vertical-align: top;">
-                                    <form action="https://rlapp.schummel.de/api/rlreg" method="POST">
-                                        <div style="display: flex; align-items: flex-start;">
-                                            <!-- Checkbox-Container -->
-                                            <div style="display: flex; flex-direction: column; gap: 10px; margin-right: 20px;">
-                                              <label><input type="checkbox" name="groups[]" value="cr"> Crew</label>
-                                              <label><input type="checkbox" name="groups[]" value="sv"> Service</label>
+                                        <div class="row">
+                                            <div class="cell">Lieselotte<br>Freund</div>
+                                            <div class="cell">angefragt</div>
+                                            <div class="cell">
+                                                <form action="/action2">
+                                                    <button type="submit" class="custom-table-btn">abmelden</button>
+                                                </form>
                                             </div>
-                                            <input type="hidden" name="webid" value="<?php echo $webId ?>">
-                                            <input type="hidden" name="actionid" value="<?php echo $actionId ?>">
-                                            <input type="hidden" name="host" value="<?php echo $_SERVER['SERVER_NAME']?>">
-                                            <button type="submit">Melden</button>
                                         </div>
-                                    </form>
-                                </td>
-                            </tr>
 
+                                        <div class="row">
+                                            <div class="cell">Friedrich Wilhelm Ganzlanger Name<br>Interessent</div>
+                                            <div class="cell">angenommen</div>
+                                            <div class="cell">
+                                                <form action="/action2">
+                                                    <button type="submit" class="custom-table-btn">abmelden</button>
+                                                </form>
+                                            </div>
+                                        </div>
+
+                                    </div>
+							    </td>
+							</tr>
+						<?php } ?>
+
+						<?php if ($anm_opt == 'anfr_gst' or $anm_opt == 'all') { ?>
+						<tr>
+							<td>Hier kannst Du Deiner Anmeldung einen weiteren Gast hinzufügen.<br><br>
+							Die Teilnahme ist zunächst nur angefragt. Die Annahme oder Ablehnung wird Dir per Email gesendet, und wird dann hier auch sichtbar.</td>
+							<td>
+								<style>
+									.form-container {
+										display: grid;
+										grid-template-columns: auto auto; /* Zwei Spalten */
+										grid-template-rows: auto auto auto; /* Drei Zeilen */
+										gap: 5px; /* Abstand zwischen den Zellen */
+										align-items: center; /* Zentrierung der Elemente vertikal */
+									}
+									.form-row {
+										display: contents; /* Sicherstellen, dass die Kinder innerhalb des Grids bleiben */
+									}
+									label {
+										grid-column: 1; /* Erste Spalte */
+										margin-right: 10px; /* Abstand zwischen Label und Eingabefeld */
+									}
+									input, button, select {
+										grid-column: 2; /* Zweite Spalte */
+									}
+                                    .styled-input {
+                                        border: 2px solid gray; /* Grauer Rand */
+                                        border-radius: 10px; /* Runde Ecken */
+                                        padding: 5px;
+                                        outline: none;
+                                        transition: background-color 0.3s ease; /* Glatter Übergang für den Hover-Effekt */
+                                    }
+                                    .styled-input:hover {
+                                        background-color: #f0f0f0; /* Hintergrundfarbe beim Hover */
+                                    }
+                                    .styled-input:focus {
+                                        box-shadow: 0 0 5px rgba(0, 0, 0, 0.2); /* Optional: Schatten beim Fokus für besseren Fokus-Effekt */
+                                    }
+                                </style>
+								<form action="https://rlapp.schummel.de/api/rlreg" method="POST">
+									<div class="form-container">
+										<div class="form-row">
+											<label for="gst_name">Name:</label>
+											<input type="text" class="styled-input" id="gst_name" name="gst_name" size="12" max="20">
+										</div>
+										<div class="form-row">
+											<label for="gst_bezug">Bezug:</label>
+                                            <select id="gst_bezug" name="gst_bezug">
+                                                <option value="Familie">Familie</option>
+                                                <option value="Freund">Freund</option>
+                                                <option value="Interessent">Interessent</option>
+                                            </select>
+										</div>
+										<div class="form-row">
+											<input type="hidden" name="webid" value="<?php echo $webId ?>">
+											<input type="hidden" name="actionid" value="<?php echo $actionId ?>">
+											<input type="hidden" name="host" value="<?php echo $_SERVER['SERVER_NAME'] ?>">
+											<input type="hidden" name="abmeldung" value="1">
+											<input type="hidden" name="anm_pot" value="<?php echo $anm_opt ?>">
+											<button type="submit" class="custom-table-btn">Anfragen</button>
+										</div>
+									</div>
+								</form>
+							</td>
+						</tr>
+						<?php } ?>
+
+						<?php if ($anm_opt == 'no_anm' or $anm_opt == 'all') { ?>
+							<tr>
+								<td colspan="2">Anmeldungen sind im Moment nicht möglich.</td>
+							</tr>
+						<?php } ?>
+
+                        <?php if ($anm_opt == 'bereit_link' or $anm_opt == 'all') { ?>
                             <tr>
-                                <td>Hier kannst Du Deiner Anmeldung weiteren Gast hinzufügen<br>
-                                Die Teilnahme ist zunächst nur angefragt. Die Annahme oder Ablehnung wird Dir per Email gesendet, und wird dann hier auch sichtbar.</td>
-                                <td>
-                                    <form action="https://rlapp.schummel.de/api/rlreg" method="POST">
-                                        <label>Name : <input type="text" name="gst_name" size="10" max="20"></label>
-                                        <label>Bezug: <input type="text" name="gst_bezug" size="10" max="20"></label>
-                                        <input type="hidden" name="webid" value="<?php echo $webId?>">
-                                        <input type="hidden" name="actionid" value="<?php echo $actionId?>">
-                                        <input type="hidden" name="host" value="<?php echo $_SERVER['SERVER_NAME']?>">
-                                        <input type="hidden" name="abmeldung" value="1">
-                                        <button type="submit">Abmelden</button>
-                                    </form>
-                                </td>
+                                <td colspan="2">Du hast für diese Fahrt eine Crew-Bereitschaft angemeldet. Bearbeite diese bitte in der <a href="/intern/bereitschaft">Liste der Crew-Bereitschaftsmeldungen</a></td>
                             </tr>
+                        <?php } ?>
 
-                        </table>
-                    </div>
-                </td>
-            </tr>
+                        <?php if ($anm_opt == 'segeltn_link' or $anm_opt == 'all') { ?>
+                            <tr>
+                                <td colspan="2">Du hast Dich für diese Fahrt als mitfahrendes Mitglied angemeldet. Bearbeite diese bitte in der <a href="/intern/segeltermine-neu">Segelterminliste</a></td>
+                            </tr>
+                        <?php } ?>
+
+                    </table>
+				</div>
+			</td>
+		</tr>
 
 
         <tr><td style="background-color: #b1d4fd"><b>Angemeldete Teilnehmer</b></td></tr>
@@ -273,34 +547,34 @@ function rl_details() {
                     <table style="width:70%; border-collapse: collapse; background-color: white">
                         <?php if ($ac['action_type_sc'] == 'vf' or $ac['action_type_sc'] == 'gf' or $ac['action_type_sc'] == 'uf' or $ac['action_type_sc'] == 'af') { ?>
                             <tr>
-                                <td style="width: 30%;text-align: right;"><b>Kapitän</b></td>
+                                <td style="width: 30%;text-align: right;"><b>Schiffsführer</b></td>
                                 <td><?php echo $mem['captain'];?></td>
                             </tr>
                             <tr>
                                 <td style="width: 30%;text-align: right; vertical-align: top;"><b>Decks-Crew</b></td>
-                                <td><?php echo $mem['crew'];?></td>
+                                <td> 10 Bereitschaftsmeldungen</td>
                             </tr>
                         <?php } ?>
                         <?php if ($ac['action_type_sc'] == 'vf' or $ac['action_type_sc'] == 'gf') { ?>
                             <tr>
                                 <td style="width: 30%;text-align: right; vertical-align: top;"><b>Service-Crew</b></td>
-                                <td><?php echo $mem['service'];?></td>
+                                <td>3 Bereitschaftsmeldungen</td>
                             </tr>
                         <?php } ?>
                         <?php if ($ac['action_type_sc'] == 'vf') { ?>
                             <tr>
-                                <td style="width: 30%;text-align: right; vertical-align: top;"><b>Mietfahrer</b></td>
-                                <td><?php echo $mem['passengers'];?></td>
+                                <td style="width: 30%;text-align: right; vertical-align: top;"><b>Mitglieder</b></td>
+                                <td>12 mitfahrende Mitglieder</td>
                             </tr>
                             <tr>
                                 <td style="width: 30%;text-align: right; vertical-align: top;"><b>Gäste</b></td>
-                                <td><?php echo $mem['guests'];?> (von maximal <?php echo $mem['guest_max'];?>)</td>
+                                <td>4 (maximal 6)</td>
                             </tr>
                         <?php } ?>
                         <?php if ($ac['action_type_sc'] == 'vt' or $ac['action_type_sc'] == 'sc') { ?>
                             <tr>
                                 <td style="width: 30%;text-align: right; vertical-align: top;"><b>Teilnehmer</b></td>
-                                <td><?php echo $mem['participants'];?></td>
+                                <td>12 Anmeldungen</td>
                             </tr>
                         <?php } ?>
                     </table>
@@ -308,6 +582,7 @@ function rl_details() {
             </td>
         </tr>
     </table>
+    </div>
     <?php
     return ob_get_clean();
 }
