@@ -159,7 +159,7 @@ class ApiController extends Controller
         $action['action_date'] = Carbon::createFromFormat('Y-m-d', $action['action_date'])->isoFormat('dddd DD.MM.');
         $action['crew_info'] = $action['crew_supply'];
         $action['service_info'] = "Catering: {$action['catering_info']},<br>Eis: {$action['ice_info']}";
-        $action['action_name'] = DB::table('action_types')
+        $action['action_type'] = DB::table('action_types')
             ->where('sc', $action['action_type_sc'])
             ->value('name');
 

@@ -85,7 +85,7 @@ class ActionController extends Controller
             $action->am_sv = DB::table('action_members')->where('action_id', $action->id)->where('group','sv')->count();
             $action->am_mf = DB::table('action_members')->where('action_id', $action->id)->where('group','mf')->count();
             $action->am_tn = DB::table('action_members')->where('action_id', $action->id)->where('group','tn')->count();
-            $action->am_gs = DB::table('action_members')->where('action_id', $action->id)->sum('guests');
+            //$action->am_gs = DB::table('action_members')->where('action_id', $action->id)->sum('guests');
             //Log::debug($action);
         }
 
@@ -100,7 +100,7 @@ class ActionController extends Controller
     {
         Log::debug($request);
 
-        $def_vals = ['selected' => 'gf', 'action_type' => 'Gästefahrt', 'guests_max' => 20 ];
+        $def_vals = ['selected' => 'gf', 'action_type_sc' => 'gf', 'guests_max' => 20 ];
         if (!empty($request->input())) {
             $def_vals = '';
         }

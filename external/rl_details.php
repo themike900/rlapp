@@ -50,7 +50,7 @@ function rl_details() {
         //$reg = $data['registered'];
         $mem = $data['members'];
         //$anm = $data['anmeldung'];
-        $anm_opt = $data['anmeldung']['anm_opt'] ?? 'no_anm';
+        $anm_opt = $data['anm_opt'] ?? ['no_anm'];
     }
     $anm_opt="all";
     // Zusammenbau der Webseite durchführen
