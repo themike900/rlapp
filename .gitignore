@@ -19,3 +19,5 @@ yarn-error.log
 /.vscode
 /.zed
 /database/migration-old/
+/external/rl_details.php.bak
+/config/sanctum.php

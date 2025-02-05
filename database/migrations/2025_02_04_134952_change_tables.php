@@ -13,11 +13,11 @@ return new class extends Migration
     {
 
         Schema::table('action_members', function (Blueprint $table) {
-            $table->renameColumn('action_type', 'action_name')->change();
             $table->dropColumn('guests');
         });
 
         Schema::table('actions', function (Blueprint $table) {
+            $table->renameColumn('action_type', 'action_name')->change();
             $table->boolean('ac_with_wl')->default(0)->change();
         });
 
