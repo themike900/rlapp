@@ -524,6 +524,7 @@ class ApiController extends Controller
             "anm_test" => $anm_test,
             "members" => $members,
             "regs_count" => $regs_count,
+            "debug" => true
         ]);
 
     }
