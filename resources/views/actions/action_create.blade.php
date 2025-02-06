@@ -23,10 +23,10 @@
         <div class="grid grid-cols-1">
         <form method="POST" action="{{ route('actions.store') }}">
             @csrf
-            <label class="block p-1 w-80 border">Bezeichnung: <input name="action_type"
+            <label class="block p-1 w-80 border">Bezeichnung: <input name="action_type_sc"
 				type="text" maxlength="30"
                 class="max-w-36 p-1 border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm"
-                value="{{ $def_vals['action_type'] }}"
+                value="{{ $def_vals['action_type_sc'] }}"
                 ></label>
             <label class="block p-1">Datum der Fahrt: <input name="action_date"
 				type="text" min="10" max="10"

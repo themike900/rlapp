@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\ActionController;
+use App\Http\Controllers\RlActionsController;
+use App\Http\Controllers\RlMembersController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ImportController;
@@ -29,12 +31,23 @@ Route::middleware('auth')->group(function () {
     Route::match(['get', 'post'], '/actions/show', [ActionController::class, 'show'])->name('actions.show');
     Route::match(['get', 'post'], '/actions/edit', [ActionController::class, 'edit'])->name('actions.edit');
     Route::match(['get', 'post'], '/actions/update', [ActionController::class, 'update'])->name('actions.update');
+
+    Route::match(['get', 'post'], '/rl/actions-list', [RlActionsController::class, 'RlActionList'])->name('rl-action-list');
+    Route::match(['get', 'post'], '/rl/action-new', [RlActionsController::class, 'RlActionNew'])->name('rl-action-new');
+    Route::match(['get', 'post'], '/rl/action-edit', [RlActionsController::class, 'RlActionEdit'])->name('rl-action-edit');
+    Route::match(['get', 'post'], '/rl/action-save', [RlActionsController::class, 'RlActionSave'])->name('rl-action-save');
+    Route::match(['get', 'post'], '/rl/mems-list', [RlMembersController::class, 'RlMembersList'])->name('rl-mem-list');
+    Route::match(['get', 'post'], '/rl/mem-edit', [RlMembersController::class, 'RlMembersEdit'])->name('rl-mem-edit');
+    Route::match(['get', 'post'], '/rl/mem-save', [RlMembersController::class, 'RlMembersSave'])->name('rl-mem-save');
 });
 
 Route::get('/members/import', function () {
         return view('members.members_import');
-    })->middleware(['auth', 'verified'])->name('members.import');
-Route::post('/import', [ImportController::class, 'importMembers'])->name('import');
+    })->middleware(['auth', 'verified'])
+    ->name('members.import');
+
+Route::post('/import', [ImportController::class, 'importMembers'])
+    ->name('import');
 
 
 //Route::resource('actions', ActionController::class)

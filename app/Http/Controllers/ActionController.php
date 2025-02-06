@@ -114,11 +114,11 @@ class ActionController extends Controller
     public function store(Request $request):redirectResponse
     {
         //$validated = $request->validate([
-        //    'action_type' => 'required|string|max:50',
+        //    'action_name' => 'required|string|max:50',
         //]);
 
 		$action = new Action;
-		$action->action_type = $request->action_type;
+		$action->action_name = $request->input['action_name'];
 		$action->action_date = $request->action_date;
 		$action->crew_start_at = $request->crew_start_at;
 		$action->crew_end_at = $request->crew_end_at;

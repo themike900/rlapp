@@ -74,7 +74,7 @@
            <tr onclick="window.location.href='{{ route('actions.create') }}'" class="hover:bg-gray-200 border cursor-pointer">
                <td class="p-1">{{ __(date_format(date_create($ac->action_date), 'D')) }}</td>
                <td class="border-r p-1">{{ date_format(date_create($ac->action_date), 'j. M') }}</td>
-               <td class="border-r p-1">{{ $ac->action_type }}</td>
+               <td class="border-r p-1">{{ $ac->action_name }}</td>
                <td class="text-center border-r">{{ $ac->crew_start_at }} - {{ $ac->crew_end_at }}</td>
                <td class="text-center border-r">{{ $ac->action_start_at }}-{{ $ac->action_end_at }}</td>
                <td class="text-center border-r">{{ $ac->as_name }}</td>

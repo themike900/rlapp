@@ -7,7 +7,7 @@
 
     <div class="max-w-xl mx-auto p-4 sm:p-6 lg:p-8 mt-6 bg-white shadow-sm rounded-lg">
         <div class="grid grid-cols-2 gap-2">
-            <div>Type der Fahrt:</div> <div>{{ $action->action_type }}</div>
+            <div>Type der Fahrt:</div> <div>{{ $action->action_name }}</div>
             <div>Datum der Fahrt:</div> <div>{{ __(date_format(date_create($action->action_date), 'D')) }} {{ date_format(date_create($action->action_date), 'j. M') }}</div>
             <div>Crew-Zeit:t:</div> <div>{{ $action->crew_start_at }}-{{ $action->crew_end_at }}</div>
             <div>Fahrt-Zeit:</div> <div>{{ $action->action_start_at }}-{{ $action->action_start_at }}</div>

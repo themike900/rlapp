@@ -1,7 +1,7 @@
 <?php
 
 function rl_details() {
-    //echo '<pre>';
+    echo '<pre>';
 
     $user_id = get_current_user_id();
     $meta_weblist = get_user_meta($user_id, 'weblist',true) ?? 'Segeltermine';
@@ -48,15 +48,16 @@ function rl_details() {
         $data = json_decode($response, true);
         $ac = $data['action'];
         //$reg = $data['registered'];
-        $mem = $data['members'];
+        //$mem = $data['members'];
         //$anm = $data['anmeldung'];
         $anm_opt = $data['anm_opt'] ?? ['no_anm'];
+        $anm_test = $data['anm_opt'];
     }
-    $anm_opt="all";
     // Zusammenbau der Webseite durchführen
-    //print_r($reg);
+    print_r($anm_opt);
+    print_r($anm_test);
 
-    //echo '</pre>';
+    echo '</pre>';
     ob_start();
 
     ?>
