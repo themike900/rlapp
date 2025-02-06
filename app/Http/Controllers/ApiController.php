@@ -303,17 +303,35 @@ class ApiController extends Controller
         // Crew-Bereitschaftsliste, und gehört das Mitglied zu CR oder SV
         if ($web_list == 'Bereitschaft' and !empty(array_intersect($mem_groups, ['cr','sv']))) {
             if ( empty($reg_reg_state) ) {
-                if ($action['ac_reg_state_cr'] == 'crbr' and $action['ac_reg_state_sv'] == 'svbr') {
-                    $anm_opt[] = 'bereit_crsv';                                                         // Bereitschaftsmeldung CR/SV
+                if (in_array('cr', $mem_groups) and in_array('sv', $mem_groups)) {
+                    if ($action['ac_reg_state_cr'] == 'crbr' and $action['ac_reg_state_sv'] == 'svbr') {
+                        $anm_opt[] = 'bereit_crsv';                                                         // Bereitschaftsmeldung CR/SV
+                    }
+                    if ($action['ac_reg_state_cr'] == 'crbr' and $action['ac_reg_state_sv'] == 'svgp') {
+                        $anm_opt[] = 'bereit_cr';                                                           // Bereitschaftsmeldung CR
+                    }
+                    if ($action['ac_reg_state_cr'] == 'crgp' and $action['ac_reg_state_sv'] == 'svbr') {
+                        $anm_opt[] = 'bereit_sv';                                                           // Bereitschaftsmeldung SV
+                    }
+                    if ($action['ac_reg_state_cr'] == 'crgp' and $action['ac_reg_state_sv'] == 'svgp') {
+                        $anm_opt[] = 'fertig_crsv';                                                         // Bereitschaft fertig geplant
+                    }
                 }
-                if ($action['ac_reg_state_cr'] == 'crbr' and $action['ac_reg_state_sv'] == 'svgp') {
-                    $anm_opt[] = 'bereit_cr';                                                           // Bereitschaftsmeldung CR
+                if (in_array('cr', $mem_groups) and !in_array('sv', $mem_groups)) {
+                    if ($action['ac_reg_state_cr'] == 'crbr') {
+                        $anm_opt[] = 'bereit_cr';                                                           // Bereitschaftsmeldung CR
+                    }
+                    if ($action['ac_reg_state_cr'] == 'crgp') {
+                        $anm_opt[] = 'fertig_crsv';                                                         // Bereitschaft fertig geplant
+                    }
                 }
-                if ($action['ac_reg_state_cr'] == 'crgp' and $action['ac_reg_state_sv'] == 'svbr') {
-                    $anm_opt[] = 'bereit_sv';                                                           // Bereitschaftsmeldung SV
-                }
-                if ($action['ac_reg_state_cr'] == 'crgp' and $action['ac_reg_state_sv'] == 'svgp') {
-                    $anm_opt[] = 'fertig_crsv';                                                         // Bereitschaft fertig geplant
+                if (in_array('sv', $mem_groups) and !in_array('cr', $mem_groups)) {
+                    if ($action['ac_reg_state_sv'] == 'svbr') {
+                        $anm_opt[] = 'bereit_sv';                                                           // Bereitschaftsmeldung CR
+                    }
+                    if ($action['ac_reg_state_sv'] == 'svgp') {
+                        $anm_opt[] = 'fertig_crsv';                                                         // Bereitschaft fertig geplant
+                    }
                 }
             }
             if ($reg_reg_state == 'cr_br') {

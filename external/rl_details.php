@@ -51,7 +51,7 @@ function rl_details() {
         //$mem = $data['members'];
         //$anm = $data['anmeldung'];
         $anm_opt = $data['anm_opt'] ?? ['no_anm'];
-        $anm_test = $data['anm_opt'];
+        $anm_test = $data['anm_test'];
     }
     // Zusammenbau der Webseite durchführen
     print_r($anm_opt);
@@ -173,7 +173,7 @@ function rl_details() {
 				<div style="display: flex; flex-direction: column; align-items: center">
 					<table style="width:90%; border-collapse: collapse; background-color: white">
 
-						<?php if ($anm_opt == 'anm_tn' or $anm_opt == 'all') { ?>
+                        <?php if (!empty(array_intersect(['anm_tn', 'all'], $anm_opt))) { ?>
                             <tr>
                                 <td colspan="2">Du bist bisher nicht angemeldet</td>
                             </tr>
@@ -193,7 +193,7 @@ function rl_details() {
 						<?php } ?>
 
 					<!-- segeltl, mem_groups alle, no reg, action_state offen, ac_reg_state_tn belegt-->
-						<?php if ($anm_opt == 'anm_wl' or $anm_opt == 'all') { ?>
+                        <?php if (!empty(array_intersect(['anm_wl', 'all'], $anm_opt))) { ?>
                             <tr>
                                 <td colspan="2">Du bist bisher nicht angemeldet</td>
                             </tr>
@@ -213,7 +213,7 @@ function rl_details() {
 						<?php } ?>
 
 					<!-- segeltl, alle, TN angem, offen, belegt egal-->
-						<?php if ($anm_opt == 'abm_tn' or $anm_opt == 'all') { ?>
+                        <?php if (!empty(array_intersect(['abm_tn', 'all'], $anm_opt))) { ?>
                             <tr>
                                 <td colspan="2">Du bist als <b>Teilnehmer</b> angemeldet &#x2705;</td>
                             </tr>
@@ -233,7 +233,7 @@ function rl_details() {
 						<?php } ?>
 
 					<!-- segeltl, alle, TN WL, offen, belegt egal-->
-						<?php if ($anm_opt == 'abm_tn_wl' or $anm_opt == 'all') { ?>
+                        <?php if (!empty(array_intersect(['abm_tn_wl', 'all'], $anm_opt))) { ?>
                             <tr>
                                 <td colspan="2">Du stehst auf der <b>Warteliste</b> &#x2705;</td>
                             </tr>
@@ -253,21 +253,21 @@ function rl_details() {
 						<?php } ?>
 
 					<!-- segeltl, alle, TN angem, geschlossen, belegt egal-->
-						<?php if ($anm_opt == 'abm_tn_tel' or $anm_opt == 'all') { ?>
+                        <?php if (!empty(array_intersect(['abm_tn_tel', 'all'], $anm_opt))) { ?>
 							<tr>
 								<td colspan="2">Du bist als <b>Teilnehmer angemeldet</b> &#x2705;. Die Planung ist abgeschlossen,<br>Abmeldungen sind nur noch über den Schiffsführer möglich.</td>
 							</tr>
 						<?php } ?>
 
 					<!-- segeltl, alle, TN nicht ang, geschlossen, belegt egal-->
-						<?php if ($anm_opt == 'anm_tn_geschl' or $anm_opt == 'all') { ?>
+                        <?php if (!empty(array_intersect(['anm_tn_geschl', 'all'], $anm_opt))) { ?>
 							<tr>
 								<td colspan="2">Die Planung ist abgeschlossen, <b>du bist nicht dabei</b> &#x1F622;,<br>Anmeldungen sind nicht mehr möglich.</td>
 							</tr>
 						<?php } ?>
 
 					<!-- bereitschaft, action_type_sc GF/AF, mem_group CR/SV, no reg, action_state egal, ac_reg_state_cr/sv bereit-->
-						<?php if ($anm_opt == 'bereit_crsv' or $anm_opt == 'all') { ?>
+                        <?php if (!empty(array_intersect(['bereit_crsv', 'all'], $anm_opt))) { ?>
                             <tr>
                                 <td colspan="2">Du bist bisher nicht angemeldet</td>
                             </tr>
@@ -280,8 +280,10 @@ function rl_details() {
 										<div style="display: flex; align-items: flex-start;">
 											<!-- Checkbox-Container -->
 											<div style="display: flex; flex-direction: column; gap: 2px; margin-right: 20px;">
-											  <label><input type="checkbox" class="checkbox" name="groups[]" value="cr"> Crew</label>
-											  <label><input type="checkbox" class="checkbox" name="groups[]" value="sv"> Service</label>
+											  <label style="white-space: nowrap;">
+                                                  <input type="checkbox" class="checkbox" name="groups[]" value="cr"> Crew</label>
+											  <label style="white-space: nowrap;">
+                                                  <input type="checkbox" class="checkbox" name="groups[]" value="sv"> Service</label>
 											</div>
 											<input type="hidden" name="webid" value="<?php echo $webId ?>">
 											<input type="hidden" name="actionid" value="<?php echo $actionId ?>">
@@ -294,7 +296,7 @@ function rl_details() {
 							</tr>
 						<?php } ?>
 
-                        <?php if ($anm_opt == 'bereit_cr' or $anm_opt == 'all') { ?>
+                        <?php if (!empty(array_intersect(['bereit_cr', 'all'], $anm_opt))) { ?>
                             <tr>
                                 <td colspan="2">Du bist bisher nicht angemeldet</td>
                             </tr>
@@ -315,7 +317,7 @@ function rl_details() {
                             </tr>
                         <?php } ?>
 
-                        <?php if ($anm_opt == 'bereit_sv' or $anm_opt == 'all') { ?>
+                        <?php if (!empty(array_intersect(['bereit_sv', 'all'], $anm_opt))) { ?>
                             <tr>
                                 <td colspan="2">Du bist bisher nicht angemeldet</td>
                             </tr>
@@ -338,22 +340,22 @@ function rl_details() {
 
 
                         <!-- bereitschaft, action_type_sc VF/GF/AF, mem_group CR/SV, reg SV, action_state egal, ac_reg_state_cr/sv bereit-->
-						<?php if ($anm_opt == 'abm_cr' or $anm_opt == 'all') { ?>
+                        <?php if (!empty(array_intersect(['abm_cr', 'all'], $anm_opt))) { ?>
                             <tr>
                                 <td colspan="2">Du hast Deine Bereitschaft für <b>Decks-Crew</b> gemeldet</td>
                             </tr>
                         <?php } ?>
-                        <?php if ($anm_opt == 'abm_sv' or $anm_opt == 'all') { ?>
+                        <?php if (!empty(array_intersect(['abm_sv', 'all'], $anm_opt))) { ?>
                             <tr>
                                 <td colspan="2">Du hast Deine Bereitschaft für <b>Service-Crew</b> gemeldet</td>
                             </tr>
                         <?php } ?>
-                        <?php if ($anm_opt == 'abm_crsv' or $anm_opt == 'all') { ?>
+                        <?php if (!empty(array_intersect(['abm_crsv', 'all'], $anm_opt))) { ?>
                             <tr>
                                 <td colspan="2">Du hast Deine Bereitschaft für <b>Decks-Crew</b> und <b>Service-Crew</b> gemeldet</td>
                             </tr>
                         <?php } ?>
-                        <?php if (in_array($anm_opt, ['abm_sv','abm_cr','abm_crsv']) or ($anm_opt == 'all')) { ?>
+                        <?php if (!empty(array_intersect(['abm_sv','abm_cr','abm_crsv','all'], $anm_opt))) { ?>
 							<tr>
 								<td>Du kannst Deine Bereitschaft wieder abmelden.<br>Eventuelle Gäste werden auch mit abgemeldet!!</td>
 								<td>
@@ -370,32 +372,32 @@ function rl_details() {
 						<?php } ?>
 
 					<!-- bereitschaft, action_type_sc VF/GF/AF, mem_group CR/SV, reg CR, action_state egal, ac_reg_state_cr geplant-->
-						<?php if ($anm_opt == 'abm_cr_tel' or $anm_opt == 'all') { ?>
+                        <?php if (!empty(array_intersect(['abm_cr_tel', 'all'], $anm_opt))) { ?>
 							<tr>
 								<td colspan="2">Du bist für die <b>Decks-Crew angenommen</b>. &#x2705; Die Crew-Planung ist abgeschlossen,<br>Abmeldungen sind nur noch über den Schiffsführer möglich.</td>
 							</tr>
 						<?php } ?>
 
 					<!-- bereitschaft, action_type_sc VF/GF/AF, mem_group CR/SV, reg CR/SV abgelehnt, action_state egal, ac_reg_state_cr geplant-->
-						<?php if ($anm_opt == 'fertig_crsv' or $anm_opt == 'all') { ?>
+                        <?php if (!empty(array_intersect(['fertig_crsv', 'all'], $anm_opt))) { ?>
 							<tr>
 								<td colspan="2">Die Crew- und Service-Planung sind abgeschlossen, <b>du bist nicht dabei.</b> &#x1F622;<br>Anmeldungen sind nicht mehr möglich.</td>
 							</tr>
 						<?php } ?>
 
-						<?php if ($anm_opt == 'abm_sv_tel' or $anm_opt == 'all') { ?>
+                        <?php if (!empty(array_intersect(['abm_sv_tel', 'all'], $anm_opt))) { ?>
 							<tr>
 								<td colspan="2">Du bist für die <b>Service-Crew angenommen</b> &#x2705;. Die Planung ist abgeschlossen,<br>Abmeldungen sind nur noch über den Schiffsführer möglich.</td>
 							</tr>
 						<?php } ?>
 
-						<?php if ($anm_opt == 'crsv_abgl' or $anm_opt == 'all') { ?>
+                        <?php if (!empty(array_intersect(['crsv_abgl', 'all'], $anm_opt))) { ?>
 							<tr>
 								<td colspan="2">Die Service-Planung ist abgeschlossen, <b>du bist nicht dabei.</b> &#x1F622;<br>Anmeldungen sind nicht mehr möglich.</td>
 							</tr>
 						<?php } ?>
 
-						<?php if ($anm_opt == 'gst_list' or $anm_opt == 'all') { ?>
+                        <?php if (!empty(array_intersect(['gst_list', 'all'], $anm_opt))) { ?>
                             <style>
                                 .guest-container {
                                     display: grid;
@@ -451,7 +453,7 @@ function rl_details() {
 							</tr>
 						<?php } ?>
 
-						<?php if ($anm_opt == 'anfr_gst' or $anm_opt == 'all') { ?>
+                        <?php if (!empty(array_intersect(['anfr_gst', 'all'], $anm_opt))) { ?>
 						<tr>
 							<td>Hier kannst Du Deiner Anmeldung einen weiteren Gast hinzufügen.<br><br>
 							Die Teilnahme ist zunächst nur angefragt. Die Annahme oder Ablehnung wird Dir per Email gesendet, und wird dann hier auch sichtbar.</td>
@@ -516,19 +518,19 @@ function rl_details() {
 						</tr>
 						<?php } ?>
 
-						<?php if ($anm_opt == 'no_anm' or $anm_opt == 'all') { ?>
+                        <?php if (!empty(array_intersect(['no_anm', 'all'], $anm_opt))) { ?>
 							<tr>
 								<td colspan="2">Anmeldungen sind im Moment nicht möglich.</td>
 							</tr>
 						<?php } ?>
 
-                        <?php if ($anm_opt == 'bereit_link' or $anm_opt == 'all') { ?>
+                        <?php if (!empty(array_intersect(['bereit_link', 'all'], $anm_opt))) { ?>
                             <tr>
                                 <td colspan="2">Du hast für diese Fahrt eine Crew-Bereitschaft angemeldet. Bearbeite diese bitte in der <a href="/intern/bereitschaft">Liste der Crew-Bereitschaftsmeldungen</a></td>
                             </tr>
                         <?php } ?>
 
-                        <?php if ($anm_opt == 'segeltn_link' or $anm_opt == 'all') { ?>
+                        <?php if (!empty(array_intersect(['segeltn_link', 'all'], $anm_opt))) { ?>
                             <tr>
                                 <td colspan="2">Du hast Dich für diese Fahrt als mitfahrendes Mitglied angemeldet. Bearbeite diese bitte in der <a href="/intern/segeltermine-neu">Segelterminliste</a></td>
                             </tr>
@@ -549,7 +551,7 @@ function rl_details() {
                         <?php if ($ac['action_type_sc'] == 'vf' or $ac['action_type_sc'] == 'gf' or $ac['action_type_sc'] == 'uf' or $ac['action_type_sc'] == 'af') { ?>
                             <tr>
                                 <td style="width: 30%;text-align: right;"><b>Schiffsführer</b></td>
-                                <td><?php echo $mem['captain'];?></td>
+                                <td>noch offen</td>
                             </tr>
                             <tr>
                                 <td style="width: 30%;text-align: right; vertical-align: top;"><b>Decks-Crew</b></td>
@@ -565,7 +567,7 @@ function rl_details() {
                         <?php if ($ac['action_type_sc'] == 'vf') { ?>
                             <tr>
                                 <td style="width: 30%;text-align: right; vertical-align: top;"><b>Mitglieder</b></td>
-                                <td>12 mitfahrende Mitglieder</td>
+                                <td>12 mitfahrende Mitglieder<br>plus 3 auf der Warteliste</td>
                             </tr>
                             <tr>
                                 <td style="width: 30%;text-align: right; vertical-align: top;"><b>Gäste</b></td>
