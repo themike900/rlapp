@@ -1,139 +1,23 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Controller;
+use App\Models\Action;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
-use App\Models\Action;
 use Illuminate\Support\Facades\Log;
+
 //use function Laravel\Prompts\table;
 
 //use function Laravel\Prompts\table;
 
 Carbon::setLocale('de');
 
-class ApiController extends Controller
+class ApiDetailsController extends Controller
 {
-    /**
-     * Schritt 1: Neunanlegen eines Members, wenn er nicht schon existiert, aus den POST-Daten.
-     * Schritt 2: Holen der Member-Daten aus der DB
-     * Schritt 3: Aus der DB die Member-spezifischen Fahrtendaten holen und für die Webseite aufbereiten
-     *
-     * @param Request $request Member-Daten von der Webseite
-     * @return JsonResponse Fahrtenlisten-Daten für die Webseite
-     */
-    public function list(Request $request)
-    {
-        //Log::debug("Request: ".$request);
-        // POST-Daten in Members speichern, wenn webid noch nicht existiert
-        $web_id = $request->input('webid');
-
-        $member_id = DB::table('members')
-            ->where('webid', $request->input('webid'))
-            ->value('id');
-        if (empty($member_id)) {
-            $member_id = DB::table('members')
-                ->where('email', $request->input('email'))
-                ->value('id');
-        }
-        if (empty($member_id)) {
-            $member_id = DB::table('members')
-                ->where('name', $request->input('name'))
-                ->where('firstname', $request->input('firstname'))
-                ->value('id');
-        }
-
-        if ( empty($member_id)) {
-
-            $member_id = DB::table('members')->insertGetId([
-                'webid' => $request->input('webid'),
-                'name' => $request->input('name'),
-                'firstname' => $request->input('firstname'),
-                'nickname' => $request->input('firstname') . ' ' . substr($request->input('name'), 0, 1),
-                'email' => $request->input('email'),
-                'action_types' => "vf,af,vt,mv,ar,abr",
-                'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now(),
-                'groups' => ''
-                ]);
-        } else {
-            DB::table('members')
-                ->where('id', $member_id)
-                ->update(['webid' => $web_id]);
-        }
-        DB::table('members')->where('id', $member_id)->update(['last_access' => Carbon::now()]);
-
-        // Falls mehrfache member Datensätze entstehen, alle außer den ersten löschen,
-        //  weil gelegentlich bei der Erstanlage mehrere entstehen
-        if (DB::table('members')
-                ->where('webid', $web_id)
-                ->count() > 1) {
-
-            $first = DB::table('members')
-                ->where('webid', $web_id)
-                ->orderBy('id')
-                ->min('id');
-
-            DB::table('members')
-                ->where('webid', $web_id)
-                ->where('id', '>', $first)
-                ->delete();
-        }
-
-        // Auswahl für Anzeigeliste festlegen
-        $list_type = match ($request->input('list_type')) {
-            'Segeltermine' => ['sl','slbm'],
-            'Veranstaltungen' => ['vl',],
-            'Bereitschaft' => ['bm','slbm']
-        };
-        //Log::debug($list_type);
-        $list_action_types = DB::table('action_types')
-            ->whereIn('web_list', $list_type)
-            ->pluck('sc')
-            ->toArray();
-        //Log::debug($list_action_types);
-
-        // Memberdaten aus der DB holen für seine Fahrtentypen, derzeit nicht verwendet
-        //$member_action_types = DB::table('members')
-        //    ->where('webid', $web_id)
-        //    ->select('action_types')
-        //    ->first();
-        //$member_action_types = explode(',', $member_action_types->action_types);
-        //Log::debug($member_action_types);
-
-        // für ihn sichtbare Fahrten holen
-        $actions = DB::table('list_actions')
-            ->whereIn('action_type_sc', $list_action_types)
-            ->whereIn('action_state_sc', ['of', 'gs'])
-            ->orderBy('action_date')
-            ->get();
-        Log::debug("actions: ".json_encode($actions));
-
-        // in allen Fahrten Datum umformatieren und Anmeldestaus holen
-        foreach ($actions as $action) {
-            $action->action_date = Carbon::createFromFormat('Y-m-d', $action->action_date)->isoFormat('dd DD.MM.');
-            $action->start_at_text = (empty($action->crew_start_at)) ? 'Beginn' : 'an Bord';
-            $action->end_at_text = (empty($action->crew_end_at)) ? 'Ende' : 'von Bord';
-            $action->start_at = (empty($action->crew_start_at)) ? $action->action_start_at : $action->crew_start_at;
-            $action->end_at = (empty($action->crew_end_at)) ? $action->action_end_at : $action->crew_end_at;
-            $reg = DB::table('action_members')
-                ->join('reg_state', 'action_members.reg_state', '=', 'reg_state.sc')
-                ->where("member_id", $web_id)
-                ->where('action_id', $action->action_id)
-                ->first();
-            if (!empty($reg)) {
-
-                $action->reg_state_name = $reg->name;
-            } else {
-                $action->reg_state_name = '&nbsp;';
-            }
-        }
-
-        return response()->json($actions);
-    }
 
     /**
      *
@@ -144,7 +28,7 @@ class ApiController extends Controller
      * @param int $action_id ID der Fahrt
      * @return JsonResponse Daten für die Anmelde-Webseite
      */
-    public function details(Request $request, int $web_id, int $action_id)
+    public function __invoke(Request $request, int $web_id, int $action_id)
     {
         //$auth = $request.header('X-Auth-Token');
         $web_list = $request->input('liste');
@@ -162,6 +46,7 @@ class ApiController extends Controller
         $action['action_type'] = DB::table('action_types')
             ->where('sc', $action['action_type_sc'])
             ->value('name');
+        Log::debug($action);
 
         /*++++++++++++++++++++++++++++++++++++++++++++++++++
          * Die Daten des aufrufenden Mitglieds holen
@@ -210,7 +95,7 @@ class ApiController extends Controller
         if (!empty($registered)) {
 
             // Name und Staus meiner Gäste
-            $anm_opt['reg_guests'] = DB::table('guests')
+            $reg_guests = DB::table('guests')
                 ->where('reg_id', $registered->id)
                 ->get();
 
@@ -243,8 +128,11 @@ class ApiController extends Controller
          * in $anm_test bereitlegen
          * +++++++++++++++++++++++++++++++++++++++++++++++++
          */
+        $anm_test['web_id'] = $web_id;
+        $anm_test['action_id'] = $action_id;
         $anm_test['web_list'] = $web_list;
         $anm_test['mem_groups'] = $mem_groups;
+        $anm_test['action_type_sc'] = $action['action_type_sc'];
         $anm_test['action_state_sc'] = $action['action_state_sc'];
         $anm_test['ac_reg_state_tn'] = $action['ac_reg_state_tn'];
         $anm_test['ac_reg_state_cr'] = $action['ac_reg_state_cr'];
@@ -263,13 +151,19 @@ class ApiController extends Controller
          * +++++++++++++++++++++++++++++++++++++++++++++++++
          */
         // Segelterminliste, Teilnehmer An-Abmeldung -------------------------------------------------------------------
-        if ($web_list == 'Segeltermine' or $web_list == 'Veranstaltung') {
+        if ($web_list == 'Segeltermine' or $web_list == 'Veranstaltungen') {
             // Mitglied nicht angemeldet
             if (in_array($reg_reg_state, [null, 'cr_abgl', 'sv_abgl'], true)) {
                 // Fahrtenplanung offen.
                 if ($action['action_state_sc'] == 'of') {
                     // Teilnehmer-Anmeldung noch offen, TN < max
-                    if ($action['ac_reg_state_tn'] == 'tnon') { $anm_opt[] = 'anm_tn'; }     // Teilnehmer-Anmeldung.
+                    if ($action['ac_reg_state_tn'] == 'tnon') {
+                        $anm_opt[] = match ($action['action_type_sc']) {
+                            'vf' => 'anm_mv',
+                            'af' => 'anm_le',
+                            default => 'anm_tn',
+                        };
+                    }
                     // Teilnehmer-Anmeldung belegt
                     if ($action['ac_reg_state_tn'] == 'tnbl') {
                         if ($action['action_state_sc'] == 'of') { $anm_opt[] = 'anm_wl'; }   // Teilnehmer-Anmeldung Warteliste.
@@ -402,29 +296,6 @@ class ApiController extends Controller
          *
          * +++++++++++++++++++++++++++++++++++++++++++++++++
          */
-/*
-        $max_pers = $action['ac_max_pers'];
-        $captain = 1;
-        $crew_final = 5;
-        //$service_final = 1;
-        //$max_guests = $action['ac_max_guests'];
-        $free['tn_free'] = $max_pers - $captain - $crew_final;
-
-       // maximale Zahlen der Gruppen aus dem Fahrtentyp
-        $max = DB::table('action_types')
-            ->where('sc', $action['action_type_sc'])
-            ->value('groups');
-        $max_array = json_decode($max, true);
-
-
-        $free = [
-            'crew_free' => (!empty($max_array['cr'])) ? $max_array['cr'] - $crew_count : '',
-            'service_free' => (!empty($max_array['sv'])) ? $max_array['sv'] - $serv_count : '',
-            'pass_free' => (!empty($max_array['mf'])) ? $max_array['mf'] - $pass_count - $guest_count : '',
-            'guests_free' => $action['guest_count'] - $guest_count,
-            'all_free' =>
-        ];
-*/
 
         /*++++++++++++++++++++++++++++++++++++++++++++++++++
          * Anzahl der Teilnehmer in den Gruppen für diese Fahrt
@@ -521,6 +392,7 @@ class ApiController extends Controller
         return response()->json([
             'action' => $action,
             "anm_opt" => $anm_opt,
+            "reg_guests" => $reg_guests ?? [],
             "anm_test" => $anm_test,
             "members" => $members,
             "regs_count" => $regs_count,
@@ -530,174 +402,5 @@ class ApiController extends Controller
 
     }
 
-    /**
-     * Schritt 1: Speichern eventuell mitgelieferter Anmelde-Daten aus den POST-Daten
-     * Schritt 2: Zusammenstellen der Daten für die Anmelde-Webseite
-     *
-     * @param Request $request Anmelde-Daten
-     * @return RedirectResponse Daten für die Anmelde-Webseite
-     */
-    public function rlreg(Request $request)
-    {
-        // wenn POST-Data kommen und wenn kein Eintrag in action_members ist, dann eintragen
-        Log::debug($request->input());
-
-        // wenn keine POST Daten, dann nichts machen
-        if (!empty($request->input())) {
-
-            $action_id = $request->input('actionid');
-            $web_id =    $request->input('webid');
-            $hostname =  $request->input('host');
-            $abmeldung = $request->input('abmeldung');
-            $anm_opt =   $request->input('anm_opt');
-            $tn_group =  $request->input('group');
-            $br_groups = $request->input('groups');
-            $guest_id =  $request->input('guest_id');
-
-
-            /*++++++++++++++++++++++++++++++++++++++++++++++++++
-             * Die Daten der Aktivität holen und formatieren
-             *
-             * in $action bereitlegen
-             * +++++++++++++++++++++++++++++++++++++++++++++++++
-             */
-            $action = Action::find($action_id);
-            $action['action_date'] = Carbon::createFromFormat('Y-m-d', $action['action_date'])->isoFormat('dddd DD.MM.');
-            $action['crew_info'] = $action['crew_supply'];
-            $action['service_info'] = "Catering: {$action['catering_info']},<br>Eis: {$action['ice_info']}";
-            $action['action_type'] = DB::table('action_types')
-                ->where('sc', $action['action_type_sc'])
-                ->value('name');
-
-
-            /*++++++++++++++++++++++++++++++++++++++++++++++++++
-             * Teilnehmerzahlen nach Gruppen, vor Veränderungen
-             *
-             * in $cnt bereitlegen
-             * +++++++++++++++++++++++++++++++++++++++++++++++++
-             */
-            $cnt = new \stdClass();
-            $cnt->max_pers = $action['ac_max_pers'];
-            $cnt->max_guests = $action['ac_max_guests'];
-            $cnt->captain = 1;
-            $cnt->crew_final = 5;
-            $cnt->service_final = 1;
-
-            // maximale Zahlen der Gruppen aus dem Fahrtentyp
-            $max = DB::table('action_types')
-                ->where('sc', $action['action_type_sc'])
-                ->value('groups');
-            $cnt->at_max = json_decode($max, true);
-
-            $cnt->ac_tn_ang = DB::table('action_members')
-                ->where('action_id', $action_id)
-                ->where('group', 'tn')
-                ->where('reg_state', 'ang')
-                ->count();
-
-            // Anzahl angenommener Gäste
-            $cnt->ac_guests_angn = DB::table('guests')
-                ->where('gst_action_id', $action_id)
-                ->where('gst_state', '=', 'angenommen')
-                ->count();
-
-            $cnt->reg_cr = DB::table('action_members')
-                ->where('action_id', $action_id)
-                ->whereLike('group', '%cr%')
-                ->whereNot('reg_state', 'abgl')
-                ->count();
-
-            $cnt->reg_sv = DB::table('action_members')
-                ->where('action_id', $action_id)
-                ->whereLike('group', '%sv%')
-                ->whereNot('reg_state', 'abgl')
-                ->count();
-
-            $cnt->reg_crsv = DB::table('action_members')
-                ->where('action_id', $action_id)
-                ->where('group', 'cr,sv')
-                ->whereNot('reg_state', 'abgl')
-                ->count();
-
-            $cnt_crew = $cnt->reg_cr + $cnt->reg_sv  - $cnt->reg_crsv;
-            $cnt_crew = ($cnt_crew < 6) ?? 6;
-
-            $cnt->tn_free = $cnt->max_pers
-                - 1
-                - $cnt->ac_guests_angn
-                - $cnt_crew
-                - $cnt->ac_tn_ang;
-
-            $cnt->guest_free = $cnt->max_guests
-                - $cnt->ac_guests_angn;
-
-            Log::debug(json_decode(json_encode($cnt), true));
-
-            /*++++++++++++++++++++++++++++++++++++++++++++++++++
-             * Anmeldung Mitglied eintragen oder löschen in DB
-             *
-             *
-             * +++++++++++++++++++++++++++++++++++++++++++++++++
-             */
-
-            // wenn web_id nicht angemeldet und kein Abmelde-Kennzeichen, dann anmelden
-            if (DB::table('action_members')
-                    ->where('member_id', $request->input('webid'))
-                    ->where('action_id', $request->input('actionid'))
-                    ->doesntExist()
-                and
-                empty($request->input('abmeldung'))
-            ) {
-                //TODO prüfen ob anmeldung überhaupt noch erlaubt ist
-                //TODO Prüfen ob nicht doch schon voll
-
-                $opt_array = [
-                    'anm_tn' => ['tn', 'ang'],
-                    'anm_wl' => ['wl', 'ang'],
-                    'bereit_crsv' => ['cr,sv', 'br'],
-                    'bereit_cr' => ['cr', 'br'],
-                    'bereit_sv' => ['sv', 'br'],
-                ];
-                $reg_opts = $opt_array[$request->input('anm_opt')];
-
-                Log::debug(json_encode($reg_opts));
-
-                DB::table('action_members')->insert([
-                    'member_id' => $request->input('webid'),
-                    'action_id' => $request->input('actionid'),
-                    'group' => $reg_opts[0],
-                    'created_at' => Carbon::now(),
-                    'updated_at' => Carbon::now(),
-                    'reg_state' => $reg_opts[1],
-                ]);
-
-                //TODO prüfen ob Status geändert werden muss
-
-            // Wenn Abmeldekennzeichen gesetzt, dann Abmelden
-            } elseif (!empty($request->input('abmeldung'))) {
-
-                //TODO prüfen ob abmelden überhaupt noch erlaubt ist
-
-                $reg_id = DB::table('action_members')
-                    ->where('member_id', $request->input('webid'))
-                    ->where('action_id', $request->input('actionid'))
-                    ->value('id');
-
-                DB::table('action_members')
-                    ->where('id', $reg_id)
-                    ->delete();
-
-                DB::table('guests')
-                    ->where('reg_id', $reg_id)->delete();
-
-                //TODO prüfen, ob Status geändert werden muss
-            }
-
-            //TODO Gäste löschen hinzufügen
-        }
-
-
-        return redirect()->away("https://".$hostname."/intern/details?id=".$request->input("actionid"));
-    }
 
 }

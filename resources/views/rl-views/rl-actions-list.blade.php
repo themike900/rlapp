@@ -14,6 +14,13 @@
         <!-- Content auf der rechten Seite -->
         <main class="bg-white rounded-lg p-4 shadow-lg flex-1">
             <p>Hier kommt die Liste hin.</p>
+
+            <div class="container">
+                <h2>Bootstrap Datepicker Test</h2>
+                <label for="datepicker">Wähle ein Datum:</label>
+                <input type="text" id="datepicker" class="form-control">
+            </div>
+
         </main>
     </div>
 @endsection

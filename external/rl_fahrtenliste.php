@@ -16,7 +16,6 @@ function fahrtenliste($atts){
     }
 
     // Daten für Versendung der web-Nutzerdaten zusammenstellen
-    $web_id = um_profile_id();
     $postdata = array(
         "webid" => um_profile_id(),
         "firstname" => um_user('first_name'),

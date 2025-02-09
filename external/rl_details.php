@@ -1,7 +1,6 @@
 <?php
 
 function rl_details() {
-    echo '<pre>';
 
     $user_id = get_current_user_id();
     $meta_weblist = get_user_meta($user_id, 'weblist',true) ?? 'Segeltermine';
@@ -49,15 +48,20 @@ function rl_details() {
         $ac = $data['action'];
         //$reg = $data['registered'];
         //$mem = $data['members'];
-        //$anm = $data['anmeldung'];
         $anm_opt = $data['anm_opt'] ?? ['no_anm'];
         $anm_test = $data['anm_test'];
+        $tn_count = $data['tn_count'];
     }
-    // Zusammenbau der Webseite durchführen
-    print_r($anm_opt);
-    print_r($anm_test);
 
-    echo '</pre>';
+    // debug-mode, Anzeige der übergebenen Variablen
+    if ($data['debug']) {
+        echo '<pre>';
+        print_r($anm_opt);
+        print_r($anm_test);
+        echo '</pre>';
+    }
+
+    // Zusammenbau der Webseite durchführen
     ob_start();
 
     ?>
@@ -183,9 +187,8 @@ function rl_details() {
 									<form action="https://rlapp.schummel.de/api/rlreg" method="POST">
 										<input type="hidden" name="webid" value="<?php echo $webId ?>">
 										<input type="hidden" name="actionid" value="<?php echo $actionId ?>">
-										<input type="hidden" name="group" value="tn">
 										<input type="hidden" name="host" value="<?php echo $_SERVER['SERVER_NAME']?>">
-										<input type="hidden" name="anm_pot" value="<?php echo $anm_opt ?>">
+										<input type="hidden" name="anm_opt" value="anm_tn">
 										<button type="submit" class="custom-table-btn">Anmelden</button>
 									</form>
 								</td>
@@ -205,7 +208,7 @@ function rl_details() {
 										<input type="hidden" name="actionid" value="<?php echo $actionId ?>">
 										<input type="hidden" name="group" value="tnwl">
 										<input type="hidden" name="host" value="<?php echo $_SERVER['SERVER_NAME']?>">
-										<input type="hidden" name="anm_pot" value="<?php echo $anm_opt ?>">
+										<input type="hidden" name="anm_opt" value="anm_wl">
 										<button type="submit" class="custom-table-btn">auf Warteliste</button>
 									</form>
 								</td>
@@ -225,7 +228,7 @@ function rl_details() {
 										<input type="hidden" name="actionid" value="<?php echo $actionId?>">
 										<input type="hidden" name="host" value="<?php echo $_SERVER['SERVER_NAME']?>">
 										<input type="hidden" name="abmeldung" value="1">
-										<input type="hidden" name="anm_pot" value="<?php echo $anm_opt ?>">
+										<input type="hidden" name="anm_opt" value="abm_tn">
 										<button type="submit" class="custom-table-btn">Abmelden</button>
 									</form>
 								</td>
@@ -245,7 +248,7 @@ function rl_details() {
 										<input type="hidden" name="actionid" value="<?php echo $actionId?>">
 										<input type="hidden" name="host" value="<?php echo $_SERVER['SERVER_NAME']?>">
 										<input type="hidden" name="abmeldung" value="1">
-										<input type="hidden" name="anm_pot" value="<?php echo $anm_opt ?>">
+										<input type="hidden" name="anm_opt" value="abm_tn_wl">
 										<button type="submit" class="custom-table-btn">Abmelden</button>
 									</form>
 								</td>
@@ -288,7 +291,7 @@ function rl_details() {
 											<input type="hidden" name="webid" value="<?php echo $webId ?>">
 											<input type="hidden" name="actionid" value="<?php echo $actionId ?>">
 											<input type="hidden" name="host" value="<?php echo $_SERVER['SERVER_NAME']?>">
-											<input type="hidden" name="anm_pot" value="<?php echo $anm_opt ?>">
+											<input type="hidden" name="anm_opt" value="bereit_crsv">
 											<button type="submit" class="custom-table-btn">Melden</button>
 										</div>
 									</form>
@@ -310,7 +313,7 @@ function rl_details() {
                                         <input type="hidden" name="webid" value="<?php echo $webId?>">
                                         <input type="hidden" name="actionid" value="<?php echo $actionId?>">
                                         <input type="hidden" name="host" value="<?php echo $_SERVER['SERVER_NAME']?>">
-                                        <input type="hidden" name="anm_opt" value="<?php echo $anm_opt ?>">
+                                        <input type="hidden" name="anm_opt" value="bereit_cr">
                                         <button type="submit" class="custom-table-btn">Bereitschaft melden</button>
                                     </form>
                                 </td>
@@ -331,7 +334,7 @@ function rl_details() {
                                         <input type="hidden" name="webid" value="<?php echo $webId?>">
                                         <input type="hidden" name="actionid" value="<?php echo $actionId?>">
                                         <input type="hidden" name="host" value="<?php echo $_SERVER['SERVER_NAME']?>">
-                                        <input type="hidden" name="anm_opt" value="<?php echo $anm_opt ?>">
+                                        <input type="hidden" name="anm_opt" value="bereit_sv">
                                         <button type="submit" class="custom-table-btn">Bereitschaft melden</button>
                                     </form>
                                 </td>
@@ -364,7 +367,7 @@ function rl_details() {
 										<input type="hidden" name="actionid" value="<?php echo $actionId?>">
 										<input type="hidden" name="host" value="<?php echo $_SERVER['SERVER_NAME']?>">
 										<input type="hidden" name="abmeldung" value="1">
-										<input type="hidden" name="anm_opt" value="<?php echo $anm_opt ?>">
+										<input type="hidden" name="anm_opt" value="abm_crsv">
 										<button type="submit" class="custom-table-btn">Abmelden</button>
 									</form>
 								</td>
@@ -422,7 +425,13 @@ function rl_details() {
                                             <div class="cell">Karl-Heinz<br>Familie</div>
                                             <div class="cell">angefragt</div>
                                             <div class="cell">
-                                                <form action="/action1">
+                                                <form action="https://rlapp.schummel.de/api/rlreg" methode="POST">
+                                                    <input type="hidden" name="webid" value="<?php echo $webId ?>">
+                                                    <input type="hidden" name="actionid" value="<?php echo $actionId ?>">
+                                                    <input type="hidden" name="host" value="<?php echo $_SERVER['SERVER_NAME'] ?>">
+                                                    <input type="hidden" name="guest_id" value="1">
+                                                    <input type="hidden" name="abmeldung" value="1">
+                                                    <input type="hidden" name="anm_opt" value="abm_gst">
                                                     <button type="submit" class="custom-table-btn">abmelden</button>
                                                 </form>
                                             </div>
@@ -432,7 +441,7 @@ function rl_details() {
                                             <div class="cell">Lieselotte<br>Freund</div>
                                             <div class="cell">angefragt</div>
                                             <div class="cell">
-                                                <form action="/action2">
+                                                <form action="https://rlapp.schummel.de/api/rlreg">
                                                     <button type="submit" class="custom-table-btn">abmelden</button>
                                                 </form>
                                             </div>
@@ -442,7 +451,7 @@ function rl_details() {
                                             <div class="cell">Friedrich Wilhelm Ganzlanger Name<br>Interessent</div>
                                             <div class="cell">angenommen</div>
                                             <div class="cell">
-                                                <form action="/action2">
+                                                <form action="https://rlapp.schummel.de/api/rlreg">
                                                     <button type="submit" class="custom-table-btn">abmelden</button>
                                                 </form>
                                             </div>
@@ -454,49 +463,49 @@ function rl_details() {
 						<?php } ?>
 
                         <?php if (!empty(array_intersect(['anfr_gst', 'all'], $anm_opt))) { ?>
+                            <style>
+                                .gst-container {
+                                    display: grid;
+                                    grid-template-columns: auto auto; /* Zwei Spalten */
+                                    grid-template-rows: auto auto auto; /* Drei Zeilen */
+                                    gap: 5px; /* Abstand zwischen den Zellen */
+                                    align-items: center; /* Zentrierung der Elemente vertikal */
+                                }
+                                .gst-row {
+                                    display: contents; /* Sicherstellen, dass die Kinder innerhalb des Grids bleiben */
+                                }
+                                label {
+                                    grid-column: 1; /* Erste Spalte */
+                                    margin-right: 10px; /* Abstand zwischen Label und Eingabefeld */
+                                }
+                                input, button, select {
+                                    grid-column: 2; /* Zweite Spalte */
+                                }
+                                input {
+                                    border: 2px solid gray; /* Grauer Rand */
+                                    border-radius: 10px; /* Runde Ecken */
+                                    padding: 5px;
+                                    outline: none;
+                                    transition: background-color 0.3s ease; /* Glatter Übergang für den Hover-Effekt */
+                                }
+                                input:hover {
+                                    background-color: #f0f0f0; /* Hintergrundfarbe beim Hover */
+                                }
+                                input:focus {
+                                    box-shadow: 0 0 5px rgba(0, 0, 0, 0.2); /* Optional: Schatten beim Fokus für besseren Fokus-Effekt */
+                                }
+                            </style>
 						<tr>
 							<td>Hier kannst Du Deiner Anmeldung einen weiteren Gast hinzufügen.<br><br>
 							Die Teilnahme ist zunächst nur angefragt. Die Annahme oder Ablehnung wird Dir per Email gesendet, und wird dann hier auch sichtbar.</td>
 							<td>
-								<style>
-									.form-container {
-										display: grid;
-										grid-template-columns: auto auto; /* Zwei Spalten */
-										grid-template-rows: auto auto auto; /* Drei Zeilen */
-										gap: 5px; /* Abstand zwischen den Zellen */
-										align-items: center; /* Zentrierung der Elemente vertikal */
-									}
-									.form-row {
-										display: contents; /* Sicherstellen, dass die Kinder innerhalb des Grids bleiben */
-									}
-									label {
-										grid-column: 1; /* Erste Spalte */
-										margin-right: 10px; /* Abstand zwischen Label und Eingabefeld */
-									}
-									input, button, select {
-										grid-column: 2; /* Zweite Spalte */
-									}
-                                    .styled-input {
-                                        border: 2px solid gray; /* Grauer Rand */
-                                        border-radius: 10px; /* Runde Ecken */
-                                        padding: 5px;
-                                        outline: none;
-                                        transition: background-color 0.3s ease; /* Glatter Übergang für den Hover-Effekt */
-                                    }
-                                    .styled-input:hover {
-                                        background-color: #f0f0f0; /* Hintergrundfarbe beim Hover */
-                                    }
-                                    .styled-input:focus {
-                                        box-shadow: 0 0 5px rgba(0, 0, 0, 0.2); /* Optional: Schatten beim Fokus für besseren Fokus-Effekt */
-                                    }
-                                </style>
 								<form action="https://rlapp.schummel.de/api/rlreg" method="POST">
-									<div class="form-container">
-										<div class="form-row">
+									<div class="gst-container">
+										<div class="gst-row">
 											<label for="gst_name">Name:</label>
-											<input type="text" class="styled-input" id="gst_name" name="gst_name" size="12" max="20">
+											<input type="text" id="gst_name" name="gst_name" size="12" max="20">
 										</div>
-										<div class="form-row">
+										<div class="gst-row">
 											<label for="gst_bezug">Bezug:</label>
                                             <select id="gst_bezug" name="gst_bezug">
                                                 <option value="Familie">Familie</option>
@@ -504,12 +513,12 @@ function rl_details() {
                                                 <option value="Interessent">Interessent</option>
                                             </select>
 										</div>
-										<div class="form-row">
+										<div class="gst-row">
 											<input type="hidden" name="webid" value="<?php echo $webId ?>">
 											<input type="hidden" name="actionid" value="<?php echo $actionId ?>">
 											<input type="hidden" name="host" value="<?php echo $_SERVER['SERVER_NAME'] ?>">
 											<input type="hidden" name="abmeldung" value="1">
-											<input type="hidden" name="anm_pot" value="<?php echo $anm_opt ?>">
+											<input type="hidden" name="anm_opt" value="anfr_gst">
 											<button type="submit" class="custom-table-btn">Anfragen</button>
 										</div>
 									</div>
