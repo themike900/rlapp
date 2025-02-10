@@ -3,21 +3,22 @@
     "type": "module",
     "scripts": {
         "dev": "vite",
-        "build": "vite build"
+        "build": "vite build",
+        "buils:css": "npx tailwindcss -i ./resources/css/app.css -o ./public/css/app.css"
     },
     "devDependencies": {
-        "@tailwindcss/forms": "^0.5.2",
-        "alpinejs": "^3.4.2",
-        "autoprefixer": "^10.4.2",
-        "axios": "^1.7.4",
-        "laravel-vite-plugin": "^1.0",
-        "postcss": "^8.4.31",
+        "alpinejs": "^3.14.8",
+        "autoprefixer": "^10.4.20",
+        "axios": "^1.7.9",
+        "laravel-vite-plugin": "^1.2",
         "tailwindcss": "^4.0.5",
-        "vite": "^5.0"
+        "vite": "^6.1"
     },
     "dependencies": {
+        "@tailwindcss/vite": "^4.0.5",
         "bootstrap": "^5.3.3",
         "bootstrap-datepicker": "^1.10.0",
+        "jiti": "^2.4.2",
         "jquery": "^3.7.1"
     }
 }

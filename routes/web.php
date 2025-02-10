@@ -11,9 +11,7 @@ use App\Http\Controllers\ImportController;
 //    return view('welcome');
 // });
 
-//Route::get('/', function () {
-//    return view('start');
-//});
+Route::get('/test', function () { return view('layouts.testapp'); });
 
 Route::redirect('/', '/actions/index');
 
