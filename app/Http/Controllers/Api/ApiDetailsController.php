@@ -195,7 +195,7 @@ class ApiDetailsController extends Controller
                     $anm_opt[] = 'abm_tn_wl';                                                 // abmeldung Warteliste
                 }
             }
-            if (in_array($reg_reg_state, ['cr_gpl','sv_gpl','cr_br','sv_br'])) {
+            if (in_array($reg_reg_state, ['cr_gpl','sv_gpl','cr_br','sv_br','crsv_br'])) {
                 $anm_opt[] = 'bereit_link';                                                   // Link zur Bereitschaftsliste
             }
 
@@ -392,9 +392,7 @@ class ApiDetailsController extends Controller
             $members['participants'] = implode("<br>", $members['participants']);
         }
 
-        //$members['guests'] = $ac_gst_count;
-        //$members['guest_max'] = $action['ac_max_guests'];
-
+        $debug = in_array($web_id, [1322,1]);
 
         return response()->json([
             'action' => $action,
@@ -406,7 +404,7 @@ class ApiDetailsController extends Controller
             "members" => $members,
             "ac_regs_count" => $ac_regs_count,
             "ac_guests_count" => $ac_guests_count ?? [],
-            "debug" => true
+            "debug" => $debug
         ]);
 
     }

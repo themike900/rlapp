@@ -88,12 +88,12 @@ class ApiListController extends Controller
             'Veranstaltungen' => ['vl',],
             'Bereitschaft' => ['bm','slbm']
         };
-        Log::debug($list_type);
+        //Log::debug($list_type);
         $list_action_types = DB::table('action_types')
             ->whereIn('web_list', $list_type)
             ->pluck('sc')
             ->toArray();
-        Log::debug($list_action_types);
+        //Log::debug($list_action_types);
 
         // Gruppenzugehörigkeit des Members holen
         $member_groups = DB::table('members')
@@ -117,16 +117,23 @@ class ApiListController extends Controller
             $action->end_at_text = (empty($action->crew_end_at)) ? 'Ende' : 'von Bord';
             $action->start_at = (empty($action->crew_start_at)) ? $action->action_start_at : $action->crew_start_at;
             $action->end_at = (empty($action->crew_end_at)) ? $action->action_end_at : $action->crew_end_at;
+
             $reg = DB::table('action_members')
                 ->join('reg_state', 'action_members.reg_state', '=', 'reg_state.sc')
                 ->where("member_id", $web_id)
                 ->where('action_id', $action->action_id)
                 ->first();
+
             if (!empty($reg)) {
-                $action->reg_state_name = $reg->name;
+                $action->reg_state_name = DB::table('reg_state')
+                    ->where('sc', $reg->reg_state)
+                    ->where('grp',$reg->group)
+                    ->value('name');
             } else {
                 $action->reg_state_name = '&nbsp;';
             }
+
+
         }
 
         return response()->json($actions);
