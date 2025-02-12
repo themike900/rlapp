@@ -30,6 +30,7 @@ class ApiListController extends Controller
         $member_id = DB::table('members')
             ->where('webid', $request->input('webid'))
             ->value('id');
+
         if (empty($member_id)) {
             $member_id = DB::table('members')
                 ->where('email', $request->input('email'))
@@ -62,6 +63,8 @@ class ApiListController extends Controller
         }
         DB::table('members')->where('id', $member_id)->update(['last_access' => Carbon::now()]);
 
+        Log::debug($member_id);
+
         // Falls mehrfache member Datensätze entstehen, alle außer den ersten löschen,
         //  weil gelegentlich bei der Erstanlage mehrere entstehen
         if (DB::table('members')
@@ -85,20 +88,19 @@ class ApiListController extends Controller
             'Veranstaltungen' => ['vl',],
             'Bereitschaft' => ['bm','slbm']
         };
-        //Log::debug($list_type);
+        Log::debug($list_type);
         $list_action_types = DB::table('action_types')
             ->whereIn('web_list', $list_type)
             ->pluck('sc')
             ->toArray();
-        //Log::debug($list_action_types);
+        Log::debug($list_action_types);
 
-        // Memberdaten aus der DB holen für seine Fahrtentypen, derzeit nicht verwendet
-        //$member_action_types = DB::table('members')
-        //    ->where('webid', $web_id)
-        //    ->select('action_types')
-        //    ->first();
-        //$member_action_types = explode(',', $member_action_types->action_types);
-        //Log::debug($member_action_types);
+        // Gruppenzugehörigkeit des Members holen
+        $member_groups = DB::table('members')
+            ->where('id', $member_id)
+            ->value('groups');
+        $member_groups_array = explode(',', $member_groups);
+        Log::debug(json_encode($member_groups_array));
 
         // für ihn sichtbare Fahrten holen
         $actions = DB::table('list_actions')

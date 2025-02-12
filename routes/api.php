@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\ApiDetailsController;
 use App\Http\Controllers\Api\ApiListController;
 use App\Http\Controllers\Api\ApiRegController;
+use App\Http\Controllers\Api\ApiGuestRegController;
 use Illuminate\Support\Facades\Route;
 
 //use Illuminate\Http\Request;
@@ -19,3 +20,6 @@ Route::get('details/{webid}/{actionid}', ApiDetailsController::class)->name('api
 
 // Teilnahme an einer Aktivität anmelden
 Route::post('rlreg', ApiRegController::class)->name('api.rlreg');
+
+// Teilnahme an einer Aktivität anmelden
+Route::post('gstreg', ApiGuestRegController::class)->name('api.gst_reg');

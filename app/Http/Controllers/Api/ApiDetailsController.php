@@ -46,7 +46,7 @@ class ApiDetailsController extends Controller
         $action['action_type'] = DB::table('action_types')
             ->where('sc', $action['action_type_sc'])
             ->value('name');
-        Log::debug($action);
+        //Log::debug($action);
 
         /*++++++++++++++++++++++++++++++++++++++++++++++++++
          * Die Daten des aufrufenden Mitglieds holen
@@ -120,7 +120,13 @@ class ApiDetailsController extends Controller
             ->where('gst_state', 'angenommen')
             ->count();
         $ac_guests_free = $action['ac_max_guests'] - $ac_guests_angn;
+        $ac_guests_angf = DB::table('guests')
+            ->where('gst_action_id', $action_id)
+            ->where('gst_state', 'angefragt')
+            ->count();
 
+        $ac_guests_count['angn'] = $ac_guests_angn;
+        $ac_guests_count['angf'] = $ac_guests_angf;
 
         /*++++++++++++++++++++++++++++++++++++++++++++++++++
          * Testdaten bereitstellen
@@ -141,6 +147,7 @@ class ApiDetailsController extends Controller
         $anm_test['ac_guests_free'] = $ac_guests_free;
         $anm_test['reg_reg_state'] = $reg_reg_state;
         $anm_test['reg_guests_count'] = $reg_guests_count;
+        $anm_test['reg_id'] = $registered->id ?? null;
 
 
 
@@ -307,14 +314,18 @@ class ApiDetailsController extends Controller
             ->where('action_id', $action_id)
             ->select(['group', 'reg_state'])
             ->get();
-        $regs_array = [];
+        $ac_regs_array = [];
         foreach ($regs as $reg) {
-            $regs_array[] = str_replace(',', '', $reg->group) . '_' . $reg->reg_state;
+            $ac_regs_array[] = str_replace(',', '', $reg->group) . '_' . $reg->reg_state;
         }
-        $regs_count = array_count_values($regs_array);
+        $ac_regs_count = array_count_values($ac_regs_array);
+
+        foreach ( ['cr_br', 'cr_gpl', 'sv_br', 'sv_gpl', 'crsv_br', 'tn_ang', 'tn_wl', 'sf_ang'] as $rs) {
+            $ac_regs_count[$rs] = (empty($ac_regs_count[$rs])) ? 0 : $ac_regs_count[$rs];
+        }
 
         /*++++++++++++++++++++++++++++++++++++++++++++++++++
-         * Die die Nicknames aller angemeldeten Teilnehmer holen
+         * Die Nicknames aller angemeldeten Teilnehmer holen
          *
          * in $members bereitlegen
          * +++++++++++++++++++++++++++++++++++++++++++++++++
@@ -382,21 +393,19 @@ class ApiDetailsController extends Controller
         }
 
         //$members['guests'] = $ac_gst_count;
-        $members['guest_max'] = $action['guest_count'];
+        //$members['guest_max'] = $action['ac_max_guests'];
 
-        //$anmeldung = [];
-        //$registered = [];
-        //$members = [];
-        //$max_array = [];
 
         return response()->json([
             'action' => $action,
             "anm_opt" => $anm_opt,
             "reg_guests" => $reg_guests ?? [],
+            "reg_id" => $registered->id ?? null,
+            "reg_error" => $registered->reg_error ?? '',
             "anm_test" => $anm_test,
             "members" => $members,
-            "regs_count" => $regs_count,
-            "tn_count" => [],
+            "ac_regs_count" => $ac_regs_count,
+            "ac_guests_count" => $ac_guests_count ?? [],
             "debug" => true
         ]);
 
