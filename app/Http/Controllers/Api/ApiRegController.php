@@ -179,6 +179,6 @@ class ApiRegController extends Controller
         }
 
 
-        return redirect()->away("https://".$hostname."/intern/details?id=".$request->input("actionid"));
+        return redirect()->away("https://".$hostname."/intern/details?id=".$request->input("actionid")."&anm=true");
     }
 }
