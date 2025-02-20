@@ -83,6 +83,13 @@ class ApiDetailsController extends Controller
         $reg_reg_state = null;
         if (!empty($registered)){
             $reg_reg_state = str_replace(',', '', $registered->group) . '_' . $registered->reg_state;
+
+            // wenn reg_error nicht leer ist setze ihn wieder auf leer, für diesen Aufruf steht er noch in $registered->reg_error
+            if (!empty($registered->reg_error)){
+                DB::table('action_members')
+                    ->where('id', $registered->id)
+                    ->update(['reg_error' => '']);
+            }
         }
 
         /*++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -94,10 +101,27 @@ class ApiDetailsController extends Controller
         $reg_guests_count = 0;
         if (!empty($registered)) {
 
-            // Name und Staus meiner Gäste
-            $reg_guests = DB::table('guests')
-                ->where('reg_id', $registered->id)
-                ->get();
+            if ($action['action_state_sc'] == 'of'){
+
+                // Name und Staus aller meiner Gäste
+                $reg_guests = DB::table('guests')
+                    ->where('reg_id', $registered->id)
+                    ->orderBy('name')
+                    ->get();
+
+            } elseif ($action['action_state_sc'] == 'gs'){
+
+                // Name und Staus meiner angenommenen Gäste
+                $reg_guests = DB::table('guests')
+                    ->where('reg_id', $registered->id)
+                    ->where('gst_state', 'angenommen')
+                    ->orderBy('name')
+                    ->get();
+
+            } else {
+                $reg_guests = [];
+            }
+
 
             // Anzahl meiner Gäste
             $reg_guests_count = DB::table('guests')
@@ -129,6 +153,58 @@ class ApiDetailsController extends Controller
         $ac_guests_count['angf'] = $ac_guests_angf;
 
         /*++++++++++++++++++++++++++++++++++++++++++++++++++
+         * Teilnehmerzahlen bestimmen
+         *
+         * in $anm_test bereitlegen
+         * +++++++++++++++++++++++++++++++++++++++++++++++++
+         */
+        $cnt_max_pers = $action['ac_max_pers'];
+
+        // Anzahl der angemeldeten Teilnehmer
+        $cnt_ac_tn_ang = DB::table('action_members')
+            ->where('action_id', $action_id)
+            ->where('group', 'tn')
+            ->where('reg_state', 'ang')
+            ->count();
+
+        // Anzahl CR Bereitschaftsmeldungen mit CRSV
+        $cnt_reg_cr = DB::table('action_members')
+            ->where('action_id', $action_id)
+            ->whereLike('group', '%cr%')
+            ->whereNot('reg_state', 'abgl')
+            ->count();
+
+        // Anzahl SV Bereitschaftsmeldungen mit CRSV
+        $cnt_reg_sv = DB::table('action_members')
+            ->where('action_id', $action_id)
+            ->whereLike('group', '%sv%')
+            ->whereNot('reg_state', 'abgl')
+            ->count();
+
+        // Anzahl nur CRSV Bereitschaftsmeldungen
+        $cnt_reg_crsv = DB::table('action_members')
+            ->where('action_id', $action_id)
+            ->where('group', 'cr,sv')
+            ->whereNot('reg_state', 'abgl')
+            ->count();
+
+        $cnt_crew = $cnt_reg_cr + $cnt_reg_sv  - $cnt_reg_crsv;
+        $cnt_crew = ($cnt_crew < 6) ? 6 : $cnt_crew;
+
+
+        if ( in_array($action['action_type_sc'], ['vf','af','uf','gfx','gfm'])) {
+            $ac_tn_free = $cnt_max_pers  // maximale Plätze für die Fahrt
+                - 1                         // minus ein Kapitän
+                - $ac_guests_angn      // minus angenommene Gäste
+                - $cnt_crew                 // minus Crew (min 6)
+                - $cnt_ac_tn_ang;          // minus angemeldete Teilnehmer
+        } else {
+            $ac_tn_free = $cnt_max_pers
+                - $ac_guests_angn
+                - $cnt_ac_tn_ang;
+        }
+
+        /*++++++++++++++++++++++++++++++++++++++++++++++++++
          * Testdaten bereitstellen
          *
          * in $anm_test bereitlegen
@@ -143,11 +219,20 @@ class ApiDetailsController extends Controller
         $anm_test['ac_reg_state_tn'] = $action['ac_reg_state_tn'];
         $anm_test['ac_reg_state_cr'] = $action['ac_reg_state_cr'];
         $anm_test['ac_reg_state_sv'] = $action['ac_reg_state_sv'];
-        $anm_test['ac_guests_angn'] = $ac_guests_angn;
-        $anm_test['ac_guests_free'] = $ac_guests_free;
+        $anm_test['reg_id'] = $registered->id ?? null;
         $anm_test['reg_reg_state'] = $reg_reg_state;
         $anm_test['reg_guests_count'] = $reg_guests_count;
-        $anm_test['reg_id'] = $registered->id ?? null;
+        $anm_test['reg_error'] = $registered->reg_error ?? '';
+        $anm_test['ac_cnt']['max_pers'] = $action['ac_max_pers'];
+        $anm_test['ac_cnt']['max_guests'] = $action['ac_max_guests'];
+        $anm_test['ac_cnt']['guests_angf'] = $ac_guests_angf;
+        $anm_test['ac_cnt']['guests_angn'] = $ac_guests_angn;
+        $anm_test['ac_cnt']['guests_free'] = $ac_guests_free;
+        $anm_test['ac_cnt']['reg_cr'] = $cnt_reg_cr;
+        $anm_test['ac_cnt']['reg_sv'] = $cnt_reg_sv;
+        $anm_test['ac_cnt']['reg_crsv'] = $cnt_reg_crsv;
+        $anm_test['ac_cnt']['cnt_crew'] = $cnt_crew;
+        $anm_test['ac_cnt']['tn_free'] = $ac_tn_free;
 
 
 
@@ -172,7 +257,7 @@ class ApiDetailsController extends Controller
                         };
                     }
                     // Teilnehmer-Anmeldung belegt
-                    if ($action['ac_reg_state_tn'] == 'tnbl') {
+                    if ($action['ac_reg_state_tn'] == 'tnoff') {
                         if ($action['action_state_sc'] == 'of') { $anm_opt[] = 'anm_wl'; }   // Teilnehmer-Anmeldung Warteliste.
                     }
                 }
@@ -181,8 +266,12 @@ class ApiDetailsController extends Controller
             }
             if ($reg_reg_state == 'tn_ang') {
                 if ($action['action_state_sc'] == 'of') {
-                    $anm_opt[] = 'abm_tn';                                                   // Abmelden Teilnehmer
-                    if ($ac_guests_free > 0) { $anm_opt[] = 'anfr_gst'; }                    // Anfrage Gäste
+                    if ($action['ac_max_guests'] > 0) {
+                        $anm_opt[] = 'abm_tn';
+                    } else {
+                        $anm_opt[] = 'abm_tn_nogst';
+                    };                                                   // Abmelden Teilnehmer
+                    if ($ac_guests_free > 0 and $action['ac_reg_state_tn'] == 'tnon') { $anm_opt[] = 'anfr_gst'; }  // Anfrage Gäste
                     if ($reg_guests_count > 0) { $anm_opt[] = 'gst_list'; }                     // Anzeige Gästeliste
                 }
                 if ($action['action_state_sc'] == 'gs') {
@@ -400,10 +489,12 @@ class ApiDetailsController extends Controller
             "reg_guests" => $reg_guests ?? [],
             "reg_id" => $registered->id ?? null,
             "reg_error" => $registered->reg_error ?? '',
+            "member_name" => $member->nickname ?? '',
             "anm_test" => $anm_test,
             "members" => $members,
             "ac_regs_count" => $ac_regs_count,
             "ac_guests_count" => $ac_guests_count ?? [],
+            "ac_free_tn" => $ac_tn_free,
             "debug" => $debug
         ]);
 

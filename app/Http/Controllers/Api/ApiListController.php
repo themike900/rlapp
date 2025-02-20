@@ -14,7 +14,7 @@ Carbon::setLocale('de');
 class ApiListController extends Controller
 {
     /**
-     * Schritt 1: Neunanlegen eines Members, wenn er nicht schon existiert, aus den POST-Daten.
+     * Schritt 1: Neunanlegen eines Member, wenn er nicht schon existiert, aus den POST-Daten.
      * Schritt 2: Holen der Member-Daten aus der DB
      * Schritt 3: Aus der DB die Member-spezifischen Fahrtendaten holen und für die Webseite aufbereiten
      *
@@ -23,8 +23,8 @@ class ApiListController extends Controller
      */
     public function __invoke(Request $request)
     {
-        Log::debug("Request: ".$request);
-        // POST-Daten in Members speichern, wenn webid noch nicht existiert
+        // Log::debug("Request: ".$request);
+        // POST-Daten in Member speichern, wenn webid noch nicht existiert
         $web_id = $request->input('webid');
 
         $member_id = DB::table('members')
@@ -63,7 +63,7 @@ class ApiListController extends Controller
         }
         DB::table('members')->where('id', $member_id)->update(['last_access' => Carbon::now()]);
 
-        Log::debug($member_id);
+        // Log::debug($member_id);
 
         // Falls mehrfache member Datensätze entstehen, alle außer den ersten löschen,
         //  weil gelegentlich bei der Erstanlage mehrere entstehen
@@ -88,29 +88,45 @@ class ApiListController extends Controller
             'Veranstaltungen' => ['vl',],
             'Bereitschaft' => ['bm','slbm']
         };
-        //Log::debug($list_type);
-        $list_action_types = DB::table('action_types')
-            ->whereIn('web_list', $list_type)
-            ->pluck('sc')
-            ->toArray();
-        //Log::debug($list_action_types);
+        Log::debug('list_type: ' . print_r($list_type, true));
 
-        // Gruppenzugehörigkeit des Members holen
+        /* -----------------------
+            Gruppenzugehörigkeit des Member holen
+        ------------------------- */
         $member_groups = DB::table('members')
             ->where('id', $member_id)
             ->value('groups');
         $member_groups_array = explode(',', $member_groups);
-        Log::debug(json_encode($member_groups_array));
+        $member_groups_array[] = 'tn';
+        Log::debug('member_groups: ' . print_r($member_groups_array, true));
 
-        // für ihn sichtbare Fahrten holen
+        /* -----------------------
+            Aktivitätentypen für diesen Member holen
+        ------------------------- */
+        $action_types = DB::table('action_types')
+            ->whereIn('web_list', $list_type)
+            ->get();
+
+        foreach ($action_types as $action_type) {
+            if (!empty(array_intersect(explode(',', $action_type->groups), $member_groups_array))) {
+                $list_action_types[] = $action_type->sc;
+            }
+        }
+        Log::debug('list_action_types: ' . print_r($list_action_types, true));
+
+        /* -----------------------
+            für den Member sichtbare Aktivitäten holen
+        ------------------------- */
         $actions = DB::table('list_actions')
             ->whereIn('action_type_sc', $list_action_types)
             ->whereIn('action_state_sc', ['of', 'gs'])
             ->orderBy('action_date')
             ->get();
-        //Log::debug("actions: ".json_encode($actions));
+        Log::debug('actions: ' . print_r($actions, true));
 
-        // in allen Fahrten Datum umformatieren und Anmeldestaus holen
+        /* -----------------------
+            in allen Fahrten Datum umformatieren und Anmeldestaus holen
+        ------------------------- */
         foreach ($actions as $action) {
             $action->action_date = Carbon::createFromFormat('Y-m-d', $action->action_date)->isoFormat('dd DD.MM.');
             $action->start_at_text = (empty($action->crew_start_at)) ? 'Beginn' : 'an Bord';

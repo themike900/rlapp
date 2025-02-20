@@ -186,19 +186,20 @@ class ApiGuestRegController extends Controller
                         ->delete();
 
                     // wenn TN voll war TN State wieder auf anmelden offen setzen
-                    if ($cnt->tn_free == 0 and $gst_state == 'angenommen') {
-                        DB::table('action')
+                    //if ($cnt->tn_free == 0 and $gst_state == 'angenommen') {
+                    if ($action->ac_reg_state_tn == 'tnoff' and $gst_state == 'angenommen') {
+                        DB::table('actions')
                             ->where('id', $action_id)
                             ->update(['ac_reg_state_tn' => 'tnon']);
                     }
 
-                    // Wenn Fahrt doch schon geschlossen war Fehlermeldung kein Löschen mehr möglich
+                // Wenn Fahrt doch schon geschlossen war Fehlermeldung kein Löschen mehr möglich
                 } else {
                     DB::table('action_members')
                         ->where('id', $reg_id)
                         ->update(['reg_error' => 'ac_geschl']);
                 }
-
+            // wenn doch ein Fehler auftritt
             } else {
                 DB::table('action_members')
                     ->where('id', $reg_id)
@@ -208,6 +209,6 @@ class ApiGuestRegController extends Controller
 
         }
 
-        return redirect()->away("https://".$hostname."/intern/details?id=".$request->input("action_id"));
+        return redirect()->away("https://".$hostname."/intern/details?id=".$request->input("action_id")."&anm=true");
     }
 }
