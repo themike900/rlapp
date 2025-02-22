@@ -51,7 +51,6 @@ class ApiListController extends Controller
                 'firstname' => $request->input('firstname'),
                 'nickname' => $request->input('firstname') . ' ' . substr($request->input('name'), 0, 1),
                 'email' => $request->input('email'),
-                'action_types' => "vf,af,vt,mv,ar,abr",
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
                 'groups' => ''
@@ -96,8 +95,10 @@ class ApiListController extends Controller
         $member_groups = DB::table('members')
             ->where('id', $member_id)
             ->value('groups');
-        $member_groups_array = explode(',', $member_groups);
-        $member_groups_array[] = 'tn';
+        $member_groups_array = (!empty($member_groups)) ? explode(',', $member_groups) : [];
+        if ($request->input('list_type') == 'Segeltermine' or $request->input('list_type') == 'Veranstaltungen') {
+            $member_groups_array[] = 'tn';
+        }
         Log::debug('member_groups: ' . print_r($member_groups_array, true));
 
         /* -----------------------
@@ -106,6 +107,7 @@ class ApiListController extends Controller
         $action_types = DB::table('action_types')
             ->whereIn('web_list', $list_type)
             ->get();
+        Log::debug('action_types: ' . print_r($action_types, true));
 
         foreach ($action_types as $action_type) {
             if (!empty(array_intersect(explode(',', $action_type->groups), $member_groups_array))) {
@@ -122,7 +124,7 @@ class ApiListController extends Controller
             ->whereIn('action_state_sc', ['of', 'gs'])
             ->orderBy('action_date')
             ->get();
-        Log::debug('actions: ' . print_r($actions, true));
+        //Log::debug('actions: ' . print_r($actions, true));
 
         /* -----------------------
             in allen Fahrten Datum umformatieren und Anmeldestaus holen

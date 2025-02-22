@@ -481,7 +481,8 @@ class ApiDetailsController extends Controller
             $members['participants'] = implode("<br>", $members['participants']);
         }
 
-        $debug = in_array($web_id, [1322,1]);
+        $debug = str_contains('debug', $member->control);
+        $mem_lists = str_contains('mlist', $member->control);
 
         return response()->json([
             'action' => $action,
@@ -495,7 +496,8 @@ class ApiDetailsController extends Controller
             "ac_regs_count" => $ac_regs_count,
             "ac_guests_count" => $ac_guests_count ?? [],
             "ac_free_tn" => $ac_tn_free,
-            "debug" => $debug
+            "debug" => $debug,
+            "mem_lists" => $mem_lists,
         ]);
 
     }
