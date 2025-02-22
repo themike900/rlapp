@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\ApiCronController;
 use App\Http\Controllers\Api\ApiDetailsController;
 use App\Http\Controllers\Api\ApiListController;
 use App\Http\Controllers\Api\ApiRegController;
@@ -23,3 +24,6 @@ Route::post('rlreg', ApiRegController::class)->name('api.rlreg');
 
 // Teilnahme an einer Aktivität anmelden
 Route::post('gstreg', ApiGuestRegController::class)->name('api.gst_reg');
+
+// Teilnahme an einer Aktivität anmelden
+Route::get('cron', ApiCronController::class)->name('api.cron');
