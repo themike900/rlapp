@@ -53,7 +53,8 @@ class MembersImport implements ToModel, WithHeadingRow
                  'mem_id'     => $row['nr'] ?? null,
                  'firstname'  => $row['vorname'] ?? '',
                  'name'       => $row['nachname'] ?? '',
-                 'nickname'   => $row['vorname'] . ' ' . substr($row['nachname'], 0,1 )?? '',
+                 //'nickname'   => $row['vorname'] . ' ' . substr($row['nachname'], 0,1 )?? '',
+                 'nickname'   => '',
                  'email'      => $row['e_mail'] ?? null,
                  'groups'     => $groups,
              ]);

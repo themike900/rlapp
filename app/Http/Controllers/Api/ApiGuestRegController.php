@@ -193,12 +193,16 @@ class ApiGuestRegController extends Controller
                             ->update(['ac_reg_state_tn' => 'tnon']);
                     }
 
-                // Wenn Fahrt doch schon geschlossen war Fehlermeldung kein Löschen mehr möglich
+                    // Wenn Fahrt doch schon geschlossen war Fehlermeldung kein Löschen mehr möglich
                 } else {
                     DB::table('action_members')
                         ->where('id', $reg_id)
                         ->update(['reg_error' => 'ac_geschl']);
                 }
+            } elseif (empty($gst_name)) {
+                DB::table('action_members')
+                    ->where('id', $reg_id)
+                    ->update(['reg_error' => 'empty_name']);
             // wenn doch ein Fehler auftritt
             } else {
                 DB::table('action_members')
