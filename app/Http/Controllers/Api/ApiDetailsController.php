@@ -486,7 +486,7 @@ class ApiDetailsController extends Controller
         if (!empty($crew)) {
             $members['crew'] = [];
             foreach ($crew as $cr) {
-                $members['crew'][] = $cr->firstname . ' ' . $cr->name;
+                $members['crew'][] = '&nbsp;&#8226; '.$cr->firstname . ' ' . $cr->name;
             }
             $members['crew'] = implode("<br>", $members['crew']);
         }
@@ -502,7 +502,7 @@ class ApiDetailsController extends Controller
         if (!empty($service)) {
             $members['service'] = [];
             foreach ($service as $sv) {
-                $members['service'][] = $sv->firstname . ' ' . $sv->name;
+                $members['service'][] = '&nbsp;&#8226; '.$sv->firstname . ' ' . $sv->name;
             }
             $members['service'] = implode("<br>", $members['service']);
         }
@@ -512,15 +512,33 @@ class ApiDetailsController extends Controller
             ->join('members', 'members.webid', '=', 'action_members.member_id')
             ->where('action_members.action_id', $action_id)
             ->where('action_members.group', 'tn')
+            ->where('action_members.reg_state', 'ang')
             ->select(['nickname','name','firstname'])
             ->get();
         $members['participants'] = "&nbsp;";
         if (!empty($participants)) {
             $members['participants'] = [];
             foreach ($participants as $pp) {
-                $members['participants'][] = $pp->firstname . ' ' . $pp->name;
+                $members['participants'][] = '&nbsp;&#8226; '.$pp->firstname . ' ' . $pp->name;
             }
             $members['participants'] = implode("<br>", $members['participants']);
+        }
+
+        // Nicknames der Wartelisten-Teilnehmer holen (Vereinsfahrt, Vereinstreffen, ...)
+        $participants_wl = DB::table('action_members')
+            ->join('members', 'members.webid', '=', 'action_members.member_id')
+            ->where('action_members.action_id', $action_id)
+            ->where('action_members.group', 'tn')
+            ->where('action_members.reg_state', 'wl')
+            ->select(['nickname','name','firstname'])
+            ->get();
+        $members['participants_wl'] = "&nbsp;";
+        if (!empty($participants_wl)) {
+            $members['participants_wl'] = [];
+            foreach ($participants_wl as $pp) {
+                $members['participants_wl'][] = '&nbsp;&#8226; '.$pp->firstname . ' ' . $pp->name;
+            }
+            $members['participants_wl'] = implode("<br>", $members['participants_wl']);
         }
 
         $debug = str_contains($member->control, 'debug');
