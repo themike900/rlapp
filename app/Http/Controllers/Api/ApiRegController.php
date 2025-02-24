@@ -101,17 +101,23 @@ class ApiRegController extends Controller
                 ->whereNot('reg_state', 'abgl')
                 ->count();
 
-            $cnt_crew = $cnt->reg_cr + $cnt->reg_sv  - $cnt->reg_crsv;
+            $cnt_crew = $cnt->reg_cr + $cnt->reg_sv - $cnt->reg_crsv;
             $cnt_crew = ($cnt_crew < 6) ?? 6;
-
-            $cnt->tn_free = $cnt->max_pers
-                - 1
-                - $cnt->ac_guests_angn
-                - $cnt_crew
-                - $cnt->ac_tn_ang;
 
             $cnt->guest_free = $cnt->max_guests
                 - $cnt->ac_guests_angn;
+
+            if ( in_array($action['action_type_sc'], ['vf','af','uf','gfx','gfm'])) {
+                $cnt->tn_free = $cnt->max_pers  // maximale Plätze für die Fahrt
+                    - 1                         // minus ein Kapitän
+                    - $cnt->ac_guests_angn      // minus angenommene Gäste
+                    - $cnt_crew                 // minus Crew (min 6)
+                    - $cnt->ac_tn_ang;          // minus angemeldete Teilnehmer
+            } else {
+                $cnt->tn_free = $cnt->max_pers
+                    - $cnt->ac_guests_angn
+                    - $cnt->ac_tn_ang;
+            }
 
             Log::debug(json_decode(json_encode($cnt), true));
 
@@ -130,28 +136,40 @@ class ApiRegController extends Controller
                 and
                 empty($request->input('abmeldung'))
             ) {
-                //TODO prüfen ob anmeldung überhaupt noch erlaubt ist
-                //TODO Prüfen ob nicht doch schon voll
+                if ($action->action_state_sc == 'of') {
 
-                $opt_array = [
-                    'anm_tn' => ['tn', 'ang'],
-                    'anm_wl' => ['wl', 'ang'],
-                    'bereit_crsv' => ['cr,sv', 'br'],
-                    'bereit_cr' => ['cr', 'br'],
-                    'bereit_sv' => ['sv', 'br'],
-                ];
-                $reg_opts = $opt_array[$request->input('anm_opt')];
+                    //TODO Prüfen ob nicht doch schon voll
 
-                Log::debug(json_encode($reg_opts));
+                    $opt_array = [
+                        'anm_tn' => ['tn', 'ang'],
+                        'anm_wl' => ['wl', 'ang'],
+                        'bereit_crsv' => ['cr,sv', 'br'],
+                        'bereit_cr' => ['cr', 'br'],
+                        'bereit_sv' => ['sv', 'br'],
+                    ];
+                    $reg_opts = $opt_array[$request->input('anm_opt')];
 
-                DB::table('action_members')->insert([
-                    'member_id' => $request->input('webid'),
-                    'action_id' => $request->input('actionid'),
-                    'group' => $reg_opts[0],
-                    'created_at' => Carbon::now(),
-                    'updated_at' => Carbon::now(),
-                    'reg_state' => $reg_opts[1],
-                ]);
+                    if ($request->input('anm_opt') == 'bereit_crsv') {
+                        $reg_opts = ($request->input('groups') == ['cr']) ? ['cr', 'br'] : $reg_opts;
+                        $reg_opts = ($request->input('groups') == ['sv']) ? ['sv', 'br'] : $reg_opts;
+                    }
+
+                    //Log::debug(print_r($reg_opts, true));
+
+                    DB::table('action_members')->insert([
+                        'member_id' => $request->input('webid'),
+                        'action_id' => $request->input('actionid'),
+                        'group' => $reg_opts[0],
+                        'created_at' => Carbon::now(),
+                        'updated_at' => Carbon::now(),
+                        'reg_state' => $reg_opts[1],
+                    ]);
+
+                } else {
+                    DB::table('action_members')
+                        ->where('id', $reg_id)
+                        ->update(['reg_error' => 'ac_geschl']);
+                }
 
                 //TODO prüfen ob Status geändert werden muss
 
@@ -178,7 +196,7 @@ class ApiRegController extends Controller
             //TODO Gäste löschen hinzufügen
         }
 
-
+        //return;
         return redirect()->away("https://".$hostname."/intern/details?id=".$request->input("actionid")."&anm=true");
     }
 }

@@ -9,15 +9,17 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use App\Services\ParticipantsCalcService;
 
-//use function Laravel\Prompts\table;
-
-//use function Laravel\Prompts\table;
 
 Carbon::setLocale('de');
 
 class ApiDetailsController extends Controller
 {
+    protected ParticipantsCalcService $participantsCalc;
+    public function __construct(ParticipantsCalcService $participantsCalc) {
+        $this->participantsCalc = $participantsCalc;
+    }
 
     /**
      *
@@ -122,13 +124,11 @@ class ApiDetailsController extends Controller
                 $reg_guests = [];
             }
 
-
             // Anzahl meiner Gäste
             $reg_guests_count = DB::table('guests')
                 ->where('gst_action_id', $action_id)
                 ->where('reg_id', '=', $registered->id)
                 ->count();
-
         }
 
         /*++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -139,7 +139,7 @@ class ApiDetailsController extends Controller
          * +++++++++++++++++++++++++++++++++++++++++++++++++
          */
         // Anzahl angenommener Gäste für diese Fahrt
-        $ac_guests_angn = DB::table('guests')
+        /*$ac_guests_angn = DB::table('guests')
             ->where('gst_action_id', $action_id)
             ->where('gst_state', 'angenommen')
             ->count();
@@ -151,6 +151,7 @@ class ApiDetailsController extends Controller
 
         $ac_guests_count['angn'] = $ac_guests_angn;
         $ac_guests_count['angf'] = $ac_guests_angf;
+        */
 
         /*++++++++++++++++++++++++++++++++++++++++++++++++++
          * Teilnehmerzahlen bestimmen
@@ -158,7 +159,7 @@ class ApiDetailsController extends Controller
          * in $anm_test bereitlegen
          * +++++++++++++++++++++++++++++++++++++++++++++++++
          */
-        $cnt_max_pers = $action['ac_max_pers'];
+        /*$cnt_max_pers = $action['ac_max_pers'];
 
         // Anzahl der angemeldeten Teilnehmer
         $cnt_ac_tn_ang = DB::table('action_members')
@@ -202,7 +203,15 @@ class ApiDetailsController extends Controller
             $ac_tn_free = $cnt_max_pers
                 - $ac_guests_angn
                 - $cnt_ac_tn_ang;
-        }
+        }*/
+
+        $ac_cnt = $this->participantsCalc->counts($action_id);
+
+        $ac_guests_count = [
+            'angn' => $ac_cnt['ac_guests_angn'],
+            'angf' => $ac_cnt['ac_guests_angf']
+        ];
+
 
         /*++++++++++++++++++++++++++++++++++++++++++++++++++
          * Testdaten bereitstellen
@@ -223,16 +232,18 @@ class ApiDetailsController extends Controller
         $anm_test['reg_reg_state'] = $reg_reg_state;
         $anm_test['reg_guests_count'] = $reg_guests_count;
         $anm_test['reg_error'] = $registered->reg_error ?? '';
-        $anm_test['ac_cnt']['max_pers'] = $action['ac_max_pers'];
+        /*$anm_test['ac_cnt']['max_pers'] = $action['ac_max_pers'];
         $anm_test['ac_cnt']['max_guests'] = $action['ac_max_guests'];
-        $anm_test['ac_cnt']['guests_angf'] = $ac_guests_angf;
-        $anm_test['ac_cnt']['guests_angn'] = $ac_guests_angn;
-        $anm_test['ac_cnt']['guests_free'] = $ac_guests_free;
-        $anm_test['ac_cnt']['reg_cr'] = $cnt_reg_cr;
-        $anm_test['ac_cnt']['reg_sv'] = $cnt_reg_sv;
-        $anm_test['ac_cnt']['reg_crsv'] = $cnt_reg_crsv;
-        $anm_test['ac_cnt']['cnt_crew'] = $cnt_crew;
-        $anm_test['ac_cnt']['tn_free'] = $ac_tn_free;
+        $anm_test['ac_cnt']['guests_angf'] = $cnt['ac_guests_angf'];
+        $anm_test['ac_cnt']['guests_angn'] = $cnt['ac_guests_angn'];
+        $anm_test['ac_cnt']['guests_free'] = $cnt['ac_guests_free'];
+        $anm_test['ac_cnt']['reg_cr'] = $cnt['ac_reg_cr'];
+        $anm_test['ac_cnt']['reg_sv'] = $cnt['ac_reg_sv'];
+        $anm_test['ac_cnt']['reg_crsv'] = $cnt['ac_reg_crsv'];
+        $anm_test['ac_cnt']['cnt_crew'] = $cnt['ac_crew'];
+        $anm_test['ac_cnt']['tn_free'] = $cnt['ac_tn_free'];*/
+
+        $anm_test['ac_cnt'] = $ac_cnt;
 
 
 
@@ -270,8 +281,8 @@ class ApiDetailsController extends Controller
                         $anm_opt[] = 'abm_tn';
                     } else {
                         $anm_opt[] = 'abm_tn_nogst';
-                    };                                                   // Abmelden Teilnehmer
-                    if ($ac_guests_free > 0 and $action['ac_reg_state_tn'] == 'tnon') { $anm_opt[] = 'anfr_gst'; }  // Anfrage Gäste
+                    }                                                   // Abmelden Teilnehmer
+                    if ($ac_cnt['ac_guests_free'] > 0 and $action['ac_reg_state_tn'] == 'tnon') { $anm_opt[] = 'anfr_gst'; }  // Anfrage Gäste
                     if ($reg_guests_count > 0) { $anm_opt[] = 'gst_list'; }                     // Anzeige Gästeliste
                 }
                 if ($action['action_state_sc'] == 'gs') {
@@ -316,17 +327,17 @@ class ApiDetailsController extends Controller
                     if ($action['ac_reg_state_cr'] == 'crbr') {
                         $anm_opt[] = 'bereit_cr';                                                           // Bereitschaftsmeldung CR
                     }
-                    if ($action['ac_reg_state_cr'] == 'crgp') {
+                    if ($action['ac_reg_state_cr'] == 'crgpl') {
                         $anm_opt[] = 'fertig_crsv';                                                         // Bereitschaft fertig geplant
                     }
                 }
                 // nur in Gruppe SV
                 if (in_array('sv', $mem_groups) and !in_array('cr', $mem_groups)) {
                     if ($action['ac_reg_state_sv'] == 'svbr') {
-                        $anm_opt[] = 'bereit_sv';                                                           // Bereitschaftsmeldung CR
+                        $anm_opt[] = 'bereit_sv';                                        // Bereitschaftsmeldung CR
                     }
-                    if ($action['ac_reg_state_sv'] == 'svgp') {
-                        $anm_opt[] = 'fertig_crsv';                                                         // Bereitschaft fertig geplant
+                    if ($action['ac_reg_state_sv'] == 'svgpl') {
+                        $anm_opt[] = 'fertig_crsv';                                      // Bereitschaft fertig geplant
                     }
                 }
             }
@@ -334,18 +345,22 @@ class ApiDetailsController extends Controller
             if ($reg_reg_state == 'cr_br') {
                 // Bereitschaftsmeldung CR möglich
                 if ($action['ac_reg_state_cr'] == 'crbr') {
-                    $anm_opt[] = 'abm_cr';                                                 // CR angemeldet, Abmeldung online
-                    if ($action['action_state_sc'] == 'of') {
-                        if ($ac_guests_free > 0) { $anm_opt[] = 'anfr_gst'; }   // Anfrage Gäste
-                        if ($reg_guests_count > 0) { $anm_opt[] = 'gst_list'; }             // Anzeige Gästeliste
-                    }
-                    if ($action['action_state_sc'] == 'gs') {
-                        if ($reg_guests_count > 0) { $anm_opt[] = 'gst_list_no_del'; }      // Anzeige Gästeliste, no delete
+                    if ($action['ac_max_guests'] > 0) {
+                        $anm_opt[] = 'abm_cr';                                                 // CR angemeldet, Abmeldung online
+                        if ($action['action_state_sc'] == 'of') {
+                            if ($ac_cnt['ac_guests_free'] > 0) { $anm_opt[] = 'anfr_gst'; }               // Anfrage Gäste
+                            if ($reg_guests_count > 0) { $anm_opt[] = 'gst_list'; }             // Anzeige Gästeliste
+                        }
+                        if ($action['action_state_sc'] == 'gs') {
+                            if ($reg_guests_count > 0) { $anm_opt[] = 'gst_list_no_del'; }      // Anzeige Gästeliste, no delete
+                        }
+                    } else {
+                        $anm_opt[] = 'abm_cr_nogst';                                            // CR angemeldet, Abmeldung online
                     }
                 }
                 if ($action['ac_reg_state_cr'] == 'crgpl') {
                     $anm_opt[] = 'abm_cr_tel';                                             // CR angemeldet, Abmeldung per Tel
-                    if ($reg_guests_count > 0) { $anm_opt[] = 'gst_list_no_del'; }             // Anzeige Gästeliste
+                    if ($reg_guests_count > 0) { $anm_opt[] = 'gst_list_no_del'; }         // Anzeige Gästeliste
                 }
             }
             // CR Bereitschaft geplant
@@ -364,16 +379,26 @@ class ApiDetailsController extends Controller
             // SV Bereitschaft gemeldet
             if ($reg_reg_state == 'sv_br'){
                 if ($action['ac_reg_state_sv'] == 'svbr') {
-                    $anm_opt[] = 'abm_sv';                                                 // SV angemeldet, Abmeldung online
-                    if ($action['action_state_sc'] == 'of') {
-                        if ($ac_guests_free > 0) { $anm_opt[] = 'anfr_gst'; }   // Anfrage Gäste
-                        if ($reg_guests_count > 0) { $anm_opt[] = 'gst_list'; }             // Anzeige Gästeliste
-                    }
-                    if ($action['action_state_sc'] == 'gs') {
-                        if ($reg_guests_count > 0) { $anm_opt[] = 'gst_list_no_del'; }      // Anzeige Gästeliste, no delete
+                    if ($action['ac_max_guests'] > 0) {
+                        $anm_opt[] = 'abm_sv';                                                 // SV angemeldet, Abmeldung online
+                        if ($action['action_state_sc'] == 'of') {
+                            if ($ac_cnt['ac_guests_free'] > 0) {
+                                $anm_opt[] = 'anfr_gst';
+                            }   // Anfrage Gäste
+                            if ($reg_guests_count > 0) {
+                                $anm_opt[] = 'gst_list';
+                            }             // Anzeige Gästeliste
+                        }
+                        if ($action['action_state_sc'] == 'gs') {
+                            if ($reg_guests_count > 0) {
+                                $anm_opt[] = 'gst_list_no_del';
+                            }      // Anzeige Gästeliste, no delete
+                        }
+                    } else {
+                        $anm_opt[] = 'abm_sv_nogst';                                            // CR angemeldet, Abmeldung online
                     }
                 }
-                if ($action['ac_reg_state_sv'] == 'svgp') {
+                if ($action['ac_reg_state_sv'] == 'svgpl') {
                     $anm_opt[] = 'abm_sv_tel';                                             // SV angemeldet, Abmeldung per Tel
                 }
             }
@@ -396,25 +421,36 @@ class ApiDetailsController extends Controller
             }
             // Breitschaft CR und SV gemeldet
             if ($reg_reg_state == 'crsv_br') {
-                $anm_opt[] = 'abm_crsv';                                             // CR/SV bereit gemeldet, Abmeldung beide
-                if ($action['action_state_sc'] == 'of') {
-                    if ($ac_guests_free > 0) { $anm_opt[] = 'anfr_gst'; }   // Anfrage Gäste
-                    if ($reg_guests_count > 0) { $anm_opt[] = 'gst_list'; }             // Anzeige Gästeliste
-                }
-                if ($action['action_state_sc'] == 'gs') {
-                    if ($reg_guests_count > 0) { $anm_opt[] = 'gst_list_no_del'; }      // Anzeige Gästeliste, no delete
-                }
-                if ($action['ac_reg_state_cr'] == 'crgpl') {
-                    $anm_opt[] = 'abm_cr_tel';                                             // CR angemeldet, Abmeldung per Tel
-                    if ($reg_guests_count > 0) { $anm_opt[] = 'gst_list_no_del'; }             // Anzeige Gästeliste
+                if ($action['ac_max_guests'] > 0) {
+                    $anm_opt[] = 'abm_crsv';                                             // CR/SV bereit gemeldet, Abmeldung beide
+                    if ($action['action_state_sc'] == 'of') {
+                        if ($ac_cnt['ac_guests_free'] > 0) {
+                            $anm_opt[] = 'anfr_gst';
+                        }   // Anfrage Gäste
+                        if ($reg_guests_count > 0) {
+                            $anm_opt[] = 'gst_list';
+                        }             // Anzeige Gästeliste
+                    }
+                    if ($action['action_state_sc'] == 'gs') {
+                        if ($reg_guests_count > 0) {
+                            $anm_opt[] = 'gst_list_no_del';
+                        }      // Anzeige Gästeliste, no delete
+                    }
+                } else {
+                    $anm_opt[] = 'abm_crsv_nogst';                                            // CR angemeldet, Abmeldung online
                 }
             }
+            if ($action['ac_reg_state_cr'] == 'crgpl') {
+                $anm_opt[] = 'abm_cr_tel';                                             // CR angemeldet, Abmeldung per Tel
+                if ($reg_guests_count > 0) { $anm_opt[] = 'gst_list_no_del'; }             // Anzeige Gästeliste
+            }
+
         }
         // Eingeteilt als Schiffsführer
         if ($reg_reg_state == 'sf_ang') {
             $anm_opt[] = 'abm_sf_tel';
             if ($action['action_state_sc'] == 'of') {
-                if ($ac_guests_free > 0) { $anm_opt[] = 'anfr_gst'; }   // Anfrage Gäste
+                if ($ac_cnt['ac_guests_free'] > 0) { $anm_opt[] = 'anfr_gst'; }   // Anfrage Gäste
                 if ($reg_guests_count > 0) { $anm_opt[] = 'gst_list'; }             // Anzeige Gästeliste
             }
             if ($action['action_state_sc'] == 'gs') {
@@ -480,6 +516,7 @@ class ApiDetailsController extends Controller
             ->join('members', 'members.webid', '=', 'action_members.member_id')
             ->where('action_members.action_id', $action_id)
             ->whereLike('action_members.group', '%cr%')
+            ->orderBy('members.firstname')
             ->select(['nickname','name','firstname'])
             ->get();
         $members['crew'] = "&nbsp;";
@@ -496,6 +533,7 @@ class ApiDetailsController extends Controller
             ->join('members', 'members.webid', '=', 'action_members.member_id')
             ->where('action_members.action_id', $action_id)
             ->whereLike('action_members.group', '%sv%')
+            ->orderBy('members.firstname')
             ->select(['nickname','name','firstname'])
             ->get();
         $members['service'] = "&nbsp;";
@@ -513,6 +551,7 @@ class ApiDetailsController extends Controller
             ->where('action_members.action_id', $action_id)
             ->where('action_members.group', 'tn')
             ->where('action_members.reg_state', 'ang')
+            ->orderBy('members.firstname')
             ->select(['nickname','name','firstname'])
             ->get();
         $members['participants'] = "&nbsp;";
@@ -530,6 +569,7 @@ class ApiDetailsController extends Controller
             ->where('action_members.action_id', $action_id)
             ->where('action_members.group', 'tn')
             ->where('action_members.reg_state', 'wl')
+            ->orderBy('members.firstname')
             ->select(['nickname','name','firstname'])
             ->get();
         $members['participants_wl'] = "&nbsp;";
@@ -554,8 +594,8 @@ class ApiDetailsController extends Controller
             "anm_test" => $anm_test,
             "members" => $members,
             "ac_regs_count" => $ac_regs_count,
-            "ac_guests_count" => $ac_guests_count ?? [],
-            "ac_free_tn" => $ac_tn_free,
+            "ac_guests_count" => $ac_guests_count,
+            "ac_tn_free" => $ac_cnt['ac_tn_free'],
             "debug" => $debug,
             "mem_lists" => $mem_lists,
         ]);
