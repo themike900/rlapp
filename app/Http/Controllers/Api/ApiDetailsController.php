@@ -433,6 +433,7 @@ class ApiDetailsController extends Controller
             ->join('members', 'members.webid', '=', 'action_members.member_id')
             ->where('action_members.action_id', $action_id)
             ->whereLike('action_members.group', '%cr%')
+            ->whereNot('action_members.reg_state', 'abgl')
             ->orderBy('members.firstname')
             ->select(['nickname','name','firstname'])
             ->get();
@@ -450,6 +451,7 @@ class ApiDetailsController extends Controller
             ->join('members', 'members.webid', '=', 'action_members.member_id')
             ->where('action_members.action_id', $action_id)
             ->whereLike('action_members.group', '%sv%')
+            ->whereNot('action_members.reg_state', 'abgl')
             ->orderBy('members.firstname')
             ->select(['nickname','name','firstname'])
             ->get();
