@@ -24,7 +24,13 @@ class ApiListController extends Controller
     public function __invoke(Request $request)
     {
         // Log::debug("Request: ".$request);
-        // POST-Daten in Member speichern, wenn webid noch nicht existiert
+
+        /*++++++++++++++++++++++++++++++++++++++++++++++++++
+         * POST-Daten in Member speichern, wenn webid noch nicht existiert
+         *
+         * in $anm_opt und $reg_guests_count bereitlegen
+         * +++++++++++++++++++++++++++++++++++++++++++++++++
+         */
         $web_id = $request->input('webid');
 
         $member_id = DB::table('members')
@@ -64,8 +70,12 @@ class ApiListController extends Controller
 
         // Log::debug($member_id);
 
-        // Falls mehrfache member Datensätze entstehen, alle außer den ersten löschen,
-        //  weil gelegentlich bei der Erstanlage mehrere entstehen
+        /*++++++++++++++++++++++++++++++++++++++++++++++++++
+         * Falls mehrfache member Datensätze entstehen, alle außer den ersten löschen,
+         * weil gelegentlich bei der Erstanlage mehrere entstehen
+         *
+         * +++++++++++++++++++++++++++++++++++++++++++++++++
+         */
         if (DB::table('members')
                 ->where('webid', $web_id)
                 ->count() > 1) {
@@ -81,7 +91,12 @@ class ApiListController extends Controller
                 ->delete();
         }
 
-        // Auswahl für Anzeigeliste festlegen
+        /*++++++++++++++++++++++++++++++++++++++++++++++++++
+         * Festlegen, welche action_types auf welcher Liste angezeigt werden
+         *
+         *
+         * +++++++++++++++++++++++++++++++++++++++++++++++++
+         */
         $list_type = match ($request->input('list_type')) {
             'Segeltermine' => ['sl','slbm'],
             'Veranstaltungen' => ['vl',],
@@ -99,7 +114,7 @@ class ApiListController extends Controller
         if ($request->input('list_type') == 'Segeltermine' or $request->input('list_type') == 'Veranstaltungen') {
             $member_groups_array[] = 'tn';
         }
-        Log::debug('member_groups: ' . print_r($member_groups_array, true));
+        Log::debug('member_groups_array: ' . print_r($member_groups_array, true));
 
         /* -----------------------
             Aktivitätentypen für diesen Member holen
@@ -124,7 +139,7 @@ class ApiListController extends Controller
             ->whereIn('action_state_sc', ['of', 'gs'])
             ->orderBy('action_date')
             ->get();
-        //Log::debug('actions: ' . print_r($actions, true));
+        Log::debug('actions: ' . print_r($actions, true));
 
         /* -----------------------
             in allen Fahrten Datum umformatieren und Anmeldestaus holen
@@ -137,20 +152,30 @@ class ApiListController extends Controller
             $action->end_at = (empty($action->crew_end_at)) ? $action->action_end_at : $action->crew_end_at;
 
             $reg = DB::table('action_members')
-                ->join('reg_state', 'action_members.reg_state', '=', 'reg_state.sc')
+                //->join('reg_state', 'action_members.reg_state', '=', 'reg_state.sc')
                 ->where("member_id", $web_id)
                 ->where('action_id', $action->action_id)
                 ->first();
+            Log::debug('action_members: ' . print_r($reg, true));
 
+            $action->reg_state_name = '&nbsp;';
             if (!empty($reg)) {
-                $action->reg_state_name = DB::table('reg_state')
+                $reg_state = DB::table('reg_state')
                     ->where('sc', $reg->reg_state)
-                    ->where('grp',$reg->group)
-                    ->value('name');
-            } else {
-                $action->reg_state_name = '&nbsp;';
-            }
+                    ->where('grp', $reg->group)
+                    ->first();
 
+                if ($request->input('list_type') == 'Segeltermine' and $reg->group == 'tn') {
+                    $action->reg_state_name = $reg_state->name;
+                }
+                if ($request->input('list_type') == 'Bereitschaft' and in_array($reg->group, ['cr','sv','cr,sv','sf'])) {
+                    $action->reg_state_name = $reg_state->name;
+                }
+                if ($request->input('list_type') == 'Veranstaltungen' and in_array($reg->group, ['tn','sh','wa'])) {
+                    $action->reg_state_name = $reg_state->name;
+                }
+                Log::debug('reg_state: ' . print_r($reg_state, true));
+            }
 
         }
 

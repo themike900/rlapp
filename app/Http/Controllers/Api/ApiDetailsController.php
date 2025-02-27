@@ -498,8 +498,8 @@ class ApiDetailsController extends Controller
             $members['participants_wl'] = implode("<br>", $members['participants_wl']);
         }
 
-        $debug = str_contains($member->control, 'debug');
-        $mem_lists = str_contains($member->control,'mlist');
+        $debug = is_string($member->control) && str_contains($member->control, 'debug');
+        $mem_lists = is_string($member->control) && str_contains($member->control,'mlist');
 
         return response()->json([
             'action' => $action,
