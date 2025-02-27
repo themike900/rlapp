@@ -34,23 +34,23 @@ class MembersImport implements ToModel, WithHeadingRow
         $groups = ($row['aufentern'] == 'Ja') ? $groups . ',ae' : $groups;
         $groups = ($groups == '-') ? '' : $groups;
 
-        // ist der Member mit der mem_id schon da?
-        $member = Member::where('mem_id', $row['nr'])->first();
+        // ist der Member mit der mv_id schon da?
+        $member = Member::where('mv_id', $row['nr'])->first();
 
         if (empty($member)) {
             $member = Member::where('email', $row['e_mail'])->first();
         }
 
-        // Wenn ja, nur groups überschreiben
+        // Wenn ja, nur groups und mv_id überschreiben
          if ($member) {
-             $member->mem_id = $row['nr'];
+             $member->mv_id = $row['nr'];
              $member->groups = $groups;
              $member->save();
 
-             // Wemm nein, neuen Datensatz anlegen
+             // Wenn nein, neuen Datensatz anlegen
          } else {
              $member = Member::create([
-                 'mem_id'     => $row['nr'] ?? null,
+                 'mv_id'     => $row['nr'] ?? null,
                  'firstname'  => $row['vorname'] ?? '',
                  'name'       => $row['nachname'] ?? '',
                  //'nickname'   => $row['vorname'] . ' ' . substr($row['nachname'], 0,1 )?? '',

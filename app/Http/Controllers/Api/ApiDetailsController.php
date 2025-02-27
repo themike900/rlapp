@@ -229,7 +229,8 @@ class ApiDetailsController extends Controller
                         $anm_opt[] = 'bereit_crsv';                                                         // Bereitschaftsmeldung CR/SV
                     }
 
-                    if ($action['ac_reg_state_cr'] == 'crbr' and $action['ac_reg_state_sv'] == 'svgpl') {
+                    if ($action['ac_reg_state_cr'] == 'crbr' and
+                        ($action['ac_reg_state_sv'] == 'svgpl' or empty('ac_reg_state_sv')) ) {
                         $anm_opt[] = 'bereit_cr';                                                           // Bereitschaftsmeldung CR
                     }
                     if ($action['ac_reg_state_cr'] == 'crgpl' and $action['ac_reg_state_sv'] == 'svbr') {
