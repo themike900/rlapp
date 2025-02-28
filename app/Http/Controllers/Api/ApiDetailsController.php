@@ -363,10 +363,10 @@ class ApiDetailsController extends Controller
                 } else {
                     $anm_opt[] = 'abm_crsv_nogst';                                            // CR angemeldet, Abmeldung online
                 }
-            }
-            if ($action['ac_reg_state_cr'] == 'crgpl') {
-                $anm_opt[] = 'abm_cr_tel';                                             // CR angemeldet, Abmeldung per Tel
-                if ($reg_guests_count > 0) { $anm_opt[] = 'gst_list_no_del'; }             // Anzeige Gästeliste
+                if ($action['ac_reg_state_cr'] == 'crgpl') {
+                    $anm_opt[] = 'abm_cr_tel';                                             // CR angemeldet, Abmeldung per Tel
+                    if ($reg_guests_count > 0) { $anm_opt[] = 'gst_list_no_del'; }             // Anzeige Gästeliste
+                }
             }
 
         }

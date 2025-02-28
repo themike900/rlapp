@@ -9,6 +9,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use stdClass;
 
 class ApiRegController extends Controller
 {
@@ -58,7 +59,7 @@ class ApiRegController extends Controller
              * in $cnt bereitlegen
              * +++++++++++++++++++++++++++++++++++++++++++++++++
              */
-            $cnt = new \stdClass();
+            $cnt = new stdClass();
             $cnt->max_pers = $action['ac_max_pers'];
             $cnt->max_guests = $action['ac_max_guests'];
             $cnt->captain = 1;
@@ -130,13 +131,13 @@ class ApiRegController extends Controller
 
             // wenn web_id nicht angemeldet und kein Abmelde-Kennzeichen, dann anmelden
             if (DB::table('action_members')
-                    ->where('member_id', $request->input('webid'))
-                    ->where('action_id', $request->input('actionid'))
+                    ->where('web_id', $web_id)
+                    ->where('action_id', $action_id)
                     ->doesntExist()
                 and
                 empty($request->input('abmeldung'))
             ) {
-                if ($action->action_state_sc == 'of') {
+                if ($action['action_state_sc'] == 'of') {
 
                     //TODO Prüfen ob nicht doch schon voll
 
@@ -157,8 +158,8 @@ class ApiRegController extends Controller
                     //Log::debug(print_r($reg_opts, true));
 
                     DB::table('action_members')->insert([
-                        'member_id' => $request->input('webid'),
-                        'action_id' => $request->input('actionid'),
+                        'web_id' => $web_id,
+                        'action_id' => $action_id,
                         'group' => $reg_opts[0],
                         'created_at' => Carbon::now(),
                         'updated_at' => Carbon::now(),
@@ -166,8 +167,8 @@ class ApiRegController extends Controller
                     ]);
 
                 } else {
-                    DB::table('action_members')
-                        ->where('id', $reg_id)
+                    DB::table('members')
+                        ->where('web_id', $web_id)
                         ->update(['reg_error' => 'ac_geschl']);
                 }
 
@@ -179,7 +180,7 @@ class ApiRegController extends Controller
                 //TODO prüfen ob abmelden überhaupt noch erlaubt ist
 
                 $reg_id = DB::table('action_members')
-                    ->where('member_id', $request->input('webid'))
+                    ->where('web_id', $request->input('webid'))
                     ->where('action_id', $request->input('actionid'))
                     ->value('id');
 
