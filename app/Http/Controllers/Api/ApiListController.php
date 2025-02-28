@@ -24,7 +24,7 @@ class ApiListController extends Controller
     public function __invoke(Request $request)
     {
         $request_input  = $request->all();
-        Log::debug("---- Getting {$request->input('list_type')} for {$request->input('webid')}------------------------------------------------");
+        Log::info("---- Getting {$request->input('list_type')} for {$request->input('webid')}------------------------------------------------");
         //Log::debug("Request: ".$request);
 
         /*++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -63,10 +63,12 @@ class ApiListController extends Controller
                 'updated_at' => Carbon::now(),
                 'groups' => ''
             ]);
+            Log::info('User aus webid neu angelegt');
         } else {
             DB::table('members')
                 ->where('id', $member_id)
                 ->update(['webid' => $web_id]);
+            Log::info('User webid aktualisiert');
         }
         DB::table('members')->where('id', $member_id)->update(['last_access' => Carbon::now()]);
 
@@ -91,6 +93,8 @@ class ApiListController extends Controller
                 ->where('webid', $web_id)
                 ->where('id', '>', $first)
                 ->delete();
+
+            Log::info('Doppelte User gelöscht.');
         }
 
         /*++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -141,7 +145,7 @@ class ApiListController extends Controller
             ->whereIn('action_state_sc', ['of', 'gs'])
             ->orderBy('action_date')
             ->get();
-        Log::debug('actions: ' . print_r($actions, true));
+        //Log::debug('actions: ' . print_r($actions, true));
 
         /* -----------------------
             in allen Fahrten Datum umformatieren und Anmeldestaus holen
@@ -155,7 +159,7 @@ class ApiListController extends Controller
 
             $reg = DB::table('action_members')
                 //->join('reg_state', 'action_members.reg_state', '=', 'reg_state.sc')
-                ->where("member_id", $web_id)
+                ->where("web_id", $web_id)
                 ->where('action_id', $action->action_id)
                 ->first();
             Log::debug('action_members: ' . print_r($reg, true));
@@ -166,7 +170,6 @@ class ApiListController extends Controller
                     ->where('sc', $reg->reg_state)
                     ->where('grp', $reg->group)
                     ->first();
-                Log::debug('reg_state: ' . print_r($reg_state, true));
                 if ($request->input('list_type') == 'Segeltermine' and $reg->group == 'tn') {
                     $action->reg_state_name = $reg_state->name;
                 }
@@ -180,6 +183,7 @@ class ApiListController extends Controller
             }
 
         }
+        Log::debug("--- actions:\n " . print_r($actions, true));
 
         return response()->json($actions);
     }

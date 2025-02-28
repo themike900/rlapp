@@ -32,7 +32,7 @@ class ApiDetailsController extends Controller
      */
     public function __invoke(Request $request, int $web_id, int $action_id)
     {
-        Log::debug("---- Getting details of action {$action_id} for user {$web_id} ----------------------------------------}");
+        Log::info("---- Getting details of action {$action_id} for user {$web_id} ----------------------------------------}");
 
         //$auth = $request.header('X-Auth-Token');
         $web_list = $request->input('liste');
@@ -80,7 +80,7 @@ class ApiDetailsController extends Controller
          * +++++++++++++++++++++++++++++++++++++++++++++++++
          */
         $registered = DB::table('action_members')
-            ->where('member_id', $web_id)
+            ->where('web_id', $web_id)
             ->where('action_id', $action_id)
             ->first();
 
@@ -233,8 +233,7 @@ class ApiDetailsController extends Controller
                     if ($action['ac_reg_state_cr'] == 'crbr' and $action['ac_reg_state_sv'] == 'svbr') {
                         $anm_opt[] = 'bereit_crsv';                                                         // Bereitschaftsmeldung CR/SV
                     }
-                    if ($action['ac_reg_state_cr'] == 'crbr' and
-                        ($action['ac_reg_state_sv'] == 'svgpl' or empty('ac_reg_state_sv')) ) {
+                    if ($action['ac_reg_state_cr'] == 'crbr' and $action['ac_reg_state_sv'] == 'svgpl') {
                         $anm_opt[] = 'bereit_cr';                                                           // Bereitschaftsmeldung CR
                     }
                     if ($action['ac_reg_state_cr'] == 'crgpl' and $action['ac_reg_state_sv'] == 'svbr') {
@@ -242,6 +241,9 @@ class ApiDetailsController extends Controller
                     }
                     if ($action['ac_reg_state_cr'] == 'crgpl' and $action['ac_reg_state_sv'] == 'svgpl') {
                         $anm_opt[] = 'fertig_crsv';                                                         // Bereitschaft fertig geplant
+                    }
+                    if ($action['ac_reg_state_cr'] == 'crbr' and $action['ac_reg_state_sv'] == '') {
+                        $anm_opt[] = 'bereit_cr';
                     }
                 }
                 // nur in Gruppe CR
@@ -422,7 +424,7 @@ class ApiDetailsController extends Controller
         // Nickname vom Kapitän holen (alle Fahrten)
         $members = [];
         $captain = (array)DB::table('action_members')
-            ->join('members', 'members.webid', '=', 'action_members.member_id')
+            ->join('members', 'members.webid', '=', 'action_members.web_id')
             ->where('action_members.action_id', $action_id)
             ->where('action_members.group', 'sf')
             ->select(['nickname','name','firstname'])
@@ -435,7 +437,7 @@ class ApiDetailsController extends Controller
 
         //Nicknames der Crew-Mitglieder holen (alle Fahrten)
         $crew = DB::table('action_members')
-            ->join('members', 'members.webid', '=', 'action_members.member_id')
+            ->join('members', 'members.webid', '=', 'action_members.web_id')
             ->where('action_members.action_id', $action_id)
             ->whereLike('action_members.group', '%cr%')
             ->whereNot('action_members.reg_state', 'abgl')
@@ -453,7 +455,7 @@ class ApiDetailsController extends Controller
 
         // Nicknames der Service-Mitglieder holen (Gästefahrt, Vereinsfahrt, Ausbildungsfahrt)
         $service = DB::table('action_members')
-            ->join('members', 'members.webid', '=', 'action_members.member_id')
+            ->join('members', 'members.webid', '=', 'action_members.web_id')
             ->where('action_members.action_id', $action_id)
             ->whereLike('action_members.group', '%sv%')
             ->whereNot('action_members.reg_state', 'abgl')
@@ -471,7 +473,7 @@ class ApiDetailsController extends Controller
 
         // Nicknames der Teilnehmer holen (Vereinsfahrt, Vereinstreffen, Shanty-Chor, ...)
         $participants = DB::table('action_members')
-            ->join('members', 'members.webid', '=', 'action_members.member_id')
+            ->join('members', 'members.webid', '=', 'action_members.web_id')
             ->where('action_members.action_id', $action_id)
             ->where('action_members.group', 'tn')
             ->where('action_members.reg_state', 'ang')
@@ -489,7 +491,7 @@ class ApiDetailsController extends Controller
 
         // Nicknames der Wartelisten-Teilnehmer holen (Vereinsfahrt, Vereinstreffen, ...)
         $participants_wl = DB::table('action_members')
-            ->join('members', 'members.webid', '=', 'action_members.member_id')
+            ->join('members', 'members.webid', '=', 'action_members.web_id')
             ->where('action_members.action_id', $action_id)
             ->where('action_members.group', 'tn')
             ->where('action_members.reg_state', 'wl')
