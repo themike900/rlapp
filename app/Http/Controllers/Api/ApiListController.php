@@ -23,7 +23,9 @@ class ApiListController extends Controller
      */
     public function __invoke(Request $request)
     {
-        // Log::debug("Request: ".$request);
+        $request_input  = $request->all();
+        Log::debug("---- Getting {$request->input('list_type')} for {$request->input('webid')}------------------------------------------------");
+        //Log::debug("Request: ".$request);
 
         /*++++++++++++++++++++++++++++++++++++++++++++++++++
          * POST-Daten in Member speichern, wenn webid noch nicht existiert
@@ -164,7 +166,7 @@ class ApiListController extends Controller
                     ->where('sc', $reg->reg_state)
                     ->where('grp', $reg->group)
                     ->first();
-
+                Log::debug('reg_state: ' . print_r($reg_state, true));
                 if ($request->input('list_type') == 'Segeltermine' and $reg->group == 'tn') {
                     $action->reg_state_name = $reg_state->name;
                 }

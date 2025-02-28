@@ -32,6 +32,8 @@ class ApiDetailsController extends Controller
      */
     public function __invoke(Request $request, int $web_id, int $action_id)
     {
+        Log::debug("---- Getting details of action {$action_id} for user {$web_id} ----------------------------------------}");
+
         //$auth = $request.header('X-Auth-Token');
         $web_list = $request->input('liste');
 
@@ -150,17 +152,19 @@ class ApiDetailsController extends Controller
         $anm_test['action_id'] = $action_id;
         $anm_test['web_list'] = $web_list;
         $anm_test['mem_groups'] = $mem_groups;
+        $anm_test['reg_reg_state'] = $reg_reg_state;
         $anm_test['action_type_sc'] = $action['action_type_sc'];
         $anm_test['action_state_sc'] = $action['action_state_sc'];
-        $anm_test['ac_reg_state_tn'] = $action['ac_reg_state_tn'];
         $anm_test['ac_reg_state_cr'] = $action['ac_reg_state_cr'];
         $anm_test['ac_reg_state_sv'] = $action['ac_reg_state_sv'];
+        $anm_test['ac_reg_state_tn'] = $action['ac_reg_state_tn'];
         $anm_test['reg_id'] = $registered->id ?? null;
-        $anm_test['reg_reg_state'] = $reg_reg_state;
         $anm_test['reg_guests_count'] = $reg_guests_count;
         $anm_test['reg_error'] = $registered->reg_error ?? '';
 
         $anm_test['ac_cnt'] = $ac_cnt;
+
+        Log::debug('anm_test: '.print_r($anm_test, true));
 
 
 
@@ -224,11 +228,11 @@ class ApiDetailsController extends Controller
             if ( empty($reg_reg_state) ) {
                 // gehört zu CR und SV
                 if (in_array('cr', $mem_groups) and in_array('sv', $mem_groups)) {
+                    Log::debug('mem_groups enthält CR+SV');
                     // Fahrt CR bereit und SV bereit, dann Anmeldung CR und SV
                     if ($action['ac_reg_state_cr'] == 'crbr' and $action['ac_reg_state_sv'] == 'svbr') {
                         $anm_opt[] = 'bereit_crsv';                                                         // Bereitschaftsmeldung CR/SV
                     }
-
                     if ($action['ac_reg_state_cr'] == 'crbr' and
                         ($action['ac_reg_state_sv'] == 'svgpl' or empty('ac_reg_state_sv')) ) {
                         $anm_opt[] = 'bereit_cr';                                                           // Bereitschaftsmeldung CR
