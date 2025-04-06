@@ -1,5 +1,5 @@
 <!-- resources/views/pages/home.blade.php -->
-@extends('layouts.rl-app')
+@extends('layouts.app')
 
 @section('content')
     <!-- Zweiter Header mit dynamischer Überschrift -->

@@ -7,7 +7,7 @@
 
         <title>Royal-Louise Backend</title>
 
-		<link rel="shortcut icon" href="{{ config('app.url') }}/favicon.png" />
+		<link rel="shortcut icon" href="/favicon.png" />
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.googleapis.com">

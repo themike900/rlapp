@@ -1,9 +1,10 @@
 <div>
-    <header class="bg-gray-100 p-4">
-        <h2 class="text-xl font-semibold">Neuerfassung einer Aktivität</h2>
-    </header>
+    <!-- Header -->
+    <div class="bg-white p-4 shadow rounded-lg">
+        <p class="text-2xl font-bold mb-0">Neuerfassung einer Aktivität</p>
+    </div>
 
-    <div class="flex p-4 space-x-4">
+    <div class="flex py-4 space-x-4">
 
         <!-- Content auf der rechten Seite -->
         <main class="bg-white rounded-lg p-4 shadow-lg flex-1">

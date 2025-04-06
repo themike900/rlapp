@@ -1,5 +1,5 @@
 <!-- resources/views/pages/home.blade.php -->
-@extends('layouts.rl-app')
+@extends('layouts.app')
 
 @section('header', 'Mitglied bearbeiten')
 
