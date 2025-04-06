@@ -1,15 +1,16 @@
-<!-- resources/views/pages/home.blade.php -->
-@extends('layouts.app')
+<div>
+    <!-- Header -->
+    <div class="bg-white p-4 shadow rounded-lg">
+        <p class="text-2xl font-bold mb-0">Aktivitätenliste</p>
+    </div>
 
-@section('header', 'Aktivitätenliste')
-
-@section('content')
+    <!-- Content -->
     <div class="flex p-4 space-x-2">
-
         <main class="bg-white rounded-lg p-4 shadow-lg flex-1">
             <div class="flex p-4 space-x-4">
                 @livewire('actions-table')
             </div>
         </main>
     </div>
-@endsection
+
+</div>

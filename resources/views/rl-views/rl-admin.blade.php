@@ -9,8 +9,6 @@
 
     <div class="flex p-4 space-x-4">
         <!-- Menü auf der linken Seite -->
-        @include('rl-views.rl-menu')
-
         <!-- Content auf der rechten Seite -->
         <main class="bg-white rounded-lg p-4 shadow-lg flex-1">
             <p>Später nur mit Admin-Rechten sichtbar.</p>

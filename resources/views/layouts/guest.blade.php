@@ -10,8 +10,7 @@
 		<link rel="shortcut icon" href="{{ config('app.url') }}/favicon.png" />
 
         <!-- Fonts -->
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+        <link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
 
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -19,7 +18,7 @@
     <body class="font-sans text-gray-900 antialiased">
         <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-gray-200">
 			<div>
-				<h2 class="text-3xl font-bold text-gray-500 py-6">Royal-Louise Aktivitätenplanung</h2>
+				<h2 class="text-3xl font-bold text-gray-500 py-6">ROYAL-LOUISE Aktivitätenplanung</h2>
 			</div>
             <div>
                 <a href="/">

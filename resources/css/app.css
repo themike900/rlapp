@@ -1,11 +1,11 @@
-@import "bootstrap/dist/css/bootstrap.min.css";
-@import "bootstrap-datepicker/dist/css/bootstrap-datepicker.css";
+/*@import "bootstrap/dist/css/bootstrap.min.css";
+@import "bootstrap-datepicker/dist/css/bootstrap-datepicker.css";*/
 @import 'tailwindcss';
-@source "../views"
+@source "../views";
 
-/*
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-*/
+
+@theme {
+    --font-sans: InterVariable, sans-serif;
+}
+
 

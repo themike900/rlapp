@@ -5,45 +5,21 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>{{ config('app.name', 'Royal-Louise') }}</title>
+        <title>Royal-Louise Backend</title>
 
 		<link rel="shortcut icon" href="{{ config('app.url') }}/favicon.png" />
 
         <!-- Fonts -->
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wght@8..144,100..1000&display=swap" rel="stylesheet">
 
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
+        @livewireStyles
     </head>
-    <body class="font-sans antialiased">
-        <div class="min-h-screen bg-gray-300">
-
-            <!-- Page Heading -->
-            <header class="bg-blue-500 shadow">
-                <div class="max-w-5xl mx-auto py-4 px-5 sm:px-6 lg:px-8">
-					<h2 class="font-semibold text-2xl text-gray-200 leading-tight">
-						Royal-Louise Aktivitätenplanung
-					</h2>
-                </div>
-            </header>
-
-            @include('layouts.navigation')
-
-            @isset($header)
-                <header class="bg-blue-100 shadow">
-                    <div class="max-w-5xl mx-auto py-4 px-5 sm:px-6 lg:px-8">
-                        {{ $header }}
-                    </div>
-                </header>
-            @endisset
-
-            <!-- Page Content -->
-            <main>
-                <div class="max-w-5xl mx-auto p-4 bg-white min-h-full m-3 rounded-md">
-                    {{ $slot }}
-                </div>
-            </main>
-        </div>
+    <body class="bg-gray-100">
+    @livewire('layout-wrapper')
+    @livewireScripts
     </body>
 </html>

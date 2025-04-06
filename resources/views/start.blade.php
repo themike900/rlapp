@@ -10,8 +10,11 @@
 		<link rel="shortcut icon" href="{{ config('app.url') }}/favicon.png" />
 
         <!-- Fonts -->
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+        <!-- link rel="preconnect" href="https://fonts.bunny.net">
+        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" / -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wght@8..144,100..1000&display=swap" rel="stylesheet">
 
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -40,10 +43,10 @@
 							<div class="p-4">
 								<span>Du bist noch angemeldet</span>
 								<a
-									href="{{ route('actions.index') }}"
+									href="{{ route('rl-action-list') }}"
 									class="rounded-md px-3 py-2 text-black ring-1 transition hover:bg-blue-100 focus:outline-none focus-visible:ring-[#FF2D20]"
 								>
-									Zur Fahrtenliste
+									Zur Aktivitätenliste
 								</a>
 							</div>
 							@else

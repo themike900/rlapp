@@ -1,9 +1,4 @@
-@extends('layouts.app')
-
-@section('header', 'Neue Aktivität anlegen')
-
-@section('content')
-    <!-- Zweiter Header mit dynamischer Überschrift -->
+<div>
     <header class="bg-gray-100 p-4">
         <h2 class="text-xl font-semibold">Neuerfassung einer Aktivität</h2>
     </header>
@@ -31,4 +26,5 @@
 
         </main>
     </div>
-@endsection
+
+</div>

@@ -11,10 +11,6 @@ window.jQuery = $;
 //console.log("jQuery Version:", $.fn.jquery);
 //console.log("Datepicker:", $.fn.datepicker);
 
-import Alpine from 'alpinejs';
-window.Alpine = Alpine;
-Alpine.start();
-
 
 $.fn.datepicker.dates['de'] = {
     days: ["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"],

@@ -13,8 +13,8 @@
 
         <form action="{{ route('import') }}" method="POST" enctype="multipart/form-data">
             @csrf
-            <input type="file" name="file" required>
-            <button type="submit">Import Excel</button>
+            <input type="file" name="file" required class="p-2">
+            <button type="submit" class="p2">Import Excel</button>
         </form>
 
     </div>

@@ -18,6 +18,7 @@ class RlActionsController extends Controller
     }
 
     public function RlActionSave() {
+        // save action
         return view('rl-views.rl-edit-action');
     }
 
