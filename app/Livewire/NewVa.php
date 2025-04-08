@@ -15,11 +15,11 @@ class NewVa extends Component
     public string $action_name = "";
     public string $action_type_sc = "";
     public string $action_date;
-    public string $crew_start_at = "00:00";
-    public string $crew_end_at = "00:00";
+    public string $crew_start_at = "";
+    public string $crew_end_at = "";
     public string $action_start_at = "00:00";
     public string $action_end_at = "00:00";
-    public string $ice_info = "Bitte Eis besorgen";
+    public string $ice_info = "";
     public string $additional_info = "";
     public string $ac_with_wl = "0";
     public string $ac_max_pers = "0";
@@ -50,9 +50,9 @@ class NewVa extends Component
             'created_at' => now(),
             'updated_at' => now(),
             'action_state_sc' => 'br',
-            'ac_max_pers' => 30,
-            'ac_reg_state_cr' => 'crbr',
-            'ac_reg_state_sv' => 'svbr',
+            'ac_max_pers' => $this->ac_max_pers,
+            'ac_reg_state_cr' => '',
+            'ac_reg_state_sv' => '',
             'ac_reg_state_tn' => 'tnon',
             'ac_max_guests' => 0,
             'ac_with_wl' => $this->ac_with_wl,
@@ -67,6 +67,6 @@ class NewVa extends Component
 
     public function render(): View
     {
-        return view('livewire.new-va',['selectedForm' => "mv"]);
+        return view('livewire.new-va');
     }
 }
