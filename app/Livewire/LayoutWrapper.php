@@ -7,6 +7,7 @@ use Livewire\Component;
 class LayoutWrapper extends Component
 {
     public $currentPage = 'rl-action-list';
+    public $currentActionId = 0;
 
     public function setActivePage($page)
     {

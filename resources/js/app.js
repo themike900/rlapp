@@ -1,8 +1,8 @@
 import $ from 'jquery';
 import 'bootstrap';
-import 'bootstrap-datepicker';
+//import 'bootstrap-datepicker';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import 'bootstrap-datepicker/dist/css/bootstrap-datepicker.css';
+//import 'bootstrap-datepicker/dist/css/bootstrap-datepicker.css';
 
 window.$ = $;
 window.jQuery = $;
@@ -12,7 +12,7 @@ window.jQuery = $;
 //console.log("Datepicker:", $.fn.datepicker);
 
 
-$.fn.datepicker.dates['de'] = {
+/*$.fn.datepicker.dates['de'] = {
     days: ["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"],
     daysShort: ["Son", "Mon", "Die", "Mit", "Don", "Fre", "Sam"],
     daysMin: ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"],
@@ -21,7 +21,7 @@ $.fn.datepicker.dates['de'] = {
     today: "Heute",
     clear: "Rücksetzen",
     format: "DD dd.mm.yyyy",
-    titleFormat: "MM yyyy", /* Leverages same syntax as 'format' */
+    titleFormat: "MM yyyy",
     weekStart: 1
 };
 // Datepicker initialisieren
@@ -34,4 +34,4 @@ $(document).ready(function() {
         autoclose: true,
         todayHighlight: true
     });
-});
+}); */

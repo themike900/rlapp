@@ -9,6 +9,7 @@ use Livewire\Attributes\Layout;
 
 class RlActionNew extends Component
 {
+    public string $selectedForm = "";
     public function render()
     {
         return view('livewire.pages.rl-action-new');

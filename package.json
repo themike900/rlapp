@@ -17,7 +17,6 @@
     "dependencies": {
         "@tailwindcss/vite": "^4.0.5",
         "bootstrap": "^5.3.3",
-        "bootstrap-datepicker": "^1.10.0",
         "jiti": "^2.4.2",
         "jquery": "^3.7.1"
     }
