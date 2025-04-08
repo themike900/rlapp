@@ -83,11 +83,8 @@ class NewGf extends Component
 
         $this->reset();
         session()->flash('message', 'Neue Gästefahrt erfolgreich gespeichert');
-    }
 
-    public function submit(): View
-    {
-        return view('livewire.pages.rl-actions-list');
+        $this->dispatch('selectedForm', "");
     }
 
     public function render(): View

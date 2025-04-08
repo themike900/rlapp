@@ -20,20 +20,6 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700">Crew an Bord</label>
-                        <input type="text" placeholder="00:00" wire:model.defer="crew_start_at"
-                               class="mt-1 px-2 py-1 block w-full rounded-md border shadow-sm hover:bg-gray-100 focus:ring-indigo-500 focus:border-indigo-500">
-                    </div>
-
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Crew von Bord</label>
-                        <input type="text" placeholder="00:00" wire:model.defer="crew_end_at"
-                               class="mt-1 px-2 py-1 block w-full rounded-md border shadow-sm hover:bg-gray-100 focus:ring-indigo-500 focus:border-indigo-500">
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
                         <label class="block text-sm font-medium text-gray-700">Ablegen</label>
                         <input type="text" placeholder="00:00" wire:model.defer="action_start_at"
                                class="mt-1 px-2 py-1 block w-full rounded-md border shadow-sm hover:bg-gray-100 focus:ring-indigo-500 focus:border-indigo-500">
@@ -42,6 +28,20 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Anlegen</label>
                         <input type="text" placeholder="00:00" wire:model.defer="action_end_at"
+                               class="mt-1 px-2 py-1 block w-full rounded-md border shadow-sm hover:bg-gray-100 focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Crew an Bord</label>
+                        <input type="text" placeholder="00:00" wire:model.defer="crew_start_at"
+                               class="mt-1 px-2 py-1 block w-full rounded-md border shadow-sm hover:bg-gray-100 focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Crew von Bord</label>
+                        <input type="text" placeholder="00:00" wire:model.defer="crew_end_at"
                                class="mt-1 px-2 py-1 block w-full rounded-md border shadow-sm hover:bg-gray-100 focus:ring-indigo-500 focus:border-indigo-500">
                     </div>
                 </div>
@@ -170,12 +170,12 @@
         </div>
     </div>
 
-    <input type="hidden" wire:model.defer="action_type_sc" value="gf">
+    <!-- input type="hidden" wire:model.defer="action_type_sc" value="gf" -->
 
     <div class="pt-4">
         <button wire:click="save" type="button"
                 class="justify-center px-6 py-2 rounded shadow-lg text-white bg-indigo-600 hover:bg-indigo-800">
-            Neue Gästefahrt anlegen
+            Gästefahrt neu anlegen
         </button>
     </div>
 
