@@ -26,12 +26,12 @@
             <th class="border p-2 w-24">Datum</th>
             <th class="border p-2 w-48">Aktivität</th>
             <th class="border p-2">Auftraggeber</th>
-            <th class="border p-2 w-20">Teilnehmer</th>
-            <th class="border p-2 w-20">Crew</th>
-            <th class="border p-2 w-20">Service</th>
-            <th class="border p-2 w-36">Status</th>
-            <th class="w-48"> </th>
-            <th class="border p-2 w-10">id</th>
+            <th class="text-center border p-2 w-20">Teilnehmer</th>
+            <th class="text-center border p-2 w-20">Crew</th>
+            <th class="text-center border p-2 w-20">Service</th>
+            <th class="text-center border p-2 w-40">Status</th>
+            <th class="text-center w-48">Funktionen</th>
+            <th class="text-center border p-2 w-10">id</th>
         </tr>
         </thead>
         <tbody>
@@ -40,11 +40,11 @@
                 <td class="p-2">{{ $action->action_date }}</td>
                 <td class="border-x p-2">{{ $action->action_name }}</td>
                 <td class="p-2">{{ $action->applicant_name }}</td>
-                <td class="p-2">0</td>
-                <td class="p-2">0</td>
-                <td class="tet-center p-2">0</td>
-                <td class="tet-center p-2">{{ $action->action_state_name }}</td>
-                <td class="tet-center">
+                <td class="text-center p-2">{{ $action->cnt['ac_tn_ang'] }}</td>
+                <td class="text-center p-2">{{ $action->cnt['ac_reg_cr'] }}</td>
+                <td class="text-center p-2">{{ $action->cnt['ac_reg_sv'] }}</td>
+                <td class="text-center p-2">{{ $action->action_state_name }}</td>
+                <td class="text-center">
                     <button wire:click="openViewModal({{ $action->id }})"
                         class="border rounded px-1 py-1 bg-indigo-300 hover:bg-indigo-400">
                         Info
@@ -62,7 +62,7 @@
                         Status
                     </button>
                 </td>
-                <td class="p-2">{{ $action->id }}</td>
+                <td class="text-center p-2">{{ $action->id }}</td>
             </tr>
         @endforeach
         </tbody>

@@ -87,7 +87,7 @@ class ParticipantsCalcService
             - $cnt['ac_guests_angn'];
 
         // Bestimmung der freien Teilnehmer-Plätze für Fahrten
-        if ( in_array($action_type_sc, ['vf','af','uf','gfx','gfm'])) {
+        if ( in_array($action_type_sc, ['vf','af','uf','gfx','gfm','bf'])) {
             $cnt['ac_tn_free'] = $cnt['ac_max_pers']  // maximale Plätze für die Fahrt
                 - 1                                // minus ein Kapitän
                 - $cnt['ac_guests_angn']            // minus angenommene Gäste

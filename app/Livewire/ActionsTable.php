@@ -4,6 +4,7 @@
 namespace App\Livewire;
 
 use App\Models\Action;
+use App\Services\ParticipantsCalcService;
 use Carbon\Carbon;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Log;
@@ -57,8 +58,10 @@ class ActionsTable extends Component
             ->select('actions.*', 'action_states.name as action_state_name')
             ->get();
 
+        $service = new ParticipantsCalcService();
         foreach ($actions as $action) {
             $action->action_date = Carbon::createFromFormat('Y-m-d', $action->action_date)->isoFormat('dd DD.MM.');
+            $action->cnt = $service->counts($action->id);
         }
         $this->actions = $actions;
 

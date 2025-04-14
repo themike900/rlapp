@@ -24,6 +24,7 @@ class AcViewModal extends Component
         $action = Action::find($actionId);
         if ($action) {
             $this->action = $action->toArray();
+
             $service = new ParticipantsListService();
             $members = $service->getParticipantsList($actionId);
             $members['participants']    = implode(", ", $members['participants']);

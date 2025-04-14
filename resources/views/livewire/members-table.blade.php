@@ -28,6 +28,9 @@
             <th class="border p-2">Vorname</th>
             <th class="border p-2">Name</th>
             <th class="border p-2">Rolle</th>
+            <th class="border p-2">letzter Zugriff</th>
+            <th class="border p-2">web_id</th>
+            <th class="border p-2">mv_id</th>
         </tr>
         </thead>
         <tbody>
@@ -36,6 +39,9 @@
                 <td class="p-2">{{ $member->firstname }}</td>
                 <td class="p-2">{{ $member->name }}</td>
                 <td class="p-2">{{ $member->groups }}</td>
+                <td class="p-2">{{ $member->last_access }}</td>
+                <td class="p-2">{{ $member->webid }}</td>
+                <td class="p-2">{{ $member->mv_id }}</td>
             </tr>
         @endforeach
         </tbody>
