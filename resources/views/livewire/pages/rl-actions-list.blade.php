@@ -13,6 +13,7 @@
                 @livewire('ac-view-modal')
                 @livewire('ac-crew-modal')
                 @livewire('ac-status-modal')
+                @livewire('ac-members-modal')
             </div>
         </main>
     </div>

@@ -14,9 +14,11 @@ class EditModal extends Component
     public $show = false;
     public $action = [];
     public $actionId;
+    public $ac_type;
+    public $action_name = '';
 
 
-    protected $listeners = ['open-ac-edit-modal' => 'loadItem'];
+    protected $listeners = ['open-ac-edit-modal' => 'loadItem', 'close-ac-edit-modal' => 'close'];
 
     public function loadItem($actionId): void
     {
@@ -25,8 +27,11 @@ class EditModal extends Component
         $action = Action::find($actionId);
         if ($action) {
             $this->action = $action->toArray();
+            $this->ac_type = $action->action_type_sc;
+            $this->action_name = $action->action_name;
         } else {
             $this->action = [];
+            $this->ac_type = '';
         }
 
         $this->show = true;

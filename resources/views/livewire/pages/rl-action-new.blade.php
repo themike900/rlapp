@@ -30,7 +30,6 @@
 
             </div>
 
-
             <div>
                 @if (in_array($selectedForm, ['gfx','gfm']))
                     @livewire('new-gf', ['selectedForm' => $selectedForm], key($selectedForm))

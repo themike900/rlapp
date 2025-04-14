@@ -30,7 +30,7 @@
             <th class="text-center border p-2 w-20">Crew</th>
             <th class="text-center border p-2 w-20">Service</th>
             <th class="text-center border p-2 w-40">Status</th>
-            <th class="text-center w-48">Funktionen</th>
+            <th class="text-center w-40"> </th>
             <th class="text-center border p-2 w-10">id</th>
         </tr>
         </thead>
@@ -44,23 +44,17 @@
                 <td class="text-center p-2">{{ $action->cnt['ac_reg_cr'] }}</td>
                 <td class="text-center p-2">{{ $action->cnt['ac_reg_sv'] }}</td>
                 <td class="text-center p-2">{{ $action->action_state_name }}</td>
-                <td class="text-center">
-                    <button wire:click="openViewModal({{ $action->id }})"
-                        class="border rounded px-1 py-1 bg-indigo-300 hover:bg-indigo-400">
-                        Info
-                    </button>
-                    <button wire:click="openEditModal({{ $action->id }})"
-                            class="border rounded px-1 py-1 bg-indigo-300 hover:bg-indigo-400">
-                        Edit
-                    </button>
-                    <button wire:click="openCrewModal({{ $action->id }})"
-                        class="border rounded px-1 py-1 bg-indigo-300 hover:bg-indigo-400">
-                        Crew
-                    </button>
-                    <button wire:click="openStatusModal({{ $action->id }})"
-                        class="border rounded px-1 py-1 bg-indigo-300 hover:bg-indigo-400">
-                        Status
-                    </button>
+                <td class="text-center p-2">
+                    <div x-data="{ open: false }" class="relative">
+                        <button @click="open = !open" class="px-1 py-1 bg-blue-500 text-white rounded">Aktionen</button>
+                        <div x-show="open" @click.away="open = false" class="absolute p-1 mt-2 w-52 bg-white border rounded shadow-lg z-50">
+                            <button wire:click="openViewModal({{ $action->id }})" class="block w-full px-3 py-1 text-gray-700 hover:bg-gray-200">Details anzeigen</button>
+                            <button wire:click="openEditModal({{ $action->id }})" class="block w-full px-3 py-1 text-gray-700 hover:bg-gray-200">Daten ändern</button>
+                            <button wire:click="openCrewModal({{ $action->id }})" class="block w-full px-3 py-1 text-gray-700 hover:bg-gray-200">Crew-Planung</button>
+                            <button wire:click="openStatusModal({{ $action->id }})" class="block w-full px-3 py-1 text-gray-700 hover:bg-gray-200">Status ändern</button>
+                            <button wire:click="openMembersModal({{ $action->id }})" class="block w-full px-3 py-1 text-gray-700 hover:bg-gray-200">Teilnehmer hinzufügen</button>
+                        </div>
+                    </div>
                 </td>
                 <td class="text-center p-2">{{ $action->id }}</td>
             </tr>
