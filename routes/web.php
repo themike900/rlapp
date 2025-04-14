@@ -32,7 +32,7 @@ Route::middleware('auth')->group(function () {
 //    Route::match(['get', 'post'], '/actions/update', [ActionController::class, 'update'])->name('actions.update');
 
     //Route::match(['get', 'post'], '/rl/actions-list', [RlActionsController::class, 'RlActionList'])->name('rl-action-list');
-    Route::get('/rl/pages', RlActionsList::class)->name('rl-action-list');
+    Route::get('/rl/pages', RlActionsList::class)->name('rl-pages');
 });
 
 Route::get('/members/import', function () {

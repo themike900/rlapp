@@ -37,7 +37,7 @@ class NewVa extends Component
     public function save()
     {
 
-        DB::table('actions')->insert([
+        $action_id = DB::table('actions')->insert([
             'action_name' => $this->action_name,
             'action_type_sc' => $this->action_type_sc,
             'action_date' => $this->action_date,
@@ -60,6 +60,7 @@ class NewVa extends Component
 
         $this->reset();
         session()->flash('message', 'Neue Gästefahrt erfolgreich gespeichert');
+        session()->flash('last_action_id', $action_id);
 
         $this->dispatch('selectedForm', "");
 

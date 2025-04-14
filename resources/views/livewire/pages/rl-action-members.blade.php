@@ -1,7 +1,7 @@
 <div>
     <!-- Header -->
     <div class="bg-white p-3 shadow rounded-lg">
-        <p class="text-2xl font-bold mb-0">Aktivitätenliste</p>
+        <p class="text-2xl font-bold mb-0">Manuelle Bearbeitung von Teilnehmern</p>
     </div>
 
     <!-- Content -->
@@ -10,9 +10,6 @@
             <div class="flex p-4 space-x-4">
                 @livewire('actions-table')
                 @livewire('edit-modal')
-                @livewire('ac-view-modal')
-                @livewire('ac-crew-modal')
-                @livewire('ac-status-modal')
             </div>
         </main>
     </div>

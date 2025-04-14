@@ -7,7 +7,7 @@
 
         <title>{{ config('app.name', 'Laravel') }}</title>
 
-		<link rel="shortcut icon" href="{{ config('app.url') }}/favicon.png" />
+		<link rel="shortcut icon" href="favicon.png" />
 
         <!-- Fonts -->
         <link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
@@ -22,7 +22,7 @@
 			</div>
             <div>
                 <a href="/">
-					<img class="w-32" src="{{ asset('/images/rl-icon.jpg') }}">
+					<img class="w-32" src="{{ asset('/images/rl-icon.jpg') }}" alt="">
                 </a>
             </div>
 

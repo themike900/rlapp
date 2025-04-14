@@ -14,7 +14,7 @@
                     <option value="gfx">Gästefahrt extern</option>
                     <option value="gfm">Gästefahrt Mitglied</option>
                     <option value="vf">Vereinsfahrt</option>
-                    <option value="tf">Trainingsfahrt</option>
+                    <option value="af">Ausbildungsfahrt</option>
                     <option value="uf">Übungsfahrt</option>
                     <option value="bf">Betriebsfahrt</option>
                     <option disabled>─────────────</option>
@@ -34,10 +34,10 @@
             <div>
                 @if (in_array($selectedForm, ['gfx','gfm']))
                     @livewire('new-gf', ['selectedForm' => $selectedForm], key($selectedForm))
-                @elseif ($selectedForm === 'vf')
+                @elseif (in_array($selectedForm, ['vf','bf']))
                     @livewire('new-vf', ['selectedForm' => $selectedForm], key($selectedForm))
-                @elseif ($selectedForm === 'tf')
-                    @livewire('new-tf', ['selectedForm' => $selectedForm], key($selectedForm))
+                @elseif (in_array($selectedForm, ['af','uf']))
+                    @livewire('new-af', ['selectedForm' => $selectedForm], key($selectedForm))
                 @elseif (in_array($selectedForm, ['vt','vr','mv','sc','abr','afr','wa']))
                     @livewire('new-va', ['selectedForm' => $selectedForm], key($selectedForm))
                 @endif
