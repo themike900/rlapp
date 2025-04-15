@@ -5,26 +5,25 @@ namespace App\Livewire;
 use App\Models\Action;
 use App\Services\ParticipantsListService;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 
-class AcViewModal extends Component
+class AcPrintModal extends Component
 {
     public $show = false;
     public $action = [];
     public $actionId;
     public $members = [];
 
-
-    protected $listeners = ['open-ac-view-modal' => 'loadItem'];
+    protected $listeners = ['open-ac-print-modal' => 'loadItem'];
 
     public function loadItem($actionId): void
     {
-        //Log::debug('Loading data: '.$actionId);
+        Log::debug('Loading data: '.$actionId);
         $this->actionId = $actionId;
         $action = Action::find($actionId);
         if ($action) {
             $this->action = $action->toArray();
-
             $service = new ParticipantsListService();
             $members = $service->getParticipantsList($actionId);
             $members['participants']    = implode(", ", $members['participants']);
@@ -38,7 +37,7 @@ class AcViewModal extends Component
         }
 
         $this->show = true;
-        //Log::debug('Showing data: '.$this->action["action_name"]);
+        Log::debug('Showing data: '.$this->action["action_name"]);
     }
 
     public function close(): void
@@ -48,6 +47,6 @@ class AcViewModal extends Component
 
     public function render(): View
     {
-        return view('livewire.ac-view-modal');
+        return view('livewire.ac-print-modal');
     }
 }

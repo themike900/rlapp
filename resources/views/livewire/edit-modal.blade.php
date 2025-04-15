@@ -1,8 +1,7 @@
-<!-- resources/views/livewire/edit-modal.blade.php -->
-
 <div
     x-data="{ show: @entangle('show') }"
     x-show="show"
+    @keydown.escape.window="show = false"
     x-transition
     class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
     style="display: none;">
@@ -12,11 +11,11 @@
 
         <div class="mb-2">
             @if (in_array($ac_type, ['gfx','gfm']))
-                @livewire('new-gf', ['selectedForm' => $ac_type], key($ac_type))
+                @livewire('edit-gf', ['action_id' => $actionId], key($actionId))
             @elseif (in_array($ac_type, ['vf','bf']))
                 @livewire('edit-vf', ['action_id' => $actionId], key($actionId))
             @elseif (in_array($ac_type, ['af','uf']))
-                @livewire('new-af', ['selectedForm' => $ac_type], key($ac_type))
+                @livewire('edit-af', ['action_id' => $actionId], key($actionId))
             @elseif (in_array($ac_type, ['vt','vr','mv','sc','abr','afr','wa']))
                 @livewire('edit-va', ['action_id' => $actionId], key($actionId))
             @endif

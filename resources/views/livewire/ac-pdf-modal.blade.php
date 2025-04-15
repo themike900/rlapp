@@ -7,7 +7,7 @@
     style="display: none;">
 
     <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6">
-        <p class="text-xl font-semibold mb-4">Teilnehmer bearbeiten</p>
+        <p class="text-xl font-semibold mb-4">Fahrtenblatt</p>
 
         <p>Platzhalter für Bearbeitung der Teilnhemer</p>
         <p>

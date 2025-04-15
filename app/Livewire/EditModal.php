@@ -43,12 +43,12 @@ class EditModal extends Component
         $this->show = false;
     }
 
-    public function save(): void
+    /*public function save(): void
     {
         //$this->action->save();
         $this->dispatch('refreshTable');
         $this->close();
-    }
+    }*/
 
     public function render(): View
     {

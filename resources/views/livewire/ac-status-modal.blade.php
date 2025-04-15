@@ -1,8 +1,7 @@
-<!-- resources/views/livewire/edit-modal.blade.php -->
-
 <div
     x-data="{ show: @entangle('show') }"
     x-show="show"
+    @keydown.escape.window="show = false"
     x-transition
     class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
     style="display: none;">

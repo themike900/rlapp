@@ -7,7 +7,7 @@ use App\Services\ParticipantsListService;
 use Illuminate\Contracts\View\View;
 use Livewire\Component;
 
-class AcViewModal extends Component
+class AcPdfModal extends Component
 {
     public $show = false;
     public $action = [];
@@ -15,7 +15,7 @@ class AcViewModal extends Component
     public $members = [];
 
 
-    protected $listeners = ['open-ac-view-modal' => 'loadItem'];
+    protected $listeners = ['open-ac-members-modal' => 'loadItem'];
 
     public function loadItem($actionId): void
     {
@@ -24,7 +24,6 @@ class AcViewModal extends Component
         $action = Action::find($actionId);
         if ($action) {
             $this->action = $action->toArray();
-
             $service = new ParticipantsListService();
             $members = $service->getParticipantsList($actionId);
             $members['participants']    = implode(", ", $members['participants']);
@@ -48,6 +47,6 @@ class AcViewModal extends Component
 
     public function render(): View
     {
-        return view('livewire.ac-view-modal');
+        return view('livewire.ac-pdf-modal');
     }
 }

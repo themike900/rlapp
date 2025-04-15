@@ -5,6 +5,7 @@ namespace App\Livewire;
 use App\Models\Action;
 use App\Services\ParticipantsListService;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Contracts\View\View;
 use Livewire\Component;
 
 class AcCrewModal extends Component
@@ -44,7 +45,7 @@ class AcCrewModal extends Component
     {
         $this->show = false;
     }
-    public function render()
+    public function render(): View
     {
         return view('livewire.ac-crew-modal');
     }

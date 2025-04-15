@@ -3,7 +3,9 @@
 namespace App\Livewire;
 
 use App\Models\Action;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Contracts\View\View;
 use Livewire\Component;
 
 class AcStatusModal extends Component
@@ -39,12 +41,17 @@ class AcStatusModal extends Component
 
     public function save(): void
     {
-        //$this->action->save();
+        DB::table('actions')
+            ->where('id', $this->actionId)
+            ->update([
+                 'action_state_sc' => $this->action_state_sc
+            ]);
+
         $this->dispatch('refreshTable');
         $this->close();
     }
 
-    public function render()
+    public function render(): View
     {
         return view('livewire.ac-status-modal');
     }

@@ -9,6 +9,7 @@ use Carbon\Carbon;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Log;
 use Livewire\Component;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class ActionsTable extends Component
 {
@@ -41,15 +42,30 @@ class ActionsTable extends Component
     }
     public function openStatusModal($actionId): void
     {
-        //Log::debug('openCrewModal, actionID: ' . $actionId);
+        //Log::debug('openStatusModal, actionID: ' . $actionId);
 
         $this->selectedActionId = $actionId;
         $this->dispatch('open-ac-status-modal', actionId: $actionId);
     }
 
+    public function openMembersModal($actionId): void
+    {
+        //Log::debug('openMembersModal, actionID: ' . $actionId);
+
+        $this->selectedActionId = $actionId;
+        $this->dispatch('open-ac-members-modal', actionId: $actionId);
+    }
+
+    public function openFahrtenblattPdf($actionId): void
+    {
+        Log::debug('openFahrtenblattPdf, actionID: ' . $actionId);
+        $this->selectedActionId = $actionId;
+        $this->dispatch('open-fahrtenblatt-pdf', actionId: $actionId);
+    }
+
     public function render(): View
     {
-        Log::debug('Filter: '.$this->filter);
+        //Log::debug('Filter: '.$this->filter);
 
         $actions = Action::query()
             ->join('action_states', 'actions.action_state_sc', '=', 'action_states.sc')
