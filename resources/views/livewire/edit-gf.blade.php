@@ -1,10 +1,10 @@
 <form wire:submit="save" class="space-y-2">
     <div x-data="{ activeTab: 'general' }">
         <div class="flex space-x-4 border-b">
-            <button @click="activeTab = 'general'" :class="{ 'px-1 font-bold border-b-2': activeTab === 'general' }">
+            <button @click="activeTab = 'general'" :class="{ 'px-2 font-bold border-b-2': activeTab === 'general' }">
                 Fahrtendaten
             </button>
-            <button @click="activeTab = 'details'" :class="{ 'px-1 font-bold border-b-2': activeTab === 'details' }">
+            <button @click="activeTab = 'details'" :class="{ 'px-2 font-bold border-b-2': activeTab === 'details' }">
                 Auftraggeber
             </button>
         </div>
@@ -158,7 +158,7 @@
                     <div class="space-y-3">
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Termin bestätigt am</label>
-                            <input type="date"
+                            <input type="date" wire:model="confirm_date"
                                    class="mt-1 px-2 py-1 block w-full rounded-md border shadow-sm hover:bg-gray-100focus:ring-indigo-500 focus:border-indigo-500">
                         </div>
 

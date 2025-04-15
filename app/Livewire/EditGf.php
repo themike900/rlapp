@@ -35,7 +35,7 @@ class EditGf extends Component
     public string $crew_supply = "Crew ist eingeladen";
     public string $additional_info = "";
     public string $guest_count = "0";
-    public $confirm_date = '';
+    public string $confirm_date = '';
 
     public function mount($action_id): void
     {
@@ -64,7 +64,7 @@ class EditGf extends Component
         $this->invoice_amount = $action->invoice_amount ?? '';
         $this->catering_info = $action->catering_info ?? '';
         $this->ice_info = $action->ice_info ?? '';
-        $this->confirm_date = $action->confirm_date ?? '2025-01-01';
+        $this->confirm_date = $action->confirm_date ?? '';
         $this->crew_supply = $action->crew_supply ?? '';
     }
 
