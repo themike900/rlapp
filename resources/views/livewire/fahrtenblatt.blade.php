@@ -1,7 +1,13 @@
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Fahrtenblatt </title>
+</head>
+<body>
 
 <div class="hidden p-6 bg-white shadow-md rounded-md">
-    <h1 class="text-2xl font-bold text-center mb-4">Rechnung</h1>
+    <h1 class="text-2xl font-bold text-center mb-4">Fahrtenblatt </h1>
 
     <p class="text-gray-700"><strong>Name:</strong> Max Mustermann</p>
     <p class="text-gray-700"><strong>Datum:</strong> {{ now()->format('d.m.Y') }}</p>
@@ -31,6 +37,9 @@
     <p class="text-right font-bold mt-4">Gesamt: 30,00 €</p>
 
     <footer class="text-center text-gray-500 text-sm mt-6">
-        Danke fuer Ihren Einkauf!
+        Danke für Ihren Einkauf!
     </footer>
 </div>
+
+</body>
+</html>

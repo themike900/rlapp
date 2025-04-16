@@ -46,7 +46,7 @@
                 <td class="text-center p-2">{{ $action->action_state_name }}</td>
                 <td class="text-center">
                     <div x-data="{ open: false }" class="relative" @keydown.escape.window="open = false">
-                        <button @click="open = !open" class="px-3 py-1 bg-blue-500 text-white rounded">Aktionen</button>
+                        <button @click="open = !open" class="px-3 py-1 bg-blue-500 text-white hover:bg-blue-700 rounded">Aktionen</button>
                         <div x-show="open" @click.away="open = false" class="absolute p-1 mt-2 w-52 bg-white border rounded shadow-lg z-50">
                             <button wire:click="openViewModal({{ $action->id }})" class="block w-full px-3 py-1 text-gray-700 hover:bg-gray-200">Details anzeigen</button>
                             <button wire:click="openEditModal({{ $action->id }})" class="block w-full px-3 py-1 text-gray-700 hover:bg-gray-200">Daten ändern</button>

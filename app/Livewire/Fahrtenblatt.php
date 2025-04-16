@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Models\Action;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
@@ -18,27 +19,25 @@ class Fahrtenblatt extends Component
      */
     public function openPdf($actionId)
     {
+        $action = Action::find($actionId);
         Log::debug('Fahrtenblatt opened');
-        $pdf = Pdf::loadView('livewire.fahrtenblatt');
+        $pdf = Pdf::loadView('livewire.fahrtenblatt', compact('action'));
         //Log::debug($pdf->output());
 
-        $response = new Response($pdf->output());
-        $response->headers->set('Content-Type', 'application/pdf');
-        $response->headers->set('Content-Disposition', 'inline; filename="fahrtenblatt.pdf"');
-        return $response;
+        header('Content-Type: application/pdf');
+        header('Content-Disposition: inline; filename="dokument.pdf"');
+        echo $pdf->output();
+        exit;
 
-        //header('Content-Type: application/pdf');
-        //header('Content-Disposition: inline; filename="fahrtenblatt.pdf"');
-        //echo $pdf->output();
-        //exit;
+        //return response()->streamDownload(function () use ($pdf) {
+        //        echo $pdf->stream();
+        //    }, $action->action_date." Fahrtenblatt.pdf");
 
-        //return response()->make($pdf->output(), 200, [
-        //    'Content-Type' => 'application/pdf',
-        //    'Content-Disposition' => 'inline; filename="fahrtenblatt.pdf"'
-        //]);
+        //return $pdf->stream('fahrtenblatt.pdf');
+
     }
 
-    public function render(): View
+    public function render(): String
     {
         return view('livewire.fahrtenblatt');
     }

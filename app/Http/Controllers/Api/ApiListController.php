@@ -65,10 +65,20 @@ class ApiListController extends Controller
             ]);
             Log::info('User aus webid neu angelegt');
         } else {
-            DB::table('members')
+            $webid_old =DB::table('members')
                 ->where('id', $member_id)
-                ->update(['webid' => $web_id]);
-            Log::info('User webid aktualisiert');
+                ->value('webid');
+            if (!empty($webid_old) && $webid_old >= 10000) {
+                DB::table('action_members')
+                    ->where('web_id', $webid_old)
+                    ->update(['web_id' => $web_id]);
+            }
+            if ( empty($webid_old) || $webid_old != $web_id) {
+                DB::table('members')
+                    ->where('id', $member_id)
+                    ->update(['webid' => $web_id]);
+                Log::info('User webid aktualisiert');
+            }
         }
         DB::table('members')->where('id', $member_id)->update(['last_access' => Carbon::now()]);
 
