@@ -4,6 +4,7 @@ use App\Http\Controllers\ActionController;
 use App\Http\Controllers\RlActionsController;
 use App\Http\Controllers\RlMembersController;
 use App\Http\Controllers\ProfileController;
+use \App\Http\Controllers\FartenblattPdf;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ImportController;
 use App\Livewire\Pages\RlActionsList;
@@ -41,6 +42,8 @@ Route::get('/members/import', function () {
     ->name('members.import');
 
 Route::post('/import', [ImportController::class, 'importMembers'])->name('import');
+
+Route::get('/rl/fahrtenblatt/{actionId}', [FartenblattPdf::class, 'generatePdf'])->name('rl-fahrtenblatt');
 
 
 require __DIR__.'/auth.php';

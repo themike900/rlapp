@@ -14,7 +14,6 @@
                 @livewire('ac-crew-modal')
                 @livewire('ac-status-modal')
                 @livewire('ac-members-modal')
-                @livewire('fahrtenblatt')
             </div>
         </main>
     </div>

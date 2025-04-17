@@ -11,8 +11,7 @@
                 <select wire:model.live="selectedForm" id="formularTyp"
                         class="border px-2 py-1 mt-1 block w-auto rounded-md shadow-sm hover:bg-gray-200 focus:ring-indigo-500 focus:border-indigo-800">
                     <option disabled value="">Bitte einen Aktivitätentyp wählen…</option>
-                    <option value="gfx">Gästefahrt extern</option>
-                    <option value="gfm">Gästefahrt Mitglied</option>
+                    <option value="gfx">Gästefahrt</option>
                     <option value="vf">Vereinsfahrt</option>
                     <option value="af">Ausbildungsfahrt</option>
                     <option value="uf">Übungsfahrt</option>

@@ -56,13 +56,6 @@ class ActionsTable extends Component
         $this->dispatch('open-ac-members-modal', actionId: $actionId);
     }
 
-    public function openFahrtenblattPdf($actionId): void
-    {
-        Log::debug('openFahrtenblattPdf, actionID: ' . $actionId);
-        $this->selectedActionId = $actionId;
-        $this->dispatch('open-fahrtenblatt-pdf', actionId: $actionId);
-    }
-
     public function render(): View
     {
         //Log::debug('Filter: '.$this->filter);

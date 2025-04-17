@@ -52,8 +52,14 @@
                             <button wire:click="openEditModal({{ $action->id }})" class="block w-full px-3 py-1 text-gray-700 hover:bg-gray-200">Daten ändern</button>
                             <button wire:click="openCrewModal({{ $action->id }})" class="block w-full px-3 py-1 text-gray-700 hover:bg-gray-200">Crew-Planung</button>
                             <button wire:click="openStatusModal({{ $action->id }})" class="block w-full px-3 py-1 text-gray-700 hover:bg-gray-200">Status ändern</button>
-                            <button wire:click="openMembersModal({{ $action->id }})" class="block w-full px-3 py-1 text-gray-700 hover:bg-gray-200">Teilnehmer hinzufügen</button>
-                            <button wire:click="openFahrtenblattPdf({{ $action->id }})" class="block w-full px-3 py-1 text-gray-700 hover:bg-gray-200">Fahrtenblatt</button>
+                            <button wire:click="openMembersModal({{ $action->id }})"
+                                    class="block w-full px-3 py-1 text-gray-700 hover:bg-gray-200">
+                                Teilnehmer hinzufügen
+                            </button>
+                            <button @click="open = false; window.open('{{ route('rl-fahrtenblatt', ['actionId' => $action->id]) }}', '_blank')"
+                                    class="block w-full px-3 py-1 text-gray-700 hover:bg-gray-200">
+                                Fahrtenblatt
+                            </button>
                         </div>
                     </div>
                 </td>
