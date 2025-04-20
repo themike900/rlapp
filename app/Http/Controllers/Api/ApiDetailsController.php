@@ -83,6 +83,7 @@ class ApiDetailsController extends Controller
             ->where('web_id', $web_id)
             ->where('action_id', $action_id)
             ->first();
+        Log::debug($registered);
 
         $reg_reg_state = null;
         if (!empty($registered)){

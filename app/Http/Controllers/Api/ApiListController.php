@@ -87,7 +87,7 @@ class ApiListController extends Controller
         /*++++++++++++++++++++++++++++++++++++++++++++++++++
          * Falls mehrfache member Datensätze entstehen, alle außer den ersten löschen,
          * weil gelegentlich bei der Erstanlage mehrere entstehen
-         *
+         * bei web_id > 1
          * +++++++++++++++++++++++++++++++++++++++++++++++++
          */
         if (DB::table('members')
@@ -122,6 +122,7 @@ class ApiListController extends Controller
 
         /* -----------------------
             Gruppenzugehörigkeit des Member holen
+            steht in $member_groups_array (array)
         ------------------------- */
         $member_groups = DB::table('members')
             ->where('id', $member_id)
@@ -134,6 +135,7 @@ class ApiListController extends Controller
 
         /* -----------------------
             Aktivitätentypen für diesen Member holen
+            steht in $list_action_types (array)
         ------------------------- */
         $action_types = DB::table('action_types')
             ->whereIn('web_list', $list_type)
@@ -154,6 +156,7 @@ class ApiListController extends Controller
             ->whereIn('action_type_sc', $list_action_types)
             ->whereIn('action_state_sc', ['of', 'gs'])
             ->orderBy('action_date')
+            ->orderBy('action_start_at')
             ->get();
         //Log::debug('actions: ' . print_r($actions, true));
 

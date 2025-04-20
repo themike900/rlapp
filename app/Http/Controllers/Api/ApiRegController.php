@@ -66,49 +66,59 @@ class ApiRegController extends Controller
             $cnt->crew_final = 5;
             $cnt->service_final = 1;
 
-            // maximale Zahlen der Gruppen aus dem Fahrtentyp
+            // maximale Zahlen der Gruppen dieses Fahrtentyps
             $max = DB::table('action_types')
                 ->where('sc', $action['action_type_sc'])
                 ->value('groups');
             $cnt->at_max = json_decode($max, true);
 
+            // Anzahl angemeldeter Teilnehmer der Aktivität
             $cnt->ac_tn_ang = DB::table('action_members')
                 ->where('action_id', $action_id)
                 ->where('group', 'tn')
                 ->where('reg_state', 'ang')
                 ->count();
 
-            // Anzahl angenommener Gäste
+            // Anzahl angenommener Gäste dieser Aktivität
             $cnt->ac_guests_angn = DB::table('guests')
                 ->where('gst_action_id', $action_id)
                 ->where('gst_state', '=', 'angenommen')
                 ->count();
 
+            // Anzahl nicht abgelehnter Crew dieser Fahrt
             $cnt->reg_cr = DB::table('action_members')
                 ->where('action_id', $action_id)
                 ->whereLike('group', '%cr%')
                 ->whereNot('reg_state', 'abgl')
                 ->count();
 
+            // Anzahl nicht abgelehnter Service dieser Fahrt
             $cnt->reg_sv = DB::table('action_members')
                 ->where('action_id', $action_id)
                 ->whereLike('group', '%sv%')
                 ->whereNot('reg_state', 'abgl')
                 ->count();
 
+            // Anzahl nicht abgelehnter Crew+Service dieser Fahrt
             $cnt->reg_crsv = DB::table('action_members')
                 ->where('action_id', $action_id)
                 ->where('group', 'cr,sv')
                 ->whereNot('reg_state', 'abgl')
                 ->count();
 
+            // Anzahl nicht abgelehnter Crew + Service ohne doppelte
             $cnt_crew = $cnt->reg_cr + $cnt->reg_sv - $cnt->reg_crsv;
-            $cnt_crew = ($cnt_crew < 6) ?? 6;
+            // Summe crew final + service final, 6
+            $cnt_crsv = $cnt->crew_final + $cnt->service_final;
+            // Anzahl nicht abgelehnte Crew + Service, mindestens 6
+            $cnt_crew = ($cnt_crew < $cnt_crsv) ?? $cnt_crsv;
 
+            // Anzahl noch frei Gästeplätze (max Gäste - angenommene Gäste
             $cnt->guest_free = $cnt->max_guests
                 - $cnt->ac_guests_angn;
 
-            if ( in_array($action['action_type_sc'], ['vf','af','uf','gfx','gfm'])) {
+            // Anzahl noch freier Teilnehmerplätze
+            if ( in_array($action['action_type_sc'], ['vf','af','uf','gfx','gfm','bf'])) {
                 $cnt->tn_free = $cnt->max_pers  // maximale Plätze für die Fahrt
                     - 1                         // minus ein Kapitän
                     - $cnt->ac_guests_angn      // minus angenommene Gäste
@@ -138,6 +148,7 @@ class ApiRegController extends Controller
                 empty($request->input('abmeldung'))
             ) {
                 if ($action['action_state_sc'] == 'of') {
+                    //action immer noch offen
 
                     //TODO Prüfen ob nicht doch schon voll
 
@@ -148,8 +159,10 @@ class ApiRegController extends Controller
                         'bereit_cr' => ['cr', 'br'],
                         'bereit_sv' => ['sv', 'br'],
                     ];
+                    // anm_opt im Request übersetzen zu reg_opt gem opt_array
                     $reg_opts = $opt_array[$request->input('anm_opt')];
 
+                    // Überschreiben bei anm_opt = bereit_crsv
                     if ($request->input('anm_opt') == 'bereit_crsv') {
                         $reg_opts = ($request->input('groups') == ['cr']) ? ['cr', 'br'] : $reg_opts;
                         $reg_opts = ($request->input('groups') == ['sv']) ? ['sv', 'br'] : $reg_opts;
@@ -166,13 +179,21 @@ class ApiRegController extends Controller
                         'reg_state' => $reg_opts[1],
                     ]);
 
+                    // Aktivität war nur noch ein Platz frei, Teilnehmeranmeldung schließen
+                    if (in_array($action['action_type_sc'], ['vf','af','bf','vr','wa']) && $cnt->tn_free == 1) {
+                        DB::table('action')
+                            ->where('action_id', $action_id)
+                            ->update(['ac_reg_state' => 'tnoff']);
+                    }
+                    // ub,gf keine TN, vt,sh,mv,afr,abr keine Maximalzahl
+
                 } else {
+                    // action doch schon geschlossen
                     DB::table('members')
-                        ->where('web_id', $web_id)
+                        ->where('webid', $web_id)
                         ->update(['reg_error' => 'ac_geschl']);
                 }
 
-                //TODO prüfen ob Status geändert werden muss
 
                 // Wenn Abmeldekennzeichen gesetzt, dann Abmelden
             } elseif (!empty($request->input('abmeldung'))) {
@@ -191,7 +212,22 @@ class ApiRegController extends Controller
                 DB::table('guests')
                     ->where('reg_id', $reg_id)->delete();
 
-                //TODO prüfen, ob Status geändert werden muss
+                // Aktivität war Teilnehmeranmeldung geschlossen, wieder öffnen
+                if (in_array($action['action_type_sc'], ['vf','af','bf','vr','wa']) && $action['action_state_sc'] == 'tnoff') {
+                    if ($action['ac_with_wl'] == 0) {
+                        // keine Warteliste, Teilnehmeranmeldung wieder öffnen
+                        DB::table('action')
+                            ->where('action_id', $action_id)
+                            ->update(['ac_reg_state' => 'tnon']);
+                    } else {
+                        // TODO: aus Warteliste nachrücken
+                        $wl_first = DB::table('action_members')
+                            ->where('group', 'wl')
+                            ->orderBy('created_at')
+                            ->first('id');
+                        Log::debug(json_decode(json_encode($wl_first), true));
+                    }
+                }
             }
 
             //TODO Gäste löschen hinzufügen
