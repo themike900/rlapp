@@ -23,7 +23,8 @@ class ApiRegController extends Controller
     public function __invoke(Request $request)
     {
         // wenn POST-Data kommen und wenn kein Eintrag in action_members ist, dann eintragen
-        Log::debug($request->input());
+        Log::debug('--- ApiRegController ---------------------------------------');
+        // Log::debug($request->input());
 
         // wenn keine POST Daten, dann nichts machen
         if (!empty($request->input())) {
@@ -106,12 +107,14 @@ class ApiRegController extends Controller
                 ->whereNot('reg_state', 'abgl')
                 ->count();
 
-            // Anzahl nicht abgelehnter Crew + Service ohne doppelte
-            $cnt_crew = $cnt->reg_cr + $cnt->reg_sv - $cnt->reg_crsv;
             // Summe crew final + service final, 6
-            $cnt_crsv = $cnt->crew_final + $cnt->service_final;
+            $cnt->crsv_final = $cnt->crew_final + $cnt->service_final;
+            // Anzahl nicht abgelehnter Crew + Service ohne doppelte
+            $cnt->cnt_crew = $cnt->reg_cr + $cnt->reg_sv - $cnt->reg_crsv;
+            //Log::debug('cnt_crew: '.$cnt->cnt_crew);
             // Anzahl nicht abgelehnte Crew + Service, mindestens 6
-            $cnt_crew = ($cnt_crew < $cnt_crsv) ?? $cnt_crsv;
+            $cnt->cnt_crew = ($cnt->cnt_crew < $cnt->crsv_final) ? $cnt->crsv_final : $cnt->cnt_crew;
+            // Log::debug('cnt_crew: '.$cnt->cnt_crew);
 
             // Anzahl noch frei Gästeplätze (max Gäste - angenommene Gäste
             $cnt->guest_free = $cnt->max_guests
@@ -122,7 +125,7 @@ class ApiRegController extends Controller
                 $cnt->tn_free = $cnt->max_pers  // maximale Plätze für die Fahrt
                     - 1                         // minus ein Kapitän
                     - $cnt->ac_guests_angn      // minus angenommene Gäste
-                    - $cnt_crew                 // minus Crew (min 6)
+                    - $cnt->cnt_crew            // minus Crew (min 6)
                     - $cnt->ac_tn_ang;          // minus angemeldete Teilnehmer
             } else {
                 $cnt->tn_free = $cnt->max_pers
@@ -130,7 +133,8 @@ class ApiRegController extends Controller
                     - $cnt->ac_tn_ang;
             }
 
-            Log::debug(json_decode(json_encode($cnt), true));
+            Log::debug('ApiRegController.cnt');
+            Log::debug(print_r($cnt,true));
 
             /*++++++++++++++++++++++++++++++++++++++++++++++++++
              * Anmeldung Mitglied eintragen oder löschen in DB
@@ -154,7 +158,7 @@ class ApiRegController extends Controller
 
                     $opt_array = [
                         'anm_tn' => ['tn', 'ang'],
-                        'anm_wl' => ['wl', 'ang'],
+                        'anm_wl' => ['tn', 'wl'],
                         'bereit_crsv' => ['cr,sv', 'br'],
                         'bereit_cr' => ['cr', 'br'],
                         'bereit_sv' => ['sv', 'br'],
@@ -179,11 +183,13 @@ class ApiRegController extends Controller
                         'reg_state' => $reg_opts[1],
                     ]);
 
+
                     // Aktivität war nur noch ein Platz frei, Teilnehmeranmeldung schließen
                     if (in_array($action['action_type_sc'], ['vf','af','bf','vr','wa']) && $cnt->tn_free == 1) {
-                        DB::table('action')
-                            ->where('action_id', $action_id)
-                            ->update(['ac_reg_state' => 'tnoff']);
+                        Log::debug('ApiRegController.set_tnoff');
+                        DB::table('actions')
+                            ->where('id', $action_id)
+                            ->update(['ac_reg_state_tn' => 'tnoff', 'updated_at' => Carbon::now()]);
                     }
                     // ub,gf keine TN, vt,sh,mv,afr,abr keine Maximalzahl
 
@@ -199,6 +205,7 @@ class ApiRegController extends Controller
             } elseif (!empty($request->input('abmeldung'))) {
 
                 //TODO prüfen ob abmelden überhaupt noch erlaubt ist
+                Log::debug('ApiRegController.abmelden');
 
                 $reg_id = DB::table('action_members')
                     ->where('web_id', $request->input('webid'))
@@ -208,24 +215,39 @@ class ApiRegController extends Controller
                 DB::table('action_members')
                     ->where('id', $reg_id)
                     ->delete();
+                Log::debug('ApiRegController.deleted tn');
 
                 DB::table('guests')
                     ->where('reg_id', $reg_id)->delete();
+                Log::debug('ApiRegController.deleted guests');
 
                 // Aktivität war Teilnehmeranmeldung geschlossen, wieder öffnen
-                if (in_array($action['action_type_sc'], ['vf','af','bf','vr','wa']) && $action['action_state_sc'] == 'tnoff') {
+                Log::debug('action_type_sc: '.$action['action_type_sc']);
+                Log::debug('action_state_sc: '.$action['action_state_sc']);
+                if (in_array($action['action_type_sc'], ['vf','af','bf','vr','wa']) && $action['ac_reg_state_tn'] == 'tnoff') {
                     if ($action['ac_with_wl'] == 0) {
                         // keine Warteliste, Teilnehmeranmeldung wieder öffnen
-                        DB::table('action')
-                            ->where('action_id', $action_id)
-                            ->update(['ac_reg_state' => 'tnon']);
+                        Log::debug('ApiRegController.nowl set tnon');
+                        DB::table('actions')
+                            ->where('id', $action_id)
+                            ->update(['ac_reg_state_tn' => 'tnon', 'updated_at' => Carbon::now()]);
                     } else {
-                        // TODO: aus Warteliste nachrücken
+                        Log::debug('ApiRegController.withwl set tnon');
                         $wl_first = DB::table('action_members')
-                            ->where('group', 'wl')
+                            ->where('reg_state', 'wl')
+                            ->where('action_id', $action_id)
                             ->orderBy('created_at')
                             ->first('id');
-                        Log::debug(json_decode(json_encode($wl_first), true));
+                        Log::debug('ApiRegController.wl_first');
+                        Log::debug(print_r($wl_first, true));
+
+                        if (!empty($wl_first)) {
+                            Log::debug('ApiRegController.wl_not_empty');
+                            DB::table('action_members')
+                                ->where('id', $wl_first->id)
+                                ->update(['reg_state' => 'ang','updated_at' => Carbon::now()]);
+
+                        }
                     }
                 }
             }

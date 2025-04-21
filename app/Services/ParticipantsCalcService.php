@@ -23,14 +23,14 @@ class ParticipantsCalcService
         $cnt['ac_max_guests'] = $action->ac_max_guests;
         $cnt['ac_max_pers'] = $action->ac_max_pers;
 
-        /*// Anzahl Gäste für die Anmeldung $reg_id
+        // Anzahl Gäste für die Anmeldung $reg_id
         $cnt['reg_guests_count'] = 0;
         if ($reg_id) {
             $cnt['reg_guests_count'] = DB::table('guests')
                 ->where('gst_action_id', $action_id)
                 ->where('reg_id', '=', $reg_id)
                 ->count();
-        }*/
+        }
 
         // maximale Zahlen der Gruppen aus dem Aktivitäten-Typ
         //$max = DB::table('action_types')
@@ -57,6 +57,8 @@ class ParticipantsCalcService
             ->where('gst_state', '=', 'angefragt')
             ->count();
 
+        $cnt['ac_guests'] = $cnt['ac_guests_angn'] + $cnt['ac_guests_angf'];
+
         // Anzahl der nicht abgelehnten Decks-Crew-Teilnehmer dieser Fahrt
         $cnt['ac_reg_cr'] = DB::table('action_members')
             ->where('action_id', $action_id)
@@ -78,6 +80,12 @@ class ParticipantsCalcService
             ->whereNot('reg_state', 'abgl')
             ->count();
 
+        // Anzahl angemeldeter Teilnehmer der Aktivität $action_id
+        $cnt['ac_tn_wl'] = DB::table('action_members')
+            ->where('action_id', $action_id)
+            ->where('group', 'tn')
+            ->where('reg_state', 'wl')
+            ->count();
         // Bestimmung der Crew-Anzahl ohne Doppelzählung, aber mindestens 6
         $cnt_crew = $cnt['ac_reg_cr'] + $cnt['ac_reg_sv'] - $cnt['ac_reg_crsv'];
         $cnt['ac_crew'] = ($cnt_crew < 6) ? 6 : $cnt_crew;

@@ -27,8 +27,10 @@
             <th class="border p-2 w-48">Aktivität</th>
             <th class="border p-2">Auftraggeber</th>
             <th class="text-center border p-2 w-20">Teilnehmer</th>
-            <th class="text-center border p-2 w-20">Crew</th>
-            <th class="text-center border p-2 w-20">Service</th>
+            <th class="text-center border p-2 w-20">Warteliste</th>
+            <th class="text-center border p-2 w-16">Crew</th>
+            <th class="text-center border p-2 w-16">Service</th>
+            <th class="text-center border p-2 w-16">Gäste</th>
             <th class="text-center border p-2 w-40">Status</th>
             <th class="text-center w-40"> </th>
             <th class="text-center border p-2 w-10">id</th>
@@ -41,8 +43,10 @@
                 <td class="border-x p-2">{{ $action->action_name }}</td>
                 <td class="p-2">{{ $action->applicant_name }}</td>
                 <td class="text-center p-2">{{ $action->cnt['ac_tn_ang'] }}</td>
+                <td class="text-center p-2">{{ $action->cnt['ac_tn_wl'] }}</td>
                 <td class="text-center p-2">{{ $action->cnt['ac_reg_cr'] }}</td>
                 <td class="text-center p-2">{{ $action->cnt['ac_reg_sv'] }}</td>
+                <td class="text-center p-2">{{ $action->cnt['ac_guests'] }}</td>
                 <td class="text-center p-2">{{ $action->action_state_name }}</td>
                 <td class="text-center">
                     <div x-data="{ open: false }" class="relative" @keydown.escape.window="open = false">

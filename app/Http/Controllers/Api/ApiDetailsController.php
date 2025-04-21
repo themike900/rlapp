@@ -32,6 +32,7 @@ class ApiDetailsController extends Controller
      */
     public function __invoke(Request $request, int $web_id, int $action_id)
     {
+        Log::debug('ApiDetailsController.start');
         Log::info("---- Getting details of action {$action_id} for user {$web_id} ----------------------------------------}");
 
         //$auth = $request.header('X-Auth-Token');
@@ -83,7 +84,8 @@ class ApiDetailsController extends Controller
             ->where('web_id', $web_id)
             ->where('action_id', $action_id)
             ->first();
-        Log::debug($registered);
+        Log::debug('ApiDetailsController.registered');
+        Log::debug(print_r($registered, true));
 
         $reg_reg_state = null;
         if (!empty($registered)){
@@ -159,13 +161,15 @@ class ApiDetailsController extends Controller
         $anm_test['ac_reg_state_cr'] = $action['ac_reg_state_cr'];
         $anm_test['ac_reg_state_sv'] = $action['ac_reg_state_sv'];
         $anm_test['ac_reg_state_tn'] = $action['ac_reg_state_tn'];
+        $anm_test['ac_with_wl'] = $action['ac_with_wl'];
         $anm_test['reg_id'] = $registered->id ?? null;
         $anm_test['reg_guests_count'] = $reg_guests_count;
         $anm_test['reg_error'] = $registered->reg_error ?? '';
 
         $anm_test['ac_cnt'] = $ac_cnt;
 
-        Log::debug('anm_test: '.print_r($anm_test, true));
+        Log::debug('ApiDetailsController.anm_test');
+        Log::debug(print_r($anm_test, true));
 
 
 
@@ -178,35 +182,47 @@ class ApiDetailsController extends Controller
         // Segelterminliste, Teilnehmer An-Abmeldung -------------------------------------------------------------------
         if ($web_list == 'Segeltermine' or $web_list == 'Veranstaltungen') {
             // Mitglied nicht angemeldet
+            //Log::debug('ac_reg_state_tn: '.$action['ac_reg_state_tn']);
             if (in_array($reg_reg_state, [null, 'cr_abgl', 'sv_abgl'], true)) {
+                //Log::debug('ac_reg_state_tn: '.$action['ac_reg_state_tn']);
                 // Fahrtenplanung offen.
                 if ($action['action_state_sc'] == 'of') {
-                    // Teilnehmer-Anmeldung noch offen, TN < max
+                    // Teilnehmer-Anmeldung noch offen
+                    //Log::debug('ac_reg_state_tn: '.$action['ac_reg_state_tn']);
                     if ($action['ac_reg_state_tn'] == 'tnon') {
                         $anm_opt[] = match ($action['action_type_sc']) {
-                            'vf' => 'anm_mv',
-                            'af' => 'anm_le',
-                            default => 'anm_tn',
+                            'vf' => 'anm_mv', // Anmeldung mitfahrendes Vereinsmitglied
+                            'af' => 'anm_le', // Anmeldung lernender
+                            default => 'anm_tn', // Anmeldung Teilnehmer
                         };
                     }
                     // Teilnehmer-Anmeldung belegt
+                    Log::debug('ac_reg_state_tn: '.$action['ac_reg_state_tn']);
+                    Log::debug('ac_with_wl: '.$action['ac_with_wl']);
                     if ($action['ac_reg_state_tn'] == 'tnoff') {
-                        if ($action['action_state_sc'] == 'of') { $anm_opt[] = 'anm_wl'; }   // Teilnehmer-Anmeldung Warteliste.
+                        if ($action['ac_with_wl'] == 1) { $anm_opt[] = 'anm_wl'; } // Teilnehmer-Anmeldung Warteliste.
+                        if ($action['ac_with_wl'] == 0) { $anm_opt[] = 'anm_tn_voll'; } // Teilnehmer voll keine Anmeldung
                     }
                 }
                 // Fahrtenplanung abgeschlossen
                 if ($action['action_state_sc'] == 'gs') { $anm_opt[] = 'anm_tn_geschl'; }    // Fahrtenplanung abgeschlossen.
             }
+            // Als Teilnehmer angemeldet
             if ($reg_reg_state == 'tn_ang') {
+                // Fahrt offen
                 if ($action['action_state_sc'] == 'of') {
-                    if ($action['ac_max_guests'] > 0) {
-                        $anm_opt[] = 'abm_tn';
+                    // angemeldet mit Gästen?
+                    if ($action['reg_guests_count'] > 0) {
+                        $anm_opt[] = 'abm_tn'; // Abmeldung, angemeldet mit Gästen
                     } else {
-                        $anm_opt[] = 'abm_tn_nogst';
-                    }                                                   // Abmelden Teilnehmer
-                    if ($ac_cnt['ac_guests_free'] > 0 and $action['ac_reg_state_tn'] == 'tnon') { $anm_opt[] = 'anfr_gst'; }  // Anfrage Gäste
-                    if ($reg_guests_count > 0) { $anm_opt[] = 'gst_list'; }                     // Anzeige Gästeliste
+                        $anm_opt[] = 'abm_tn_nogst'; // Abmeldung, angemeldet ohne Gäste
+                    }
+                    // Abmelden Teilnehmer
+                    if ($ac_cnt['ac_guests_free'] > 0 and $action['ac_reg_state_tn'] == 'tnon') {
+                        $anm_opt[] = 'anfr_gst'; }  // Anfrage Gäste anzeigen
+                    if ($reg_guests_count > 0) { $anm_opt[] = 'gst_list'; }  // Anzeige Gästeliste
                 }
+                // Fahrt geschlossen
                 if ($action['action_state_sc'] == 'gs') {
                     $anm_opt[] = 'abm_tn_tel';                                               // Geschlossen, angemeldet
                     if ($reg_guests_count > 0) { $anm_opt[] = 'gst_list_no_del'; }              // Anzeige Gästeliste, no delete
