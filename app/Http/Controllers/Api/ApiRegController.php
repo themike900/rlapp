@@ -23,7 +23,7 @@ class ApiRegController extends Controller
     public function __invoke(Request $request)
     {
         // wenn POST-Data kommen und wenn kein Eintrag in action_members ist, dann eintragen
-        Log::debug('--- ApiRegController ---------------------------------------');
+        Log::debug('--- ApiRegController.Start ---------------------------------------');
         // Log::debug($request->input());
 
         // wenn keine POST Daten, dann nichts machen
@@ -133,8 +133,8 @@ class ApiRegController extends Controller
                     - $cnt->ac_tn_ang;
             }
 
-            Log::debug('ApiRegController.cnt');
-            Log::debug(print_r($cnt,true));
+            //Log::debug('ApiRegController.cnt');
+            Log::debug("\nApiRegController.cnt" . print_r($cnt,true));
 
             /*++++++++++++++++++++++++++++++++++++++++++++++++++
              * Anmeldung Mitglied eintragen oder löschen in DB
@@ -172,7 +172,7 @@ class ApiRegController extends Controller
                         $reg_opts = ($request->input('groups') == ['sv']) ? ['sv', 'br'] : $reg_opts;
                     }
 
-                    //Log::debug(print_r($reg_opts, true));
+                    Log::debug("ApiRegController.reg_opts: " . print_r($reg_opts, true));
 
                     DB::table('action_members')->insert([
                         'web_id' => $web_id,
@@ -185,7 +185,7 @@ class ApiRegController extends Controller
 
 
                     // Aktivität war nur noch ein Platz frei, Teilnehmeranmeldung schließen
-                    if (in_array($action['action_type_sc'], ['vf','af','bf','vr','wa']) && $cnt->tn_free == 1) {
+                    if (in_array($action['action_type_sc'], ['vf','af','bf','vr','wa']) && $cnt->tn_free == 1 && $reg_opts[0] == 'tn') {
                         Log::debug('ApiRegController.set_tnoff');
                         DB::table('actions')
                             ->where('id', $action_id)
@@ -227,25 +227,24 @@ class ApiRegController extends Controller
                 if (in_array($action['action_type_sc'], ['vf','af','bf','vr','wa']) && $action['ac_reg_state_tn'] == 'tnoff') {
                     if ($action['ac_with_wl'] == 0) {
                         // keine Warteliste, Teilnehmeranmeldung wieder öffnen
-                        Log::debug('ApiRegController.nowl set tnon');
                         DB::table('actions')
                             ->where('id', $action_id)
                             ->update(['ac_reg_state_tn' => 'tnon', 'updated_at' => Carbon::now()]);
+                        Log::debug('ApiRegController.nowl set tnon');
                     } else {
-                        Log::debug('ApiRegController.withwl set tnon');
                         $wl_first = DB::table('action_members')
                             ->where('reg_state', 'wl')
                             ->where('action_id', $action_id)
                             ->orderBy('created_at')
                             ->first('id');
                         Log::debug('ApiRegController.wl_first');
-                        Log::debug(print_r($wl_first, true));
+                        Log::debug("ApiRegController.wl_first\n".print_r($wl_first, true));
 
                         if (!empty($wl_first)) {
-                            Log::debug('ApiRegController.wl_not_empty');
                             DB::table('action_members')
                                 ->where('id', $wl_first->id)
                                 ->update(['reg_state' => 'ang','updated_at' => Carbon::now()]);
+                            Log::debug('ApiRegController.tn_wl to tn_ang');
 
                         }
                     }
