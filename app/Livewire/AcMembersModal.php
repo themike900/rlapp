@@ -21,6 +21,7 @@ class AcMembersModal extends Component
     public $save;
     public $suchErgebnisse = [];
     public $selectedGroup;
+    public $groups = ['tn' => 'Teilnehmer', 'cr' => 'Decks-Crew', 'sv' => 'Service-Crew'];
 
     #[On('open-ac-members-modal')]
     public function loadData($actionId): void

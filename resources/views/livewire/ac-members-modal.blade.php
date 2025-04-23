@@ -33,7 +33,7 @@
                     @mousedown.outside="open = false"
                     class="absolute py-2 pe-2 bg-white border rounded w-80 mt-1 shadow-lg">
                     @foreach($suchErgebnisse as $person)
-                        <li wire:click="addMember({{ $person->id }}); open = false; search = ''"
+                        <li wire:click="addMember({{ $person->id }}); open = false; search = ''" wire:confirm="{{ $person->firstname }} {{ $person->name }} hinzufügen als {{ $groups[$selectedGroup] }}?"
                             class="p-0 hover:bg-gray-200 cursor-pointer">
                             {{ $person->firstname }} {{ $person->name }}
                         </li>
