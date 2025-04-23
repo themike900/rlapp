@@ -231,7 +231,8 @@ class RlCrewEdit extends Component
                 ->value('web_id');
             $this->newCaptain = $this->captain;
 
-            $this->captainName = $this->captains->firstWhere('webid', $this->captain)->display_name ?? '';
+            $this->captainName = ($this->captain > 0) ? $this->captains->firstWhere('webid', $this->captain)->display_name : '';
+            //$this->captainName = $this->captains->firstWhere('webid', $this->captain)->display_name ?? '';
             $this->newCaptainName = $this->captains->firstWhere('webid', $this->newCaptain)->display_name ?? '';
             Log::debug('captain name: '.print_r($this->captainName, true));
             Log::debug('new captain name: '.print_r($this->newCaptainName, true));
