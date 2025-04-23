@@ -22,6 +22,7 @@ class ApiGuestRegController extends Controller
     public function __invoke(Request $request)
     {
         // wenn POST-Data kommen und wenn kein Eintrag in action_members ist, dann eintragen
+        Log::debug('-----ApiGuestRegController.start -------------------------------------------');
         Log::debug($request->input());
 
         // wenn keine POST Daten, dann nichts machen
@@ -127,7 +128,7 @@ class ApiGuestRegController extends Controller
             $cnt->guest_free = $cnt->max_guests  // festgelegte maximal Gästezahl
                 - $cnt->ac_guests_angn;          // angenommen Gäste
 
-            Log::debug(json_decode(json_encode($cnt), true));
+            Log::debug(print_r($cnt, true));
 
             /*++++++++++++++++++++++++++++++++++++++++++++++++++
              * Gast eintragen oder löschen in DB

@@ -24,7 +24,8 @@ class ApiListController extends Controller
     public function __invoke(Request $request)
     {
         $request_input  = $request->all();
-        Log::info("---- Getting {$request->input('list_type')} for {$request->input('webid')}------------------------------------------------");
+        Log::debug('-----ApiListController.start -------------------------------------------');
+        Log::info("---- Getting {$request->input('list_type')} for {$request->input('webid')}");
         //Log::debug("Request: ".$request);
 
         /*++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -80,7 +81,9 @@ class ApiListController extends Controller
                 Log::info('User webid aktualisiert');
             }
         }
-        DB::table('members')->where('id', $member_id)->update(['last_access' => Carbon::now()]);
+        DB::table('members')
+            ->where('id', $member_id)
+            ->update(['last_access' => Carbon::now()]);
 
         // Log::debug($member_id);
 
@@ -118,7 +121,7 @@ class ApiListController extends Controller
             'Veranstaltungen' => ['vl',],
             'Bereitschaft' => ['bm','slbm']
         };
-        Log::debug('list_type: ' . print_r($list_type, true));
+        Log::debug("list_type:\n" . print_r($list_type, true));
 
         /* -----------------------
             Gruppenzugehörigkeit des Member holen
@@ -131,7 +134,7 @@ class ApiListController extends Controller
         if ($request->input('list_type') == 'Segeltermine' or $request->input('list_type') == 'Veranstaltungen') {
             $member_groups_array[] = 'tn';
         }
-        Log::debug('member_groups_array: ' . print_r($member_groups_array, true));
+        Log::debug("member_groups_array:\n" . print_r($member_groups_array, true));
 
         /* -----------------------
             Aktivitätentypen für diesen Member holen
@@ -140,14 +143,14 @@ class ApiListController extends Controller
         $action_types = DB::table('action_types')
             ->whereIn('web_list', $list_type)
             ->get();
-        Log::debug('action_types: ' . print_r($action_types, true));
+        Log::debug("action_types:\n" . print_r($action_types, true));
 
         foreach ($action_types as $action_type) {
             if (!empty(array_intersect(explode(',', $action_type->groups), $member_groups_array))) {
                 $list_action_types[] = $action_type->sc;
             }
         }
-        Log::debug('list_action_types: ' . print_r($list_action_types, true));
+        Log::debug("list_action_types:\n" . print_r($list_action_types, true));
 
         /* -----------------------
             für den Member sichtbare Aktivitäten holen
@@ -158,7 +161,7 @@ class ApiListController extends Controller
             ->orderBy('action_date')
             ->orderBy('action_start_at')
             ->get();
-        //Log::debug('actions: ' . print_r($actions, true));
+        //Log::debug("actions:\n" . print_r($actions, true));
 
         /* -----------------------
             in allen Fahrten Datum umformatieren und Anmeldestaus holen
@@ -175,7 +178,7 @@ class ApiListController extends Controller
                 ->where("web_id", $web_id)
                 ->where('action_id', $action->action_id)
                 ->first();
-            Log::debug('action_members: ' . print_r($reg, true));
+            //Log::debug('action_members: ' . print_r($reg, true));
 
             $action->reg_state_name = '&nbsp;';
             if (!empty($reg)) {
@@ -196,7 +199,7 @@ class ApiListController extends Controller
             }
 
         }
-        Log::debug("--- actions:\n " . print_r($actions, true));
+        //Log::debug("--- actions:\n " . print_r($actions, true));
 
         return response()->json($actions);
     }

@@ -1,4 +1,4 @@
-<div class="flex h-screen">
+<div class="flex h-fit">
     <!-- Sidebar -->
     <div class="w-64 bg-indigo-600 h-screen p-4">
         <p class="pb-1 mb-0 text-white text-3xl">ROYAL-LOUISE</p>
@@ -8,6 +8,7 @@
             @foreach ([
                 ['name' => 'Aktivitätenliste', 'route' => 'rl-action-list'],
                 ['name' => 'Neue Aktivität', 'route' => 'rl-action-new'],
+                ['name' => 'Crew-Planung', 'route' => 'rl-crew-edit'],
                 ['name' => 'Mitglieder', 'route' => 'rl-mem-list'],
                 ['name' => 'Mitglieder-Import', 'route' => 'rl-mem-import'],
             ] as $item)

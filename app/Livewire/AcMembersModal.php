@@ -83,8 +83,8 @@ class AcMembersModal extends Component
             Log::debug('selectedGroup: '.$memberId);
             $reg_state = match ($this->selectedGroup) {
                 'tn' => 'ang',
-                'cr' => 'crbr',
-                'sv' => 'svbr',
+                'cr' => 'br',
+                'sv' => 'br',
                 'sf' => 'ang',
             };
 

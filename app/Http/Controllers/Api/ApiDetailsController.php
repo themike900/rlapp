@@ -32,7 +32,7 @@ class ApiDetailsController extends Controller
      */
     public function __invoke(Request $request, int $web_id, int $action_id)
     {
-        Log::debug('ApiDetailsController.start');
+        Log::debug('-----ApiDetailsController.start -------------------------------------------');
         Log::info("---- Getting details of action {$action_id} for user {$web_id} ----------------------------------------}");
 
         //$auth = $request.header('X-Auth-Token');
@@ -84,8 +84,8 @@ class ApiDetailsController extends Controller
             ->where('web_id', $web_id)
             ->where('action_id', $action_id)
             ->first();
-        Log::debug('ApiDetailsController.registered');
-        Log::debug(print_r($registered, true));
+        //Log::debug("\nApiDetailsController.registered");
+        Log::debug("\nApiDetailsController.registered" . print_r($registered, true));
 
         $reg_reg_state = null;
         if (!empty($registered)){
@@ -168,8 +168,8 @@ class ApiDetailsController extends Controller
 
         $anm_test['ac_cnt'] = $ac_cnt;
 
-        Log::debug('ApiDetailsController.anm_test');
-        Log::debug(print_r($anm_test, true));
+        //Log::debug('ApiDetailsController.anm_test');
+        Log::debug("\nApiDetailsController.anm_test" . print_r($anm_test, true));
 
 
 

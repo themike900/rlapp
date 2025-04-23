@@ -16,6 +16,10 @@
             @livewire('pages.rl-members-import')
             @break
 
+        @case('rl-crew-edit')
+            @livewire('pages.rl-crew-edit')
+            @break
+
         @default
             <div>Seite nicht gefunden</div>
     @endswitch

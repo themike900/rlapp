@@ -27,6 +27,7 @@ class MembersTable extends Component
         $members = Member::query()
             ->when($this->search, fn($query) => $query->where('firstname', 'like', "%{$this->search}%"))
             ->when($this->filter, fn($query) => $query->where('groups', 'like', "%{$this->filter}%"))
+            ->whereNot('firstname','-')
             ->orderBy('firstname')
             ->get();
 
