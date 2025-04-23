@@ -54,7 +54,7 @@
                         <div x-show="open" @click.away="open = false" class="absolute p-1 mt-2 w-52 bg-white border rounded shadow-lg z-50">
                             <button wire:click="openViewModal({{ $action->id }})" class="block w-full px-3 py-1 text-gray-700 hover:bg-gray-200">Details anzeigen</button>
                             <button wire:click="openEditModal({{ $action->id }})" class="block w-full px-3 py-1 text-gray-700 hover:bg-gray-200">Daten ändern</button>
-                            <button wire:click="openCrewModal({{ $action->id }})" class="block w-full px-3 py-1 text-gray-700 hover:bg-gray-200">Crew-Planung</button>
+                            <!-- button wire:click="openCrewModal({{ $action->id }})" class="block w-full px-3 py-1 text-gray-700 hover:bg-gray-200">Crew-Planung</button -->
                             <button wire:click="openStatusModal({{ $action->id }})" class="block w-full px-3 py-1 text-gray-700 hover:bg-gray-200">Status ändern</button>
                             <button wire:click="openMembersModal({{ $action->id }})"
                                     class="block w-full px-3 py-1 text-gray-700 hover:bg-gray-200">

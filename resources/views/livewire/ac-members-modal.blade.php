@@ -26,7 +26,6 @@
                     <option value="tn">Teilnehmer</option>
                     <option value="cr">Crew</option>
                     <option value="sv">Service</option>
-                    <option value="sf">Schiffsführer</option>
                 </select>
 
                 <ul

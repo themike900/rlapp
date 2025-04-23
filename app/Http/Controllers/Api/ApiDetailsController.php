@@ -447,7 +447,7 @@ class ApiDetailsController extends Controller
             ->select(['nickname','name','firstname'])
             ->first();
         if (!empty($captain)) {
-            $members['captain'] = $captain['nickname'];
+            $members['captain'] = $captain['firstname'] . ' ' . $captain['name'];
         } else {
             $members['captain'] = '&nbsp;';
         }

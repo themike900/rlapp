@@ -26,7 +26,7 @@ class AcMembersModal extends Component
     public function loadData($actionId): void
     {
         $this->search = '';
-        $this->selectedGroup = 'cr';
+        $this->selectedGroup = 'tn';
         Log::debug('Loading data: '.$actionId);
         $this->actionId = $actionId;
         $action = Action::find($actionId);
