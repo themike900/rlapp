@@ -19,6 +19,7 @@
             <div class="grid grid-cols-3 gap-4 mt-4">
                 <div class="border rounded-lg p-4 shadow-md">
                     <h3 class="font-medium mb-2">Crew-Planung</h3>
+                    <p class="font-medium">Status: {{ $action->ac_reg_state_cr_name }}</p>
                     @if( count($crew) == 0 )
                         <p>keine Crew-Bereitschaften</p>
                     @else
@@ -26,8 +27,8 @@
                             @foreach($crew as $cr)
                                 <tr >
 
-                                    <td class="px-2 py-2 border ">{{ $cr->display_name }}</td>
-                                    <td class="px-1 py-2 border">
+                                    <td class="px-2 py-1 border ">{{ $cr->display_name }}</td>
+                                    <td class="px-3 py-1 border">
 
                                         <select wire:model="newCrewSelections.{{ $cr->web_id }}" class="px-2 py-1 border rounded-md">
                                             <option value="br">&#x2753; gemeldet</option>
@@ -38,20 +39,21 @@
                                 </tr>
                             @endforeach
                         </table>
-                    <button wire:click="saveCrew" class="px-4 py-2 mt-2 bg-blue-500 text-white hover:bg-blue-700 rounded">Testmodus</button>
+                    <button wire:click="saveCrew" class="px-4 py-2 mt-2 bg-blue-500 text-white hover:bg-blue-700 rounded">Speichern und Abschließen</button>
                     @endif
                 </div>
                 <div class="border rounded-lg p-4 shadow-md">
                     <h3 class="font-medium mb-2">Service-Planung</h3>
+                    <p class="font-medium">Status: {{ $action->ac_reg_state_sv_name }}</p>
                     @if( count($service) == 0 )
                         <p>keine Service-Bereitschaften</p>
                     @else
                         <table class="w-full border border-grey-00 rounded-md border-separate shadow-sm">
                             @foreach($service as $sv)
                                 <tr >
-                                    <td class="px-2 py-2 border ">{{ $sv->display_name }}</td>
-                                    <td class="px-1 py-2 border">
-                                        <select class="px-2 py-1 border rounded-md">
+                                    <td class="px-2 py-1 border ">{{ $sv->display_name }}</td>
+                                    <td class="px-3 py-1 border">
+                                        <select wire:model="newServiceSelections.{{ $sv->web_id }}" class="px-2 py-1 border rounded-md">
                                             <option value="br">&#x2753; gemeldet</option>
                                             <option value="gpl">&#x2705; geplant</option>
                                             <option value="abgl">&#x274C; abgelehnt</option>
@@ -60,7 +62,7 @@
                                 </tr>
                             @endforeach
                         </table>
-                        <button class="px-4 py-2 mt-2 bg-blue-500 text-white hover:bg-blue-700 rounded">Testmodus</button>
+                        <button wire:click="saveService" class="px-4 py-2 mt-2 bg-blue-500 text-white hover:bg-blue-700 rounded">Speichern und Abschließen</button>
                     @endif
                 </div>
                 <div class="border rounded-lg p-4 shadow-md">

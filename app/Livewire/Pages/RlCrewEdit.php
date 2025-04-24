@@ -17,6 +17,8 @@ class RlCrewEdit extends Component
     public $crewSelections = [];
     public $newCrewSelections = [];
     public $service = null;
+    public $serviceSelections = [];
+    public $newServiceSelections = [];
     public $captain = 0;
     public $captainName = '';
     public $newCaptain = 0;
@@ -167,13 +169,47 @@ class RlCrewEdit extends Component
         Log::debug('crewSelections: ' . print_r($this->crewSelections, true));
         Log::debug('newCrewSelections: ' . print_r($this->newCrewSelections, true));
 
-        foreach ($this->newCrewSelections as $crewId => $reg_state) {
+        foreach ($this->newCrewSelections as $web_id => $reg_state) {
 
-            Log::debug("foreach: ".$crewId.','.$reg_state);
-            //DB::table('action_members')
-            //    ->where('web_id', $crewId)
-            //    ->update(['reg_state' => $reg_state]);
+            //Log::debug("foreach: ".$web_id.','.$reg_state);
+
+            if ( $reg_state != $this->crewSelections[$web_id]) {
+                Log::debug("foreach change: ".$web_id.','.$reg_state);
+                DB::table('action_members')
+                    ->where('web_id', $web_id)
+                    ->update(['reg_state' => $reg_state]);
+            }
         }
+
+        DB::table('actions')
+            ->where('id', $this->actionId)
+            ->update(['ac_reg_state_cr' => 'crgpl']);
+    }
+
+    /* **************************************
+     *    saveCrew()
+     ****************************************/
+    public function saveService(): void
+    {
+        Log::debug("--- RlCrewEdit.saveService ------------------------------");
+        Log::debug('serviceSelections: ' . print_r($this->serviceSelections, true));
+        Log::debug('newServiceSelections: ' . print_r($this->newServiceSelections, true));
+
+        foreach ($this->newServiceSelections as $web_id => $reg_state) {
+
+            //Log::debug("foreach: ".$web_id.','.$reg_state);
+
+            if ( $reg_state != $this->serviceSelections[$web_id]) {
+                Log::debug("foreach change: ".$web_id.','.$reg_state);
+                DB::table('action_members')
+                    ->where('web_id', $web_id)
+                    ->update(['reg_state' => $reg_state]);
+            }
+        }
+
+        DB::table('actions')
+            ->where('id', $this->actionId)
+            ->update(['ac_reg_state_sv' => 'svgpl']);
     }
 
     /* **************************************
@@ -188,6 +224,15 @@ class RlCrewEdit extends Component
             $this->action = DB::table('actions')
                 ->where('id', $this->actionId)
                 ->first();
+
+            $this->action->ac_reg_state_cr_name = match ($this->action->ac_reg_state_cr) {
+                'crbr' => 'offen',
+                'crgpl' => 'abgeschlossen',
+            };
+            $this->action->ac_reg_state_sv_name = match ($this->action->ac_reg_state_sv) {
+                'svbr' => 'offen',
+                'svgpl' => 'abgeschlossen',
+            };
             //Log::debug('action aus DB : '.print_r($this->action, true));
             //$q = ;
             //Log::debug('sql: '.print_r(DB::getQueryLog(), true));
@@ -224,6 +269,10 @@ class RlCrewEdit extends Component
                     END AS display_name"))
                 ->get();
             Log::debug('service: '.print_r($this->service, true));
+            foreach ($this->service as $service) {
+                $this->serviceSelections[$service->web_id] = $service->reg_state;
+            }
+            $this->newServiceSelections = $this->serviceSelections;
 
             $this->captain = DB::table('action_members')
                 ->where('action_members.action_id', $this->actionId)
