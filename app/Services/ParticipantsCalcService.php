@@ -57,6 +57,7 @@ class ParticipantsCalcService
             ->where('gst_state', '=', 'angefragt')
             ->count();
 
+        // Anzahl aller Gäste
         $cnt['ac_guests'] = $cnt['ac_guests_angn'] + $cnt['ac_guests_angf'];
 
         // Anzahl der nicht abgelehnten Decks-Crew-Teilnehmer dieser Fahrt
@@ -86,25 +87,30 @@ class ParticipantsCalcService
             ->where('group', 'tn')
             ->where('reg_state', 'wl')
             ->count();
+
         // Bestimmung der Crew-Anzahl ohne Doppelzählung, aber mindestens 6
+        $crew_res = ($action_type_sc == 'vf') ? 6 : 5;
         $cnt_crew = $cnt['ac_reg_cr'] + $cnt['ac_reg_sv'] - $cnt['ac_reg_crsv'];
-        $cnt['ac_crew'] = ($cnt_crew < 6) ? 6 : $cnt_crew;
+        $cnt['ac_crew'] = ($cnt_crew < $crew_res) ? $crew_res : $cnt_crew;
 
         // Bestimmung der noch freien Gäste-Plätze
         $cnt['ac_guests_free'] = $cnt['ac_max_guests']
             - $cnt['ac_guests_angn'];
 
+        // reservierte Gästeplätze berechnen
+        $cnt['ac_guests_res'] = ($cnt['ac_guests_angn'] > $cnt['ac_max_guests']) ? $cnt['ac_guests_angn'] : $cnt['ac_max_guests'];
+
         // Bestimmung der freien Teilnehmer-Plätze für Fahrten
         if ( in_array($action_type_sc, ['vf','af','uf','gfx','gfm','bf'])) {
             $cnt['ac_tn_free'] = $cnt['ac_max_pers']  // maximale Plätze für die Fahrt
                 - 1                                // minus ein Kapitän
-                - $cnt['ac_guests_angn']            // minus angenommene Gäste
+                - $cnt['ac_guests_res']            // minus angenommene Gäste
                 - $cnt['ac_crew']                  // minus Crew (min 6)
                 - $cnt['ac_tn_ang'];               // minus angemeldete Teilnehmer
         // Bestimmung der freien Teilnehmer-Plätze für Veranstaltungen
         } else {
             $cnt['ac_tn_free'] = $cnt['ac_max_pers']
-                - $cnt['ac_guests_angn']
+                - $cnt['ac_guests_res']
                 - $cnt['ac_tn_ang'];
         }
 
@@ -113,15 +119,19 @@ class ParticipantsCalcService
         /*  ac_max_guests
          *  ac_max_pers
          *  reg_guests_count:
-         *  at_max
+         *  //at_max
          *  ac_tn_ang
+         *  ac_tn_wl
+         *  ac_tn_free
          *  ac_guests_angn
+         *  ac_guests_angf
+         *  ac_guests
+         *  ac_guest_free
+         *  ac_guests_res
          *  ac_reg_cr
          *  ac_reg_sv
          *  ac_reg_crsv
          *  ac_crew
-         *  ac_guest_free
-         *  ac_tn_free
          */
         return $cnt;
     }
