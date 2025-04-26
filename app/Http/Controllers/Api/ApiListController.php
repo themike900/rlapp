@@ -178,7 +178,7 @@ class ApiListController extends Controller
                 ->where("web_id", $web_id)
                 ->where('action_id', $action->action_id)
                 ->first();
-            //Log::debug('action_members: ' . print_r($reg, true));
+            Log::debug('action_members: ' . print_r($reg, true));
 
             $action->reg_state_name = '&nbsp;';
             if (!empty($reg)) {
@@ -186,16 +186,29 @@ class ApiListController extends Controller
                     ->where('sc', $reg->reg_state)
                     ->where('grp', $reg->group)
                     ->first();
-                if ($request->input('list_type') == 'Segeltermine' and $reg->group == 'tn') {
+                if ($request->input('list_type') == 'Segeltermine'
+                    && $reg->group == 'tn')
+                {
                     $action->reg_state_name = $reg_state->name;
                 }
-                if ($request->input('list_type') == 'Bereitschaft' and in_array($reg->group, ['cr','sv','cr,sv','sf'])) {
+                if ($request->input('list_type') == 'Bereitschaft'
+                    && in_array($reg->group, ['cr','sv','cr,sv','sf']))
+                {
                     $action->reg_state_name = $reg_state->name;
                 }
-                if ($request->input('list_type') == 'Veranstaltungen' and in_array($reg->group, ['tn','sh','wa'])) {
+                if ($request->input('list_type') == 'Veranstaltungen'
+                    && in_array($reg->group, ['tn','sh','wa']))
+                {
                     $action->reg_state_name = $reg_state->name;
                 }
                 Log::debug('reg_state: ' . print_r($reg_state, true));
+            }
+
+            if ($request->input('list_type') != 'Bereitschaft'
+                && $action->ac_reg_state_tn == 'tnoff'
+                && $action->action_state_sc == 'of' )
+            {
+                $action->action_state_name = 'belegt';
             }
 
         }
