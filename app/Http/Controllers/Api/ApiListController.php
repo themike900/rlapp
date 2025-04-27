@@ -174,7 +174,6 @@ class ApiListController extends Controller
             $action->end_at = (empty($action->crew_end_at)) ? $action->action_end_at : $action->crew_end_at;
 
             $reg = DB::table('action_members')
-                //->join('reg_state', 'action_members.reg_state', '=', 'reg_state.sc')
                 ->where("web_id", $web_id)
                 ->where('action_id', $action->action_id)
                 ->first();
@@ -186,22 +185,25 @@ class ApiListController extends Controller
                     ->where('sc', $reg->reg_state)
                     ->where('grp', $reg->group)
                     ->first();
+                Log::debug('reg_state: ' . print_r($reg_state, true));
+
                 if ($request->input('list_type') == 'Segeltermine'
                     && $reg->group == 'tn')
                 {
-                    $action->reg_state_name = $reg_state->name;
+                    $action->reg_state_name = $reg_state->name ?? '&nbsp;';
                 }
+
                 if ($request->input('list_type') == 'Bereitschaft'
                     && in_array($reg->group, ['cr','sv','cr,sv','sf']))
                 {
-                    $action->reg_state_name = $reg_state->name;
+                    $action->reg_state_name = $reg_state->name ?? '&nbsp;';
                 }
+
                 if ($request->input('list_type') == 'Veranstaltungen'
                     && in_array($reg->group, ['tn','sh','wa']))
                 {
-                    $action->reg_state_name = $reg_state->name;
+                    $action->reg_state_name = $reg_state->name ?? '&nbsp;';
                 }
-                Log::debug('reg_state: ' . print_r($reg_state, true));
             }
 
             if ($request->input('list_type') != 'Bereitschaft'
