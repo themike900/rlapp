@@ -73,6 +73,8 @@ class AcMembersModal extends Component
         Log::debug('addMember: '.$memberId);
         $member = DB::table('members')->find($memberId);
         if ($member) {
+
+            // fehlende webid ergänzen
             if (empty($member->webid)) {
                 $max_webid = DB::table('members')->max('webid');
                 $member->webid = $max_webid + 1;
@@ -81,6 +83,7 @@ class AcMembersModal extends Component
                     ->update(['webid' => $member->webid]);
             }
 
+            // reg_state für Gruppe des Members festlegen
             Log::debug('selectedGroup: '.$memberId);
             $reg_state = match ($this->selectedGroup) {
                 'tn' => 'ang',

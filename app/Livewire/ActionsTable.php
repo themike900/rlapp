@@ -38,7 +38,9 @@ class ActionsTable extends Component
         //Log::debug('openCrewModal, actionID: ' . $actionId);
 
         $this->selectedActionId = $actionId;
-        $this->dispatch('open-ac-crew-modal', actionId: $actionId);
+        //$this->dispatch('open-ac-crew-modal', actionId: $actionId);
+        $this->dispatch('open-crew-edit-page', actionId: $actionId);
+
     }
     public function openStatusModal($actionId): void
     {
