@@ -152,11 +152,14 @@ class ApiDetailsController extends Controller
             DB::table('actions')
                 ->where('id', $action_id)
                 ->update(['ac_reg_state_tn' => 'tnoff']);
+            $action['ac_reg_state_tn'] = 'tnoff';
         } else {
             DB::table('actions')
                 ->where('id', $action_id)
                 ->update(['ac_reg_state_tn' => 'tnon']);
+            $action['ac_reg_state_tn'] = 'tnon';
         }
+
 
         /*++++++++++++++++++++++++++++++++++++++++++++++++++
          * Testdaten bereitstellen

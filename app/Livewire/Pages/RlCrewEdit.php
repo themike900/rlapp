@@ -187,6 +187,7 @@ class RlCrewEdit extends Component
             if ( $reg_state != $this->crewSelections[$web_id]) {
                 Log::debug("foreach change: ".$web_id.','.$reg_state);
                 DB::table('action_members')
+                    ->where('action_id', $this->actionId)
                     ->where('web_id', $web_id)
                     ->update(['reg_state' => $reg_state]);
             }
@@ -198,7 +199,7 @@ class RlCrewEdit extends Component
     }
 
     /* **************************************
-     *    saveCrew()
+     *    saveService()
      ****************************************/
     public function saveService(): void
     {
@@ -213,6 +214,7 @@ class RlCrewEdit extends Component
             if ( $reg_state != $this->serviceSelections[$web_id]) {
                 Log::debug("foreach change: ".$web_id.','.$reg_state);
                 DB::table('action_members')
+                    ->where('action_id', $this->actionId)
                     ->where('web_id', $web_id)
                     ->update(['reg_state' => $reg_state]);
             }
