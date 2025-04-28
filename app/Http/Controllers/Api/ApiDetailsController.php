@@ -144,6 +144,19 @@ class ApiDetailsController extends Controller
             'angf' => $ac_cnt['ac_guests_angf']
         ];
 
+        // Prüfen, ob die maximale Teilnehmerzahl erreicht ist und entsprechend ac_reg_state_tn setzen
+        $ac_tn_full = (($ac_cnt['ac_tn_free'] <= 0));
+        Log::debug("\nApiDetailsController.ac_tn_full" . $ac_tn_full);
+
+        if ($ac_tn_full) {
+            DB::table('actions')
+                ->where('id', $action_id)
+                ->update(['ac_reg_state_tn' => 'tnoff']);
+        } else {
+            DB::table('actions')
+                ->where('id', $action_id)
+                ->update(['ac_reg_state_tn' => 'tnon']);
+        }
 
         /*++++++++++++++++++++++++++++++++++++++++++++++++++
          * Testdaten bereitstellen
@@ -161,6 +174,7 @@ class ApiDetailsController extends Controller
         $anm_test['ac_reg_state_cr'] = $action['ac_reg_state_cr'];
         $anm_test['ac_reg_state_sv'] = $action['ac_reg_state_sv'];
         $anm_test['ac_reg_state_tn'] = $action['ac_reg_state_tn'];
+        $anm_test['ac_tn_full'] = $ac_tn_full;
         $anm_test['ac_with_wl'] = $action['ac_with_wl'];
         $anm_test['reg_id'] = $registered->id ?? null;
         $anm_test['reg_guests_count'] = $reg_guests_count;
@@ -171,7 +185,18 @@ class ApiDetailsController extends Controller
         //Log::debug('ApiDetailsController.anm_test');
         Log::debug("\nApiDetailsController.anm_test" . print_r($anm_test, true));
 
+        $ac_tn_full = !(($ac_cnt['ac_tn_free'] > 0));
+        Log::debug("\nApiDetailsController.ac_tn_full" . $ac_tn_full);
 
+        if ($ac_tn_full) {
+            DB::table('actions')
+                ->where('id', $action_id)
+                ->update(['ac_reg_state_tn' => 'tnoff']);
+        } else {
+            DB::table('actions')
+                ->where('id', $action_id)
+                ->update(['ac_reg_state_tn' => 'tnon']);
+        }
 
         /*++++++++++++++++++++++++++++++++++++++++++++++++++
          * Anmeldeoptionen für die Webseiten auswählen
