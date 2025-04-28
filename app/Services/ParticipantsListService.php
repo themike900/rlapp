@@ -42,7 +42,7 @@ class ParticipantsListService
         if (!empty($crew)) {
             $members['crew'] = [];
             foreach ($crew as $cr) {
-                $members['crew'][] = '&nbsp;&#8226; '.$cr->firstname . ' ' . $cr->name;
+                $members['crew'][] = $cr->firstname . ' ' . $cr->name;
             }
             //$members['crew'] = implode(", ", $members['crew']);
         }
@@ -60,7 +60,7 @@ class ParticipantsListService
         if (!empty($service)) {
             $members['service'] = [];
             foreach ($service as $sv) {
-                $members['service'][] = '&nbsp;&#8226; '.$sv->firstname . ' ' . $sv->name;
+                $members['service'][] = $sv->firstname . ' ' . $sv->name;
             }
             //$members['service'] = implode("<br/>", $members['service']);
         }
@@ -78,7 +78,7 @@ class ParticipantsListService
         if (!empty($participants)) {
             $members['participants'] = [];
             foreach ($participants as $pp) {
-                $members['participants'][] = '&nbsp;&#8226; '.$pp->firstname . ' ' . $pp->name;
+                $members['participants'][] = $pp->firstname . ' ' . $pp->name;
             }
             //$members['participants'] = implode("<br>", $members['participants']);
         }
@@ -96,7 +96,7 @@ class ParticipantsListService
         if (!empty($participants_wl)) {
             $members['participants_wl'] = [];
             foreach ($participants_wl as $pp) {
-                $members['participants_wl'][] = '&nbsp;&#8226; '.$pp->firstname . ' ' . $pp->name;
+                $members['participants_wl'][] = $pp->firstname . ' ' . $pp->name;
             }
             //$members['participants_wl'] = implode("<br/>", $members['participants_wl']);
         }

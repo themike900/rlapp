@@ -11,7 +11,7 @@
                 <label for="field2" class="text-sm font-medium text-gray-700">Aktivität auswählen:</label>
                 <select wire:model.live="actionId" class="font-bold block border p-2 rounded min-w-36" title="Aktivität">
                     @foreach($selectActions as $sel)
-                        <option value="{{ $sel->id }}" key="{{ $sel->id }}">{{ \Carbon\Carbon::parse($sel->action_date)->format('d.m') }} - {{ $sel->action_name }} - {{ $sel->action_start_at }}</option>
+                        <option value="{{ $sel->id }}" key="{{ $sel->id }}">{{ \Carbon\Carbon::parse($sel->action_date)->format('d.m.') }} - {{ $sel->action_name }} - {{ $sel->action_start_at }}</option>
                     @endforeach
                 </select>
             </div>
@@ -65,6 +65,10 @@
                         @if( count($service) == 0 )
                             <p>keine Service-Bereitschaften</p>
                         @else
+                            <div class="mb-2 flex justify-between items-start w-full">
+                                <p class="font-medium">Status: {{ $action->ac_reg_state_sv_name }}</p>
+                                <button class="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded">hinzufügen</button>
+                            </div>
                             <table class="border border-grey-00 rounded-md border-separate shadow-sm">
                                 <thead>
                                 <tr class="font-medium bg-gray-200">

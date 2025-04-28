@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
+use App\Models\ActionMember;
 
 #[Layout('layouts.app')]
 class RlCrewEdit extends Component
@@ -81,11 +82,13 @@ class RlCrewEdit extends Component
         // bereits gespeicherter Captain, neuer Captain leer
         if ($this->newCaptain == 0 && $this->captain >0)
         {
+            //ActionMember::updateRecord($this->actionId, $this->captain,['group' => 'cr', 'reg_state' => $reg_state]);
             DB::table('action_members')
                 ->where('web_id', $this->captain)
                 ->where('action_id', $this->actionId)
-                ->update(['group' => 'cr', 'reg_state' => $reg_state]);
-            Log::debug("RlCrewEdit update captain $this->newCaptain to crew");
+                ->delete();
+                //->update(['group' => 'cr', 'reg_state' => $reg_state]);
+            Log::debug("RlCrewEdit update captain $this->captain to cr $reg_state");
         }
 
         // bisher kein Captain, neuen Captain setzen, eventuell erstellen
@@ -95,14 +98,17 @@ class RlCrewEdit extends Component
                 ->where('web_id', $this->newCaptain)
                 ->where('action_id', $this->actionId)
                 ->exists();
+            //$x = ActionMember::existsRecord($this->actionId, $this->newCaptain);
+            //Log::debug("RlCrewEdit.exists -$exists- -$x-");
 
             if ($exists) {
                 // wenn existiert, dann update zu sf,ang
+                //ActionMember::updateRecord($this->actionId, $this->newCaptain,['group' => 'sf', 'reg_state' => 'ang']);
                 DB::table('action_members')
                     ->where('web_id', $this->newCaptain)
                     ->where('action_id', $this->actionId)
                     ->update(['group' => 'sf', 'reg_state' => 'ang']);
-                Log::debug("RlCrewEdit update captain $this->newCaptain to SF");
+                Log::debug("RlCrewEdit update captain $this->newCaptain to sf ang");
             } else {
                 // wenn nicht existiert, neu mit sf,ang
                 DB::table('action_members')->insert([
@@ -122,25 +128,30 @@ class RlCrewEdit extends Component
         if ($this->newCaptain > 0 && $this->captain > 0 && $this->captain != $this->newCaptain)
         {
             // bisherigen Captain zu CR machen
+            //ActionMember::updateRecord($this->actionId, $this->captain,['group' => 'cr', 'reg_state' => $reg_state]);
             DB::table('action_members')
                 ->where('web_id', $this->captain)
                 ->where('action_id', $this->actionId)
-                ->update(['group' => 'cr', 'reg_state' => $reg_state]);
-            Log::debug("RlCrewEdit update old captain $this->captain to CR");
+                ->delete();
+                //->update(['group' => 'cr', 'reg_state' => $reg_state]);
+            Log::debug("RlCrewEdit update old captain $this->captain to cr $reg_state");
 
             // gibt es neuen Captain schon?
             $exists = DB::table('action_members')
                 ->where('web_id', $this->newCaptain)
                 ->where('action_id', $this->actionId)
                 ->exists();
+            //$x = ActionMember::existsRecord($this->actionId, $this->newCaptain);
+            //Log::debug("RlCrewEdit.exists -$exists- -$x-");
 
             if ($exists) {
                 // wenn existiert, dann update zu sf,ang
+                //ActionMember::updateRecord($this->actionId, $this->newCaptain,['group' => 'sf', 'reg_state' => 'ang']);
                 DB::table('action_members')
                     ->where('web_id', $this->newCaptain)
                     ->where('action_id', $this->actionId)
                     ->update(['group' => 'sf', 'reg_state' => 'ang']);
-                Log::debug("RlCrewEdit update captain $this->newCaptain to SF");
+                Log::debug("RlCrewEdit update captain $this->newCaptain to sf ang");
             } else {
                 // wenn nicht existiert, neu mit sf,ang
                 DB::table('action_members')->insert([
@@ -186,10 +197,7 @@ class RlCrewEdit extends Component
 
             if ( $reg_state != $this->crewSelections[$web_id]) {
                 Log::debug("foreach change: ".$web_id.','.$reg_state);
-                DB::table('action_members')
-                    ->where('action_id', $this->actionId)
-                    ->where('web_id', $web_id)
-                    ->update(['reg_state' => $reg_state]);
+                ActionMember::updateRecord($this->actionId, $web_id,['reg_state' => $reg_state]);
             }
         }
 
@@ -213,10 +221,7 @@ class RlCrewEdit extends Component
 
             if ( $reg_state != $this->serviceSelections[$web_id]) {
                 Log::debug("foreach change: ".$web_id.','.$reg_state);
-                DB::table('action_members')
-                    ->where('action_id', $this->actionId)
-                    ->where('web_id', $web_id)
-                    ->update(['reg_state' => $reg_state]);
+                ActionMember::updateRecord($this->actionId, $web_id,['reg_state' => $reg_state]);
             }
         }
 

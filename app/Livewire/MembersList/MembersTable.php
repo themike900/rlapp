@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire;
+namespace App\Livewire\MembersList;
 
 use App\Models\Member;
 use Illuminate\Contracts\View\Factory;
@@ -31,6 +31,6 @@ class MembersTable extends Component
             ->orderBy('firstname')
             ->get();
 
-        return view('livewire.members-table', compact('members'));
+        return view('livewire.members-list.members-table', compact('members'));
     }
 }
