@@ -120,7 +120,9 @@
             <td><b>Crew an Bord - von Bord</b></td>
             <td>{{ $action->crew_start_at ?? '' }} - {{ $action->crew_end_at ?? '' }}</td>
         </tr>
-        <tr>
+        @if(in_array($action->action_type_sc, ['vf','gfx','uf','af']))
+
+            <tr>
             <td><b>Besatzung</b></td>
             <td>
                 <b>Schiffsführer:</b><br/>- {{ $members['captain'] }}<br/>
@@ -128,6 +130,15 @@
                 <b>Service:</b><br/>- {{ print(str_replace(',', '<br/>- ', $members['service'])) }}
             </td>
         </tr>
+        @endif
+        @if(!in_array($action->action_type_sc, ['gfx','uf','af']))
+        <tr>
+            <td><b>Teilnehmer</b></td>
+            <td>
+                {{ $members['teilnehmer'] }}
+            </td>
+        </tr>
+        @endif
         </tbody>
     </table>
 </div>

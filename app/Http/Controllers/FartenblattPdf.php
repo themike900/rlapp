@@ -68,6 +68,22 @@ class FartenblattPdf extends Controller
             $members['service'] = implode(", ", $members['service']);
         }
 
+        // Nicknames der Service-Mitglieder holen (Gästefahrt, Vereinsfahrt, Ausbildungsfahrt)
+         $teilnehmer = DB::table('action_members')
+            ->join('members', 'members.webid', '=', 'action_members.web_id')
+            ->where('action_members.action_id', $actionId)
+            ->where('action_members.group', 'tn')
+            ->orderBy('members.firstname')
+            ->select(['nickname','name','firstname'])
+            ->get();
+        $members['teilnehmer'] = "&nbsp;";
+        if (!empty($teilnehmer)) {
+            $members['teilnehmer'] = [];
+            foreach ($teilnehmer as $tn) {
+                $members['teilnehmer'][] = $tn->firstname . ' ' . $tn->name;
+            }
+            $members['teilnehmer'] = implode(", ", $members['teilnehmer']);
+        }
 
 
         $pdf = Pdf::loadView('layouts.fahrtenblatt', compact('action','members')); // Blade-Template in PDF umwandeln
