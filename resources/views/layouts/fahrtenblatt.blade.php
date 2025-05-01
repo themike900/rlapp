@@ -110,7 +110,7 @@
         </tr>
         <tr>
             <td><b>Sonstiges</b></td>
-            <td>{{ $action->additinal_info ?? '' }}</td>
+            <td>{{ $action->additional_info ?? '' }}</td>
         </tr>
         <tr>
             <td><b>Ablege - Anlegen</b></td>
