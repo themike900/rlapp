@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\Action;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 Carbon::setLocale('de');
 
@@ -49,6 +50,7 @@ class FartenblattPdf extends Controller
             }
             $members['crew'] = implode(", ", $members['crew']);
         }
+        //Log::debug($members['crew']);
 
         // Nicknames der Service-Mitglieder holen (Gästefahrt, Vereinsfahrt, Ausbildungsfahrt)
         $service = DB::table('action_members')
@@ -67,6 +69,7 @@ class FartenblattPdf extends Controller
             }
             $members['service'] = implode(", ", $members['service']);
         }
+        //Log::debug($members['service']);
 
         // Nicknames der Service-Mitglieder holen (Gästefahrt, Vereinsfahrt, Ausbildungsfahrt)
          $teilnehmer = DB::table('action_members')
