@@ -194,7 +194,7 @@ class ApiListController extends Controller
                 }
 
                 if ($request->input('list_type') == 'Bereitschaft'
-                    && in_array($reg->group, ['cr','sv','cr,sv','sf']))
+                    && in_array($reg->group, ['cr','sv','cr,sv','sf','tr']))
                 {
                     $action->reg_state_name = $reg_state->name ?? '&nbsp;';
                 }

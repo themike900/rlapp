@@ -33,13 +33,13 @@ class ActionsTable extends Component
         $this->selectedActionId = $actionId;
         $this->dispatch('open-ac-view-modal', actionId: $actionId);
     }
-    public function openCrewModal($actionId): void
+    public function openCrewPage($actionId): void
     {
-        //Log::debug('openCrewModal, actionID: ' . $actionId);
+        Log::debug('openCrewPage.actionID: ' . $actionId);
+        session()->put('actionID', $actionId);
 
         $this->selectedActionId = $actionId;
-        //$this->dispatch('open-ac-crew-modal', actionId: $actionId);
-        $this->dispatch('open-crew-edit-page', actionId: $actionId);
+        $this->dispatch('open-crew-edit-page');
 
     }
     public function openStatusModal($actionId): void

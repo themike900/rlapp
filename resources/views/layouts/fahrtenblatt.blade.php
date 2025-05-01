@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="de-DE">
 <head>
     <meta charset="UTF-8">
     <title>Fahrtenblatt </title>
@@ -30,10 +30,13 @@
             margin-top: 20px;
         }
         td {
+            width: 30%;
             font-size: 18px;
             border: 1px solid #ccc;
             padding: 10px;
         }
+        td:nth-child(1) {width: 40%}
+        td:nth-child(2) {width: 60%}
         .text-center {
             text-align: center;
         }
@@ -41,7 +44,7 @@
 </head>
 <body>
 
-<div class="container">
+<div class="px-0 container">
 
     <div class="date-box">
         <span>{{ date('d.m.Y') }}</span>
@@ -52,12 +55,12 @@
     <table>
         <tbody>
         <tr>
-            <td><b>Fahrt</b></td>
-            <td>{{ $action->action_name }}</td>
-        </tr>
-        <tr>
             <td><b>Datum</b></td>
             <td>{{ $action->action_date }}</td>
+        </tr>
+        <tr>
+            <td><b>Fahrt</b></td>
+            <td>{{ $action->action_name }}</td>
         </tr>
         @if($action->action_type_sc == 'gfx')
             <tr>
@@ -120,9 +123,9 @@
         <tr>
             <td><b>Besatzung</b></td>
             <td>
-                Schiffstführer: {{ $members['captain'] }}<br/>
-                Crew: {{ $members['crew'] }}<br/>
-                Service: {{ $members['service'] }}
+                <b>Schiffsführer:</b><br/>- {{ $members['captain'] }}<br/>
+                <b>Crew:</b><<br/>- {{ print(str_replace(',', '<br/>- ', $members['crew'])) }}<br/>
+                <b>Service:</b><br/>- {{ print(str_replace(',', '<br/>- ', $members['service'])) }}
             </td>
         </tr>
         </tbody>

@@ -33,11 +33,12 @@ class RlCrewEdit extends Component
     public function mount($actionId = null): void
     {
         Log::debug("--- RlCrewEdit.mount ----------------------------");
-
+        Log::debug('actionId: '.$actionId);
         $this->actionId = $actionId;
 
         if (empty($this->actionId)) {
             // actionId aus session holen, wenn vorhanden
+            $this->actionId = session()->get('actionID') ?? 0;
             Log::debug('actionId aus session: '.$this->actionId);
         }
 
@@ -48,7 +49,7 @@ class RlCrewEdit extends Component
             ->orderBy('action_start_at')
             ->get(['id', 'action_name', 'action_date', 'action_start_at', 'action_end_at']);
         Log::debug('actions für select aus DB : '.print_r($this->selectActions, true));
-        $this->actionId = $this->selectActions[0]->id;
+        $this->actionId = (empty($this->actionId)) ? $this->selectActions[0]->id : $this->actionId;
 
         $this->captains = DB::table('members')
             ->whereLike('groups', '%sf%')
@@ -250,6 +251,7 @@ class RlCrewEdit extends Component
             $this->action->ac_reg_state_sv_name = match ($this->action->ac_reg_state_sv) {
                 'svbr' => 'offen',
                 'svgpl' => 'abgeschlossen',
+                default => '',
             };
             //Log::debug('action aus DB : '.print_r($this->action, true));
             //$q = ;
@@ -260,7 +262,8 @@ class RlCrewEdit extends Component
                 ->where('action_members.action_id', $this->actionId)
                 ->whereLike('action_members.group', '%cr%')
                 ->orderBy('created_at')
-                ->select('action_members.web_id', 'action_members.created_at', 'action_members.reg_state', DB::raw("
+                ->select('action_members.web_id', 'action_members.created_at', 'action_members.reg_state', 'action_members.group', 'members.groups',
+                    DB::raw("
                     CASE
                         WHEN nickname IS NOT NULL AND nickname != '' THEN CONCAT(nickname, ' ', name)
                         ELSE CONCAT(firstname, ' ', name)
@@ -270,6 +273,7 @@ class RlCrewEdit extends Component
             Log::debug('crew: '.print_r($this->crew, true));
 
             foreach ($this->crew as $crew) {
+
                 $this->crewSelections[$crew->web_id] = $crew->reg_state;
             }
             $this->newCrewSelections = $this->crewSelections;

@@ -31,6 +31,9 @@ Route::post('/import', [ImportController::class, 'importMembers'])->name('import
 Route::get('/rl/fahrtenblatt/{actionId}', [FartenblattPdf::class, 'generatePdf'])->name('rl-fahrtenblatt');
 Route::get('/rl/fahrtenliste/{webId}', [FartenlistePdf::class, 'generatePdf'])->name('rl-fahrtenliste');
 
+Route::fallback(function () {
+    return redirect('/login');
+});
 
 require __DIR__.'/auth.php';
 require __DIR__.'/api.php';

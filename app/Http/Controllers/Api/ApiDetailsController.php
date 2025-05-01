@@ -268,7 +268,7 @@ class ApiDetailsController extends Controller
         }
 
         // Crew-Bereitschaftsliste, und gehört das Mitglied zu CR oder SV
-        if ($web_list == 'Bereitschaft' and !empty(array_intersect($mem_groups, ['cr','sv']))) {
+        if ($web_list == 'Bereitschaft' and !empty(array_intersect($mem_groups, ['cr','sv','tr']))) {
             // noch keine Bereitschaft gemeldet
             if ( empty($reg_reg_state) ) {
                 // gehört zu CR und SV
@@ -291,8 +291,8 @@ class ApiDetailsController extends Controller
                         $anm_opt[] = 'bereit_cr';
                     }
                 }
-                // nur in Gruppe CR
-                if (in_array('cr', $mem_groups) and !in_array('sv', $mem_groups)) {
+                // nur in Gruppe CR or TR
+                if ((in_array('cr', $mem_groups) or in_array('tr', $mem_groups)) and !in_array('sv', $mem_groups)) {
                     if ($action['ac_reg_state_cr'] == 'crbr') {
                         $anm_opt[] = 'bereit_cr';                                                           // Bereitschaftsmeldung CR
                     }

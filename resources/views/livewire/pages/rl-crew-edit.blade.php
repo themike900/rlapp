@@ -24,7 +24,9 @@
                     @else
                         <div class="mb-2 flex justify-between items-start w-full">
                             <p class="font-bold">Status: {{ $action->ac_reg_state_cr_name }}</p>
-                            <button class="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded">hinzufügen</button>
+                            <div x-data="{ open: false }" class="relative" @keydown.escape.window="open = false">
+                                <button @click="open = !open" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded">hinzufügen</button>
+                            </div>
                         </div>
                         <table class="max-w-max rounded-md">
                             <thead>
@@ -49,7 +51,7 @@
                                         </select>
                                     </td>
                                     <td class="text-center px-2 py-1 border"></td>
-                                    <td class="px-2 py-1 border"></td>
+                                    <td class="px-2 py-1 border">{{ $cr->group }}</td>
                                     <td class="text-center px-2 py-1 border"></td>
                                 </tr>
                             @endforeach
@@ -61,7 +63,6 @@
                 @if( in_array($action->action_type_sc, ['vf','gfx']))
                     <div class="border rounded-lg p-4 shadow-md">
                         <h3 class="font-medium mb-2">Service-Planung</h3>
-                        <p class="font-medium">Status: {{ $action->ac_reg_state_sv_name }}</p>
                         @if( count($service) == 0 )
                             <p>keine Service-Bereitschaften</p>
                         @else

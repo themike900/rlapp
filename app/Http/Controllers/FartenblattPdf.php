@@ -2,16 +2,21 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\Action;
 use Illuminate\Support\Facades\DB;
+
+Carbon::setLocale('de');
 
 class FartenblattPdf extends Controller
 {
     public function generatePdf($actionId)
     {
         $action = Action::find($actionId); // Daten aus der Datenbank holen
+
+        $action->action_date = Carbon::createFromFormat('Y-m-d', $action->action_date)->isoFormat('dddd DD. MMMM');
 
         // Nickname vom Kapitän holen (alle Fahrten)
         $members = [];
@@ -62,7 +67,6 @@ class FartenblattPdf extends Controller
             }
             $members['service'] = implode(", ", $members['service']);
         }
-
 
 
 

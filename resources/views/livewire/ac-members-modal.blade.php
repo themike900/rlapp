@@ -54,7 +54,7 @@
                 <tbody>
                 @foreach($action_members as $a_member)
                     <tr class="border hover:bg-indigo-50" wire:key="{{ $a_member->id }}">
-                        <td class="border py-1 px-2">{{ $a_member->firstname }} {{ $a_member->name }} ({{ $a_member->id }})</td>
+                        <td class="border py-1 px-2">{{ $a_member->firstname }} {{ $a_member->name }}</td>
                         <td class="border py-1 px-2">{{ $a_member->group }}</td>
                         <td class="border py-1 px-2">{{ $a_member->reg_state }}</td>
                     </tr>

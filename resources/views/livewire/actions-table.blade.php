@@ -5,14 +5,14 @@
          <div class="flex flex-col">
             <label for="field2" class="text-sm font-medium">Status-Filter:</label>
             <select wire:model.live="filter" class="border p-2 rounded min-w-36" title="Filter nach Rolle">
-                <option value="of,gs">veröffentlicht</option>
+                <option value="of,gs">veröffentlicht (offen, geschlossen)</option>
                 <option value="br,of,gs">bereit und veröffentlicht</option>
-                <option value="iv">in Vorbereitung</option>
+                <option value="iv">in Vorbereitung (noch unfertig)</option>
                 <option value="iv,br">in Vorbereitung und bereit</option>
-                <option value="br">bereit</option>
-                <option value="of">offen</option>
-                <option value="gs">geschlossen</option>
-                <option value="df,as,ag">erledigt</option>
+                <option value="br">bereit (kann veröffentlicht werden)</option>
+                <option value="of">offen (sichtbar, Anmeldung möglich)</option>
+                <option value="gs">geschlossen (sichtbar, keine Anmeldungen mehr)</option>
+                <option value="df,as,ag">erledigt (nicht mehr sichtbar)</option>
                 <option value="iv,br,of,gs,df,as,ag">alle</option>
             </select>
         </div>
@@ -54,7 +54,9 @@
                         <div x-show="open" @click.away="open = false" class="absolute p-1 mt-2 w-52 bg-white border rounded shadow-lg z-50">
                             <button wire:click="openViewModal({{ $action->id }})" class="block w-full px-3 py-1 text-gray-700 hover:bg-gray-200">Details anzeigen</button>
                             <button wire:click="openEditModal({{ $action->id }})" class="block w-full px-3 py-1 text-gray-700 hover:bg-gray-200">Daten ändern</button>
-                            <!-- button wire:click="openCrewModal({{ $action->id }})" class="block w-full px-3 py-1 text-gray-700 hover:bg-gray-200">Crew-Planung</button -->
+                            @if (in_array($action->action_type_sc,['vf','gfx','af','uf','bf']))
+                                <button wire:click="openCrewPage({{ $action->id }})" class="block w-full px-3 py-1 text-gray-700 hover:bg-gray-200">Crew-Planung</button>
+                            @endif
                             <button wire:click="openStatusModal({{ $action->id }})" class="block w-full px-3 py-1 text-gray-700 hover:bg-gray-200">Status ändern</button>
                             <button wire:click="openMembersModal({{ $action->id }})"
                                     class="block w-full px-3 py-1 text-gray-700 hover:bg-gray-200">
