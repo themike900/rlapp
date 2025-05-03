@@ -7,7 +7,7 @@ use Livewire\Component;
 class LayoutWrapper extends Component
 {
 
-    protected $listeners = ['open-crew-edit-page' => 'setCrewPage'];
+    protected $listeners = ['open-crew-edit-page' => 'setCrewPage','open-mem-edit-page' => 'setMemPage'];
 
     public $currentPage = 'rl-action-list';
     public $currentActionId = 0;
@@ -21,6 +21,12 @@ class LayoutWrapper extends Component
     {
         $this->currentActionId = session()->get('actionID') ?? 0;
         $this->currentPage = 'rl-crew-edit';
+    }
+
+    public function setMemPage(): void
+    {
+        $this->currentActionId = session()->get('actionID') ?? 0;
+        $this->currentPage = 'rl-mem-edit';
     }
     public function logout(): \Illuminate\Http\RedirectResponse
     {

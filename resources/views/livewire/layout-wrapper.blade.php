@@ -9,7 +9,8 @@
                 ['name' => 'Aktivitätenliste', 'route' => 'rl-action-list'],
                 ['name' => 'Neue Aktivität', 'route' => 'rl-action-new'],
                 ['name' => 'Crew-Planung', 'route' => 'rl-crew-edit'],
-                ['name' => 'Mitglieder', 'route' => 'rl-mem-list'],
+                ['name' => 'Teilnehmer/Gäste', 'route' => 'rl-mem-edit'],
+                ['name' => 'Mitgliederliste', 'route' => 'rl-mem-list'],
                 ['name' => 'Mitglieder-Import', 'route' => 'rl-mem-import'],
             ] as $item)
                 <li>

@@ -20,6 +20,10 @@
             @livewire('pages.rl-crew-edit')
             @break
 
+        @case('rl-mem-edit')
+            @livewire('pages.rl-mem-edit')
+            @break
+
         @default
             <div>Seite nicht gefunden</div>
     @endswitch
