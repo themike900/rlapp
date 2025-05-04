@@ -42,6 +42,15 @@ class ActionsTable extends Component
         $this->dispatch('open-crew-edit-page');
 
     }
+    public function openTeilnehmerPage($actionId): void
+    {
+        Log::debug('openTeilnehmerPage.actionID: ' . $actionId);
+        session()->put('actionID', $actionId);
+
+        $this->selectedActionId = $actionId;
+        $this->dispatch('open-mem-edit-page');
+
+    }
     public function openStatusModal($actionId): void
     {
         //Log::debug('openStatusModal, actionID: ' . $actionId);

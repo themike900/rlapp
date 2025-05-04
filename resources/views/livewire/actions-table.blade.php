@@ -57,6 +57,9 @@
                             @if (in_array($action->action_type_sc,['vf','gfx','af','uf','bf']))
                                 <button wire:click="openCrewPage({{ $action->id }})" class="block w-full px-3 py-1 text-gray-700 hover:bg-gray-200">Crew-Planung</button>
                             @endif
+                            @if (in_array($action->action_type_sc,['vf','af','bf','vt','sc','mv','vr','afr','abr','wa']))
+                                <button wire:click="openTeilnehmerPage({{ $action->id }})" class="block w-full px-3 py-1 text-gray-700 hover:bg-gray-200">Teilnehmer/Gäste</button>
+                            @endif
                             <button wire:click="openStatusModal({{ $action->id }})" class="block w-full px-3 py-1 text-gray-700 hover:bg-gray-200">Status ändern</button>
                             <button wire:click="openMembersModal({{ $action->id }})"
                                     class="block w-full px-3 py-1 text-gray-700 hover:bg-gray-200">

@@ -15,27 +15,45 @@
                 Ab/Anlegen: <b>{{ $action["action_start_at"] ?? '' }}-{{ $action["action_end_at"] ?? '' }}</b><br/>
                 An/VonBoard: <b>{{ $action["crew_start_at"] ?? '' }}-{{ $action["crew_end_at"] ?? '' }}</b><br/>
                 Zusatzinformationen: <b>{{ $action["additional_info"] ?? '' }}</b><br/>
-                Max-TN: <b>{{ $action["ac_max_pers"] ?? '' }}</b>, Max-Gäste: <b>{{ $action["ac_max_guests"] ?? '' }}</b><br/>
+                Max-TN: <b>{{ $action["ac_max_pers"] ?? '' }}</b>, Max-Gäste: <b>{{ $action["ac_max_guests"] ?? '' }}</b>
             </p>
+            @if( ($action["action_type_sc"] ?? '') == 'gfx' )
+                <p class="p-2 border rounded-md">
+                    Anlass: <b>{{ $action["reason"] ?? '-' }}</b><br/>
+                    Besteller: <b>{{ $action["applicant_name"] ?? '-' }}, {{ $action["applicant_email"] ?? '-' }}, {{ $action["applicant_phone"] ?? '-' }}</b><br>
+                    Kontakt:<b>{{ $action["contact_name"] ?? '-' }}, {{ $action["contact_email"] ?? '-' }}, {{ $action["contact_phone"] ?? '-' }}</b><br/>
+                    Rechnung: <b>{{ $action["invoice_address"] ?? '-' }}, {{ $action["invoice_amount"] ?? '-' }}€</b><br/>
+                    Gäste-Anzahl: <b>{{ $action["guest_count"] ?? '-' }}</b><br/>
+                    Catering: <b>{{ $action["catering_info"] ?? '-' }}</b><br/>
+                    Eis: <b>{{ $action["ice_info"] ?? '-' }}</b><br/>
+                    Crew-Versorgung: <b>{{ $action["crew_supply"] ?? '-' }}</b><br/>
+                </p>
+            @endif
+            @if( ($action["action_type_sc"] ?? '') == 'vf' )
+                <p class="p-2 border rounded-md">
+                    Belegte Plätze: {{ 1 + $cnt["ac_crew"] + $cnt["ac_tn_ang"] + $cnt["ac_guests_res"] }}<br/>
+                    plus: {{ $cnt["ac_tn_wl"] }} Warteliste, {{ $cnt["ac_guests_angf"] }} angefragte Gäste
+                </p>
+            @endif
             <p class="p-2 border rounded-md">
-                Anlass: <b>{{ $action["reason"] ?? '-' }}</b><br/>
-                Besteller: <b>{{ $action["applicant_name"] ?? '-' }}, {{ $action["applicant_email"] ?? '-' }}, {{ $action["applicant_phone"] ?? '-' }}</b><br>
-                Kontakt:<b>{{ $action["contact_name"] ?? '-' }}, {{ $action["contact_email"] ?? '-' }}, {{ $action["contact_phone"] ?? '-' }}</b><br/>
-                Rechnung: <b>{{ $action["invoice_address"] ?? '-' }}, {{ $action["invoice_amount"] ?? '-' }}€</b><br/>
-                Gäste-Anzahl: <b>{{ $action["guest_count"] ?? '-' }}</b><br/>
-                Catering: <b>{{ $action["catering_info"] ?? '-' }}</b><br/>
-                Eis: <b>{{ $action["ice_info"] ?? '-' }}</b><br/>
-                Crew-Versorgung: <b>{{ $action["crew_supply"] ?? '-' }}</b><br/>
-            </p>
-            <p class="p-2 border rounded-md">
-                Crew: <b>{{ html_entity_decode($members['crew'] ?? '-') }}</b><br/>
-                Service: <b>{{ html_entity_decode($members['service'] ?? '-') }}</b><br/>
-                TN: <b>{{ html_entity_decode($members['participants'] ?? '-') }}</b><br/>
-                Warteliste: <b>{{ html_entity_decode($members['participants_wl'] ?? '-') }}</b><br/>
+                @if(in_array(($action["action_type_sc"] ?? ''), ['vf','af','bf','uf','gfx']) )
+                    Schiffsführer: <b>{!! $members['captain'] ?? '-' !!}</b><br/>
+                    Crew: <b>{!! $members['crew'] ?? '-' !!}</b><br/>
+                    Service: <b>{!! $members['service'] ?? '-' !!}</b><br/>
+                @endif
+                @if(in_array(($action["action_type_sc"] ?? ''), ['vf','af','bf','vt','sc','mv','vr','afr','abr','wa']) )
+                    Teilnehmer: <b>{!! $members['participants'] ?? '-' !!}</b><br/>
+                @endif
+                @if($action["ac_with_wl"] ?? 0)
+                    Warteliste: <b>{!! $members['participants_wl'] ?? '-' !!}</b><br/>
+                @endif
+                @if(in_array(($action["action_type_sc"] ?? ''), ['vf','vr']) )
+                    Gäste: {{ $cnt["ac_guests_angf"] ?? 0 }} angefragt, {{ $cnt["ac_guests_angn"] ?? 0 }} angenommen
+                @endif
             </p>
             <p class="p-2 border rounded-md">
                 ID: {{ $actionId }} ( {{ $action["action_type_sc"] ?? '' }} )<br/>
-                Reg-Status: Crew: <b>{{ $action["ac_reg_state_cr"] ?? '' }}</b>, Service: <b>{{ $action["ac_reg_state_sv"] ?? '' }}</b>, Teilnehmer: <b>{{ $action["ac_reg_state_tn"] ?? '' }}</b>
+                Anmelde-Status: Crew: <b>{{ $action["ac_reg_state_cr"] ?? '' }}</b>, Service: <b>{{ $action["ac_reg_state_sv"] ?? '' }}</b>, Teilnehmer: <b>{{ $action["ac_reg_state_tn"] ?? '' }}</b>
             </p>
         </div>
 

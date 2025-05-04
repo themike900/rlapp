@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Pages;
 
+use App\Services\ParticipantsCalcService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
@@ -26,6 +27,7 @@ class RlCrewEdit extends Component
     public $newCaptainName = '';
     public $selectActions = null;
     public $captains;
+    public $cnt = [];
 
     /* **************************************
      *    mount($actionId)
@@ -307,6 +309,8 @@ class RlCrewEdit extends Component
             $this->newCaptainName = $this->captains->firstWhere('webid', $this->newCaptain)->display_name ?? '';
             Log::debug('captain name: '.print_r($this->captainName, true));
             Log::debug('new captain name: '.print_r($this->newCaptainName, true));
+
+            $this->cnt = (new ParticipantsCalcService())->counts($this->actionId);
 
 
         }

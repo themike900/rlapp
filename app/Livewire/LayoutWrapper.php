@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use Illuminate\Http\RedirectResponse;
 use Livewire\Component;
 
 class LayoutWrapper extends Component
@@ -28,7 +29,7 @@ class LayoutWrapper extends Component
         $this->currentActionId = session()->get('actionID') ?? 0;
         $this->currentPage = 'rl-mem-edit';
     }
-    public function logout(): \Illuminate\Http\RedirectResponse
+    public function logout(): RedirectResponse
     {
         auth()->logout();
         return redirect()->route('login');

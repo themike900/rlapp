@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Models\Action;
+use App\Services\ParticipantsCalcService;
 use App\Services\ParticipantsListService;
 use Illuminate\Contracts\View\View;
 use Livewire\Component;
@@ -13,6 +14,7 @@ class AcViewModal extends Component
     public $action = [];
     public $actionId;
     public $members = [];
+    public $cnt = [];
 
 
     protected $listeners = ['open-ac-view-modal' => 'loadItem'];
@@ -32,6 +34,9 @@ class AcViewModal extends Component
             $members['crew']            = implode(", ", $members['crew']);
             $members['service']         = implode(", ", $members['service']);
             $this->members = $members;
+
+            $cnt_srv = new ParticipantsCalcService();
+            $this->cnt = $cnt_srv->counts($actionId);
 
         } else {
             $this->action = [];
