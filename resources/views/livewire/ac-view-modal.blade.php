@@ -29,9 +29,11 @@
                     Crew-Versorgung: <b>{{ $action["crew_supply"] ?? '-' }}</b><br/>
                 </p>
             @endif
-            @if( ($action["action_type_sc"] ?? '') == 'vf' )
+            @if( in_array(($action["action_type_sc"] ?? ''), ['vf','af']) )
                 <p class="p-2 border rounded-md">
-                    Belegte Plätze: {{ 1 + $cnt["ac_crew"] + $cnt["ac_tn_ang"] + $cnt["ac_guests_res"] }}<br/>
+                    <b>Belegte Plätze: {{ 1 + $cnt["ac_crew"] + $cnt["ac_tn_ang"] + $cnt["ac_guests_res"] }}</b>
+                        (incl. Reservierungen: {{ $cnt["ac_crew"] }} Crew/Service,
+                        {{ (($cnt["ac_guests"] > $cnt["ac_guests_res"]) ? 0 : $cnt["ac_guests_res"] - $cnt["ac_guests"]) }} Gäste<br/>
                     plus: {{ $cnt["ac_tn_wl"] }} Warteliste, {{ $cnt["ac_guests_angf"] }} angefragte Gäste
                 </p>
             @endif
@@ -48,7 +50,7 @@
                     Warteliste: <b>{!! $members['participants_wl'] ?? '-' !!}</b><br/>
                 @endif
                 @if(in_array(($action["action_type_sc"] ?? ''), ['vf','vr']) )
-                    Gäste: {{ $cnt["ac_guests_angf"] ?? 0 }} angefragt, {{ $cnt["ac_guests_angn"] ?? 0 }} angenommen
+                    Gäste: <b>{{ $cnt["ac_guests_angf"] ?? 0 }} angefragt, {{ $cnt["ac_guests_angn"] ?? 0 }} angenommen</b>
                 @endif
             </p>
             <p class="p-2 border rounded-md">
