@@ -44,7 +44,7 @@ class NewGf extends Component
         if ($selectedForm == "gfm") $this->invoice_amount = "400";
     }
 
-    public function save()
+    public function save(): void
     {
 
         $action_id = DB::table('actions')->insert([
@@ -69,7 +69,7 @@ class NewGf extends Component
             'crew_supply' => $this->crew_supply,
             'additional_info' => $this->additional_info,
             'guest_count' => $this->guest_count,
-            'confirm_date' => $this->confirm_date,
+            'confirm_date' => $this->confirm_date ?? null,
             'created_at' => now(),
             'updated_at' => now(),
             'action_state_sc' => 'iv',
