@@ -206,21 +206,36 @@ class RlMemEdit extends Component
     }
 
     /* **************************************
-     *    saveCrew()
+     *    saveTeilnehmer()
      ****************************************/
-    public function saveCrew(): void
+    public function saveTeilnehmer(): void
     {
-        Log::debug("--- RlCrewEdit.saveCrew ------------------------------");
-        Log::debug('crewSelections: ' . print_r($this->crewSelections, true));
-        Log::debug('newCrewSelections: ' . print_r($this->newCrewSelections, true));
+        Log::debug("--- RlCrewEdit.saveTeilnehmer ------------------------------");
+        Log::debug('teilnehmerSelections: ' . print_r($this->teilnehmerSelections, true));
+        Log::debug('newTeilnehmerSelections: ' . print_r($this->newTeilnehmerSelections, true));
 
-        foreach ($this->newCrewSelections as $web_id => $reg_state) {
+        foreach ($this->newTeilnehmerSelections as $web_id => $group) {
 
             //Log::debug("foreach: ".$web_id.','.$reg_state);
 
-            if ( $reg_state != $this->crewSelections[$web_id]) {
-                Log::debug("foreach change: ".$web_id.','.$reg_state);
-                ActionMember::updateRecord($this->actionId, $web_id,['reg_state' => $reg_state]);
+            if ( $group != $this->teilnehmerSelections[$web_id]) {
+                Log::debug("foreach change: ".$web_id.','.$group);
+
+                $reg_state = match($group) {
+                    'cr', 'sv' => 'br',
+                    'wl' => 'wl',
+                    'tn' => 'ang',
+                    default => ''
+                };
+                $group = ($group == 'wl') ? 'tn' : $group;
+                Log::debug("foreach change: ".$web_id.','.$group.','.$reg_state);
+
+                if ($group == 'del') {
+                    ActionMember::deleteRecord($this->actionId, $web_id);
+                } else {
+                    ActionMember::updateRecord($this->actionId, $web_id,['reg_state' => $reg_state, 'group' => $group]);
+                }
+
             }
         }
 
@@ -230,7 +245,7 @@ class RlMemEdit extends Component
     }
 
     /* **************************************
-     *    saveService()
+     *    saveWarteliste()
      ****************************************/
     public function saveService(): void
     {
@@ -369,7 +384,7 @@ class RlMemEdit extends Component
 
             foreach ($this->teilnehmer as $tn) {
 
-                $this->teilnehmerSelections[$tn->web_id] = $tn->reg_state;
+                $this->teilnehmerSelections[$tn->web_id] = 'tn';
             }
             $this->newTeilnehmerSelections = $this->teilnehmerSelections;
             //Log::debug('sql: '.print_r(DB::getQueryLog(), true));
@@ -394,7 +409,7 @@ class RlMemEdit extends Component
             Log::debug('warteliste: '.print_r($this->wlist, true));
 
             foreach ($this->wlist as $wl ) {
-                $this->wlistSelections[$wl->web_id] = $wl->reg_state;
+                $this->wlistSelections[$wl->web_id] = 'wl';
             }
             $this->newWlistSelections = $this->wlistSelections;
 

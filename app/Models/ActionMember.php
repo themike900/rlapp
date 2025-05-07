@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Log;
 
 class ActionMember extends Model
 {
-    protected $fillable = ['reg_state', 'action_id', 'web_id'];
+    protected $fillable = ['reg_state', 'action_id', 'web_id','group'];
 
     // Update einer Anmeldung auf der Basis von action_id und web_id
     public static function updateRecord(int $actionId, int $webId, array $updateData)
@@ -21,6 +21,16 @@ class ActionMember extends Model
         Log::debug('ActionMember.record '. print_r($record, true));
 
         return $record->update($updateData);
+    }
+
+    public static function deleteRecord(int $actionId, int $webId): void
+    {
+        Log::debug("--- ActionMember.deleteRecord $actionId $webId");
+
+        self::where('action_id', $actionId)
+            ->where('web_id', $webId)
+            ->delete();
+
     }
 
     /*public static function existsRecord(int $webId, int $actionId): bool

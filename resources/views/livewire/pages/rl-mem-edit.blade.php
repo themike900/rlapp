@@ -23,10 +23,10 @@
                         <p>keine Teilnehmer-Meldungen</p>
                     @else
                         <div class="mb-2 flex justify-between items-start w-full">
-                            <p class="font-bold">Status: {{ $action->ac_reg_state_tn_name }}</p>
+                            <p class="m-0 font-bold">Status: {{ $action->ac_reg_state_tn_name }}<br/>Belegte Plätze gesamt: x, Teilnehmer frei: x</p>
                             <div x-data="{ open: false }" class="relative" @keydown.escape.window="open = false">
                                 <button @click="open = !open" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded">hinzufügen</button>
-                                <div x-show="open" @click.away="open = false" class="absolute p-1 mt-2 w-52 bg-white border rounded shadow-lg z-50">
+                                <div x-show="open" @click.away="open = false" class="absolute p-1 mt-2 w-60 bg-white border rounded shadow-lg z-50">
                                     <p class="text-xl font-semibold mb-2">Teilnehmer hinzufügen</p>
 
                                     <div class="flex flex-col mb-2 space-x-2">
@@ -84,7 +84,7 @@
                                 </tr>
                             @endforeach
                         </table>
-                    <button wire:click="saveCrew" class="px-4 py-2 mt-2 bg-blue-500 text-white hover:bg-blue-700 rounded">Änderungen speichern</button>
+                    <button wire:click="saveTeilnehmer" class="px-4 py-2 mt-2 bg-blue-500 text-white hover:bg-blue-700 rounded">Änderungen speichern</button>
                     @endif
                 </div>
 
@@ -124,7 +124,7 @@
                                     </tr>
                                 @endforeach
                             </table>
-                            <button wire:click="saveCrew" class="px-4 py-2 mt-2 bg-blue-500 text-white hover:bg-blue-700 rounded">Änderungen speichern</button>
+                            <button wire:click="saveWarteliste" class="px-4 py-2 mt-2 bg-blue-500 text-white hover:bg-blue-700 rounded">Änderungen speichern</button>
                         @endif
                     </div>
                 @endif
@@ -163,7 +163,7 @@
                                     </tr>
                                 @endforeach
                             </table>
-                            <button wire:click="saveService" class="px-4 py-2 mt-2 bg-blue-500 text-white hover:bg-blue-700 rounded">Änderungen speichern</button>
+                            <button wire:click="saveGuests" class="px-4 py-2 mt-2 bg-blue-500 text-white hover:bg-blue-700 rounded">Änderungen speichern</button>
                         @endif
                     </div>
                 @endif
