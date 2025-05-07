@@ -221,10 +221,10 @@ class ApiRegController extends Controller
                     ->where('reg_id', $reg_id)->delete();
                 Log::debug('ApiRegController.deleted guests');
 
-                // Aktivität war Teilnehmeranmeldung geschlossen, wieder öffnen
+                // Aktivität war Teilnehmeranmeldung geschlossen, wieder öffnen, oder WL nachrücken
                 Log::debug('action_type_sc: '.$action['action_type_sc']);
                 Log::debug('action_state_sc: '.$action['action_state_sc']);
-                if (in_array($action['action_type_sc'], ['vf','af','bf','vr','wa']) && $action['ac_reg_state_tn'] == 'tnoff') {
+                if (in_array($action['action_type_sc'], ['vf','af','bf','vr','wa']) && $action['ac_reg_state_tn'] == 'tnoff' && $anm_opt == 'abm_tn') {
                     if ($action['ac_with_wl'] == 0) {
                         // keine Warteliste, Teilnehmeranmeldung wieder öffnen
                         DB::table('actions')
