@@ -45,6 +45,11 @@
                     <input type="text" wire:model="additional_info"
                            class="mt-1 px-2 py-1 block w-full rounded-md border shadow-sm hover:bg-gray-100 focus:ring-indigo-500 focus:border-indigo-500">
                 </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Personen gesamt</label>
+                    <input type="text" wire:model="ac_max_pers"
+                           class="mt-1 px-2 py-1 block w-full rounded-md border shadow-sm hover:bg-gray-100 focus:ring-indigo-500 focus:border-indigo-500">
+                </div>
 
             </div>
 

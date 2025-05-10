@@ -20,7 +20,8 @@ class NewAf extends Component
     public string $ice_info = "";
     public string $additional_info = "";
     public string $ac_with_wl = "0";
-    public string $ac_max_guests = "0";
+    public int $ac_max_guests = 0;
+    public int $ac_max_pers = 14;
 
     public function mount($selectedForm): void
     {
@@ -45,7 +46,7 @@ class NewAf extends Component
             'created_at' => now(),
             'updated_at' => now(),
             'action_state_sc' => 'br',
-            'ac_max_pers' => 30,
+            'ac_max_pers' => $this->ac_max_pers,
             'ac_reg_state_cr' => 'crbr',
             'ac_reg_state_sv' => 'svbr',
             'ac_reg_state_tn' => 'tnon',

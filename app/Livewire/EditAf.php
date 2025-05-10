@@ -24,7 +24,7 @@ class EditAf extends Component
     //public string $ice_info = "";
     public string $additional_info = "";
     //public string $ac_with_wl = "0";
-    //public string $ac_max_pers = "0";
+    public int $ac_max_pers = 0;
 
     public function mount($action_id): void
     {
@@ -41,7 +41,7 @@ class EditAf extends Component
         //$this->ice_info = $action->ice_info ?? '';
         $this->additional_info = $action->additional_info ?? '';
         //$this->ac_with_wl = $action->ac_with_wl;
-        //$this->ac_max_pers = $action->ac_max_pers;
+        $this->ac_max_pers = $action->ac_max_pers;
     }
 
     public function save(): void
@@ -60,7 +60,7 @@ class EditAf extends Component
             //'created_at' => now(),
             'updated_at' => now(),
             //'action_state_sc' => 'br',
-            //'ac_max_pers' => $this->ac_max_pers,
+            'ac_max_pers' => $this->ac_max_pers,
             //'ac_reg_state_cr' => '',
             //'ac_reg_state_sv' => '',
             //'ac_reg_state_tn' => 'tnon',

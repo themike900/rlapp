@@ -379,14 +379,20 @@ class RlMemEdit extends Component
                         ELSE CONCAT(firstname, ' ', name)
                     END AS display_name"))
                 ->get();
-
             Log::debug('teilnehmer: '.print_r($this->teilnehmer, true));
+
 
             foreach ($this->teilnehmer as $tn) {
 
                 $this->teilnehmerSelections[$tn->web_id] = 'tn';
+                $tn->count = DB::table('action_members')
+                    ->where('web_id', $tn->web_id)
+                    ->whereYear('created_at', now()->year)
+                    ->count('id');
             }
             $this->newTeilnehmerSelections = $this->teilnehmerSelections;
+
+            Log::debug('teilnehmer: '.print_r($this->teilnehmer, true));
             //Log::debug('sql: '.print_r(DB::getQueryLog(), true));
 
             /********************

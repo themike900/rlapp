@@ -80,7 +80,7 @@
                                             <option value="del">&#x274C; abmelden</option>
                                         </select>
                                     </td>
-                                    <td class="text-center px-2 py-1 border">0</td>
+                                    <td class="text-center px-2 py-1 border">{{ $tn->count }}</td>
                                 </tr>
                             @endforeach
                         </table>

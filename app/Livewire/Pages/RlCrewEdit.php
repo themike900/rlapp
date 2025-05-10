@@ -249,6 +249,7 @@ class RlCrewEdit extends Component
             $this->action->ac_reg_state_cr_name = match ($this->action->ac_reg_state_cr) {
                 'crbr' => 'offen',
                 'crgpl' => 'abgeschlossen',
+                default => ''
             };
             $this->action->ac_reg_state_sv_name = match ($this->action->ac_reg_state_sv) {
                 'svbr' => 'offen',
