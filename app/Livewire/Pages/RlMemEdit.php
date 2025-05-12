@@ -178,7 +178,7 @@ class RlMemEdit extends Component
         //    ->where('firstname', 'like', '%' . $this->search . '%')
         //    ->get();
         $this->suchErgebnisse = Member::query()
-            ->when($this->search, fn($query) => $query->where('firstname', 'like', "%{$this->search}%"))
+            ->when($this->search, fn($query) => $query->where('firstname', 'like', "%$this->search%"))
             ->orderBy('firstname')
             ->get();
         Log::debug(count($this->suchErgebnisse));
@@ -202,10 +202,8 @@ class RlMemEdit extends Component
             // reg_state für Gruppe des Members festlegen
             Log::debug('selectedGroup: ' . $memberId);
             $reg_state = match ($group) {
-                'tn' => 'ang',
-                'cr' => 'br',
-                'sv' => 'br',
-                'sf' => 'ang',
+                'tn', 'sf' => 'ang',
+                'cr', 'sv' => 'br',
             };
             $reg_state = ($state == 'wl') ? 'wl' : $reg_state;
 
