@@ -134,10 +134,10 @@ class RlMemEdit extends Component
 
             if ($group == 'del') {
                 ActionMember::deleteRecord($this->actionId, $web_id);
-                dispatch(new SendEmail($web_id, 'del_tn_wlist', ['action_id' => $this->actionId]));
+                //dispatch(new SendEmail($web_id, 'del_tn_wlist', ['action_id' => $this->actionId]));
             } elseif ( $group != $this->wlistSelections[$group]) {
                 ActionMember::updateRecord($this->actionId, $web_id,['reg_state' => $reg_state, 'group' => $group]);
-                dispatch(new SendEmail($web_id, 'wl-to-crew', ['action_id' => $this->actionId]));
+                //dispatch(new SendEmail($web_id, 'wl-to-crew', ['action_id' => $this->actionId]));
             }
         }
 
