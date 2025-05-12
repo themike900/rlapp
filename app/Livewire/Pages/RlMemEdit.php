@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Pages;
 
+use App\Jobs\SendEmail;
 use App\Models\Member;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -16,14 +17,6 @@ class RlMemEdit extends Component
     public $action = null;
     public $actionId = null;
 
-    public $crew = null;
-    public $crewSelections = [];
-    public $newCrewSelections = [];
-
-    public $service = null;
-    public $serviceSelections = [];
-    public $newServiceSelections = [];
-
     public $teilnehmer = null;
     public $teilnehmerSelections = [];
     public $newTeilnehmerSelections = [];
@@ -36,12 +29,7 @@ class RlMemEdit extends Component
     public $guestSelections = [];
     public $newGuestSelections = [];
 
-    public $captain = 0;
-    public $captainName = '';
-    public $newCaptain = 0;
-    public $newCaptainName = '';
     public $selectActions = null;
-    public $captains;
 
     public $suchErgebnisse = [];
     public $search = '';
@@ -73,136 +61,17 @@ class RlMemEdit extends Component
         Log::debug('actions für select aus DB : '.print_r($this->selectActions, true));
         $this->actionId = (empty($this->actionId)) ? $this->selectActions[0]->id : $this->actionId;
 
-        $this->captains = DB::table('members')
-            ->whereLike('groups', '%sf%')
-            ->orderBy('firstname')
-            ->select('webid', 'firstname', 'name', 'nickname', DB::raw("
-                CASE
-                    WHEN nickname IS NOT NULL AND nickname != '' THEN CONCAT(nickname, ' ', name)
-                    ELSE CONCAT(firstname, ' ', name)
-                END AS display_name"))
-            ->get();
-        Log::debug('captains für select aus DB : '.print_r($this->captains, true));
-
     }
 
-    /* **************************************
-     *    saveCaptain()
-     ****************************************/
-    public function saveCaptain(): void
-    {
-        Log::debug("--- RlCrewEdit.saveCaptain ------------------------------");
-        Log::debug('actionId: '.$this->actionId);
-        Log::debug('captain.webid: '.$this->captain);
-        Log::debug('newCaptain.webid: '.$this->newCaptain);
-        Log::debug('ac_reg_state_cr: '.$this->action->ac_reg_state_cr);
-
-        $reg_state = match($this->action->ac_reg_state_cr) {
-            'crbr' => 'br',
-            'crgpl' => 'gpl',
-        };
-
-        // bereits gespeicherter Captain, neuer Captain leer
-        if ($this->newCaptain == 0 && $this->captain >0)
-        {
-            //ActionMember::updateRecord($this->actionId, $this->captain,['group' => 'cr', 'reg_state' => $reg_state]);
-            DB::table('action_members')
-                ->where('web_id', $this->captain)
-                ->where('action_id', $this->actionId)
-                ->delete();
-                //->update(['group' => 'cr', 'reg_state' => $reg_state]);
-            Log::debug("RlCrewEdit update captain $this->captain to cr $reg_state");
-        }
-
-        // bisher kein Captain, neuen Captain setzen, eventuell erstellen
-        if ($this->newCaptain > 0 && $this->captain == 0)
-        {
-            $exists = DB::table('action_members')
-                ->where('web_id', $this->newCaptain)
-                ->where('action_id', $this->actionId)
-                ->exists();
-            //$x = ActionMember::existsRecord($this->actionId, $this->newCaptain);
-            //Log::debug("RlCrewEdit.exists -$exists- -$x-");
-
-            if ($exists) {
-                // wenn existiert, dann update zu sf,ang
-                //ActionMember::updateRecord($this->actionId, $this->newCaptain,['group' => 'sf', 'reg_state' => 'ang']);
-                DB::table('action_members')
-                    ->where('web_id', $this->newCaptain)
-                    ->where('action_id', $this->actionId)
-                    ->update(['group' => 'sf', 'reg_state' => 'ang']);
-                Log::debug("RlCrewEdit update captain $this->newCaptain to sf ang");
-            } else {
-                // wenn nicht existiert, neu mit sf,ang
-                DB::table('action_members')->insert([
-                    'web_id' => $this->newCaptain,
-                    'group' => 'sf',
-                    'reg_state' => 'ang',
-                    'action_id' => $this->actionId,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
-                Log::debug("RlCrewEdit new captain $this->newCaptain");
-            }
-
-        }
-
-        // bisher gespeicherten Captain durch anderen neuen ersetzen, neuen eventuell erstellen
-        if ($this->newCaptain > 0 && $this->captain > 0 && $this->captain != $this->newCaptain)
-        {
-            // bisherigen Captain zu CR machen
-            //ActionMember::updateRecord($this->actionId, $this->captain,['group' => 'cr', 'reg_state' => $reg_state]);
-            DB::table('action_members')
-                ->where('web_id', $this->captain)
-                ->where('action_id', $this->actionId)
-                ->delete();
-                //->update(['group' => 'cr', 'reg_state' => $reg_state]);
-            Log::debug("RlCrewEdit update old captain $this->captain to cr $reg_state");
-
-            // gibt es neuen Captain schon?
-            $exists = DB::table('action_members')
-                ->where('web_id', $this->newCaptain)
-                ->where('action_id', $this->actionId)
-                ->exists();
-            //$x = ActionMember::existsRecord($this->actionId, $this->newCaptain);
-            //Log::debug("RlCrewEdit.exists -$exists- -$x-");
-
-            if ($exists) {
-                // wenn existiert, dann update zu sf,ang
-                //ActionMember::updateRecord($this->actionId, $this->newCaptain,['group' => 'sf', 'reg_state' => 'ang']);
-                DB::table('action_members')
-                    ->where('web_id', $this->newCaptain)
-                    ->where('action_id', $this->actionId)
-                    ->update(['group' => 'sf', 'reg_state' => 'ang']);
-                Log::debug("RlCrewEdit update captain $this->newCaptain to sf ang");
-            } else {
-                // wenn nicht existiert, neu mit sf,ang
-                DB::table('action_members')->insert([
-                    'web_id' => $this->newCaptain,
-                    'group' => 'sf',
-                    'reg_state' => 'ang',
-                    'action_id' => $this->actionId,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
-                Log::debug("RlCrewEdit new captain $this->newCaptain");
-            }
-        }
-
-        // wenn bisher gespeicherter Captain und neuer Captain gleich sind, passiert nichts
-
-    }
 
     /* **************************************
      *    update($property)
      ****************************************/
     public function updated($property): void
     {
-        Log::debug("--- RlCrewEdit.updatedNewCaptain -----------------------------");
-        if ($property == 'newCaptain') {
-            $this->newCaptainName = ($this->newCaptain > 0) ? $this->captains->firstWhere('webid', $this->newCaptain)->display_name : '';
+        if ($property == 'actionId') {
+            session()->put('actionID', $this->actionId);
         }
-
     }
 
     /* **************************************
@@ -247,25 +116,59 @@ class RlMemEdit extends Component
     /* **************************************
      *    saveWarteliste()
      ****************************************/
-    public function saveService(): void
+    public function saveWarteliste(): void
     {
-        Log::debug("--- RlCrewEdit.saveService ------------------------------");
-        Log::debug('serviceSelections: ' . print_r($this->serviceSelections, true));
-        Log::debug('newServiceSelections: ' . print_r($this->newServiceSelections, true));
+        Log::debug("--- RlCrewEdit.saveWarteliste ------------------------------");
+        Log::debug('wlistSelections: ' . print_r($this->wlistSelections, true));
+        Log::debug('newWlistSelections: ' . print_r($this->newWlistSelections, true));
 
-        foreach ($this->newServiceSelections as $web_id => $reg_state) {
+        foreach ($this->newWlistSelections as $web_id => $group) {
 
             //Log::debug("foreach: ".$web_id.','.$reg_state);
+            $reg_state = match($group) {
+                'tn' => 'ang',
+                'cr' => 'br',
+                default => ''
+            };
+            $group = ($group == 'wl') ? 'tn' : $group;
 
-            if ( $reg_state != $this->serviceSelections[$web_id]) {
-                Log::debug("foreach change: ".$web_id.','.$reg_state);
-                ActionMember::updateRecord($this->actionId, $web_id,['reg_state' => $reg_state]);
+            if ($group == 'del') {
+                ActionMember::deleteRecord($this->actionId, $web_id);
+                dispatch(new SendEmail($web_id, 'del_tn_wlist', ['action_id' => $this->actionId]));
+            } elseif ( $group != $this->wlistSelections[$group]) {
+                ActionMember::updateRecord($this->actionId, $web_id,['reg_state' => $reg_state, 'group' => $group]);
+                dispatch(new SendEmail($web_id, 'wl-to-crew', ['action_id' => $this->actionId]));
             }
         }
 
-        DB::table('actions')
-            ->where('id', $this->actionId)
-            ->update(['ac_reg_state_sv' => 'svgpl']);
+    }
+
+    /* **************************************
+     *    saveGuests()
+     ****************************************/
+    public function saveGuests(): void
+    {
+        Log::debug("--- RlCrewEdit.saveWarteliste ------------------------------");
+        Log::debug('wGuestSelections: ' . print_r($this->guestSelections, true));
+        Log::debug('newGuestSelections: ' . print_r($this->newGuestSelections, true));
+
+        foreach ($this->newGuestSelections as $web_id => $group) {
+
+            //Log::debug("foreach: ".$web_id.','.$reg_state);
+            $reg_state = match($group) {
+                'wl' => 'wl',
+                'cr' => 'br',
+                default => ''
+            };
+            $group = ($group == 'wl') ? 'tn' : $group;
+
+            if ($group == 'del') {
+                ActionMember::deleteRecord($this->actionId, $web_id);
+            } else {
+                ActionMember::updateRecord($this->actionId, $web_id,['reg_state' => $reg_state, 'group' => $group]);
+            }
+        }
+
     }
 
     public function updatedSearch(): void

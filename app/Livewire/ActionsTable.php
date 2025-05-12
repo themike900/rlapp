@@ -22,6 +22,7 @@ class ActionsTable extends Component
     public function openEditModal($actionId): void
     {
         //Log::debug('openEditModal, actionID: ' . $actionId);
+        session()->put('actionID', $actionId);
 
         $this->selectedActionId = $actionId;
         $this->dispatch('open-ac-edit-modal', actionId: $actionId);
@@ -29,6 +30,7 @@ class ActionsTable extends Component
     public function openViewModal($actionId): void
     {
         //Log::debug('openViewModal, actionID: ' . $actionId);
+        session()->put('actionID', $actionId);
 
         $this->selectedActionId = $actionId;
         $this->dispatch('open-ac-view-modal', actionId: $actionId);
@@ -54,6 +56,7 @@ class ActionsTable extends Component
     public function openStatusModal($actionId): void
     {
         //Log::debug('openStatusModal, actionID: ' . $actionId);
+        session()->put('actionID', $actionId);
 
         $this->selectedActionId = $actionId;
         $this->dispatch('open-ac-status-modal', actionId: $actionId);
@@ -62,6 +65,7 @@ class ActionsTable extends Component
     public function openMembersModal($actionId): void
     {
         //Log::debug('openMembersModal, actionID: ' . $actionId);
+        session()->put('actionID', $actionId);
 
         $this->selectedActionId = $actionId;
         $this->dispatch('open-ac-members-modal', actionId: $actionId);

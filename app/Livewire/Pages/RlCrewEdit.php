@@ -9,6 +9,8 @@ use Illuminate\View\View;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 use App\Models\ActionMember;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 
 #[Layout('layouts.app')]
 class RlCrewEdit extends Component
@@ -29,9 +31,12 @@ class RlCrewEdit extends Component
     public $captains;
     public $cnt = [];
 
-    /* **************************************
-     *    mount($actionId)
-     ****************************************/
+    /**
+     * mount($actionId)
+     *
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
     public function mount($actionId = null): void
     {
         Log::debug("--- RlCrewEdit.mount ----------------------------");
@@ -181,6 +186,10 @@ class RlCrewEdit extends Component
         Log::debug("--- RlCrewEdit.updatedNewCaptain -----------------------------");
         if ($property == 'newCaptain') {
             $this->newCaptainName = ($this->newCaptain > 0) ? $this->captains->firstWhere('webid', $this->newCaptain)->display_name : '';
+        }
+
+        if ($property == 'actionId') {
+            session()->put('actionID', $this->actionId);
         }
 
     }

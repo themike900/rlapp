@@ -115,8 +115,8 @@
                                         <td class="text-center px-3 py-1 border">
 
                                             <select wire:model="newWlistSelections.{{ $wl->web_id }}" class="px-2 py-1 border rounded-md">
-                                                <option value="tn">&#x2705; Warteliste</option>
-                                                <option value="cr">&#x2B06; zu Teilnehmern</option>
+                                                <option value="tn">&#x2B06; zu Teilnehmern</option>
+                                                <option value="cr">&#x2B06; zu Crew</option>
                                                 <option value="del">&#x274C; abmelden</option>
                                             </select>
                                         </td>
