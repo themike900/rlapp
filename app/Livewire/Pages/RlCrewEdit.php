@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Pages;
 
+use App\Models\Member;
 use App\Services\ParticipantsCalcService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -30,6 +31,12 @@ class RlCrewEdit extends Component
     public $selectActions = null;
     public $captains;
     public $cnt = [];
+
+    public $suchErgebnisse = [];
+    public $search = '';
+    public $show;
+    public $members = [];
+    public $action_members = [];
 
     /**
      * mount($actionId)
@@ -118,7 +125,7 @@ class RlCrewEdit extends Component
                     ->update(['group' => 'sf', 'reg_state' => 'ang']);
                 Log::debug("RlCrewEdit update captain $this->newCaptain to sf ang");
             } else {
-                // wenn nicht existiert, neu mit sf,ang
+                // wenn nicht existiert, neu mit sf, ang
                 DB::table('action_members')->insert([
                     'web_id' => $this->newCaptain,
                     'group' => 'sf',
@@ -161,7 +168,7 @@ class RlCrewEdit extends Component
                     ->update(['group' => 'sf', 'reg_state' => 'ang']);
                 Log::debug("RlCrewEdit update captain $this->newCaptain to sf ang");
             } else {
-                // wenn nicht existiert, neu mit sf,ang
+                // wenn nicht existiert, neu mit sf, ang
                 DB::table('action_members')->insert([
                     'web_id' => $this->newCaptain,
                     'group' => 'sf',
@@ -241,6 +248,88 @@ class RlCrewEdit extends Component
             ->where('id', $this->actionId)
             ->update(['ac_reg_state_sv' => 'svgpl']);
     }
+    public function updatedSearch(): void
+    {
+        Log::debug('updatedSearch: '.$this->search.' '.'%' . $this->search . '%');
+        //$this->suchErgebnisse = DB::table('members')
+        //    ->where('firstname', 'like', '%' . $this->search . '%')
+        //    ->get();
+        $this->suchErgebnisse = Member::query()
+            ->when($this->search, fn($query) => $query->where('firstname', 'like', "%$this->search%"))
+            ->whereNot('firstname','-')
+            ->orderBy('firstname')
+            ->get();
+        Log::debug(count($this->suchErgebnisse));
+
+    }
+    public function addCrew($memberId,$group,$state=null): void
+    {
+        Log::debug('-------- addCrew: '.$memberId);
+        $member = DB::table('members')->find($memberId);
+        if ($member) {
+
+            // fehlende webid ergänzen
+            if (empty($member->webid)) {
+                $max_webid = DB::table('members')->max('webid');
+                $member->webid = $max_webid + 1;
+                DB::table('members')
+                    ->where('id', $memberId)
+                    ->update(['webid' => $member->webid]);
+            }
+
+            // reg_state für Gruppe des Members festlegen
+            Log::debug('selectedGroup: ' . $memberId);
+            $reg_state = match ($group) {
+                'tn', 'sf' => 'ang',
+                'cr', 'sv' => 'br',
+            };
+            $reg_state = ($state == 'wl') ? 'wl' : $reg_state;
+
+            $exists = DB::table('action_members')
+                ->where('action_id',$this->actionId)
+                ->where('web_id',$member->webid)
+                ->exists();
+
+            // Füge Member zu action_members hinzu
+            if (!$exists) {
+                DB::table('action_members')
+                    ->insert([
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                        'action_id' => $this->actionId,
+                        'web_id' => $member->webid,
+                        'group' => $group,
+                        'reg_state' => $reg_state,
+                        'reg_error' => ''
+                    ]);
+            }
+        }
+        $this->search = '';
+        //$this->updatedSearch();
+
+        $this->action_members = DB::table('action_members')
+            ->join('members', 'members.webid', '=', 'action_members.web_id')
+            ->where('action_id', $this->actionId)
+            ->orderBy('members.firstname')
+            //->select(['action_members.*', 'members.name','members.firstname','members.nickname','members.groups'])
+            ->get();
+
+        $this->members = [];
+
+        /*$this->members = DB::table('members')
+            ->leftJoin('action_members', 'members.webid', '=', 'action_members.web_id')
+            ->whereNull('action_members.web_id') // Nur Mitglieder, die nicht in action_members sind
+            ->whereNot('members.firstname','-')
+            ->get();*/
+
+        $this->show = false;
+
+    }
+    public function close(): void
+    {
+        $this->dispatch('refreshTable');
+        $this->show = false;
+    }
 
     /* **************************************
      *    render()
@@ -287,6 +376,10 @@ class RlCrewEdit extends Component
             foreach ($this->crew as $crew) {
 
                 $this->crewSelections[$crew->web_id] = $crew->reg_state;
+                $crew->count = DB::table('action_members')
+                    ->where('web_id', $crew->web_id)
+                    ->whereYear('created_at', now()->year)
+                    ->count('id');
             }
             $this->newCrewSelections = $this->crewSelections;
             //Log::debug('sql: '.print_r(DB::getQueryLog(), true));
@@ -305,6 +398,10 @@ class RlCrewEdit extends Component
             Log::debug('service: '.print_r($this->service, true));
             foreach ($this->service as $service) {
                 $this->serviceSelections[$service->web_id] = $service->reg_state;
+                $service->count = DB::table('action_members')
+                    ->where('web_id', $service->web_id)
+                    ->whereYear('created_at', now()->year)
+                    ->count('id');
             }
             $this->newServiceSelections = $this->serviceSelections;
 

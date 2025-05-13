@@ -179,6 +179,7 @@ class RlMemEdit extends Component
         //    ->get();
         $this->suchErgebnisse = Member::query()
             ->when($this->search, fn($query) => $query->where('firstname', 'like', "%$this->search%"))
+            ->whereNot('firstname','-')
             ->orderBy('firstname')
             ->get();
         Log::debug(count($this->suchErgebnisse));
@@ -207,18 +208,24 @@ class RlMemEdit extends Component
             };
             $reg_state = ($state == 'wl') ? 'wl' : $reg_state;
 
+            $exists = DB::table('action_members')
+                ->where('action_id',$this->actionId)
+                ->where('web_id',$member->webid)
+                ->exists();
 
             // Füge Member zu action_members hinzu
-            DB::table('action_members')
-                ->insert([
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                    'action_id' => $this->actionId,
-                    'web_id' => $member->webid,
-                    'group' => $group,
-                    'reg_state' => $reg_state,
-                    'reg_error' => ''
-                ]);
+            if (!$exists) {
+                DB::table('action_members')
+                    ->insert([
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                        'action_id' => $this->actionId,
+                        'web_id' => $member->webid,
+                        'group' => $group,
+                        'reg_state' => $reg_state,
+                        'reg_error' => ''
+                    ]);
+            }
         }
         $this->search = '';
         //$this->updatedSearch();

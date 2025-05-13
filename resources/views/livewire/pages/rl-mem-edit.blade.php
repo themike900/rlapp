@@ -19,11 +19,12 @@
             <div class="grid grid-cols-1 gap-4 mt-4">
                 <div class="border rounded-lg p-4 shadow-md">
                     <h3 class="font-medium mb-2">Teilnehmer</h3>
-                    @if( count($teilnehmer) == 0 )
-                        <p>keine Teilnehmer-Meldungen</p>
-                    @else
                         <div class="mb-2 flex justify-between items-start w-full">
-                            <p class="m-0 font-bold">Status: {{ $action->ac_reg_state_tn_name }}<br/>Belegte Plätze gesamt: x, Teilnehmer frei: x</p>
+                            @if( count($teilnehmer) == 0 )
+                                <p>keine Teilnehmer-Meldungen</p>
+                            @else
+                                <p class="m-0 font-bold">Status: {{ $action->ac_reg_state_tn_name }}<br/>Belegte Plätze gesamt: x, Teilnehmer frei: x</p>
+                            @endif
                             <div x-data="{ open: false }" class="relative" @keydown.escape.window="open = false">
                                 <button @click="open = !open" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded">hinzufügen</button>
                                 <div x-show="open" @click.away="open = false" class="absolute p-1 mt-2 w-60 bg-white border rounded shadow-lg z-50">
@@ -47,7 +48,7 @@
                                                 class="absolute py-2 pe-2 bg-white border rounded w-80 mt-1 shadow-lg">
                                                 @foreach($suchErgebnisse as $person)
                                                     <li wire:click="addMember({{ $person->id }},'tn','ang'); open = false; search = ''"
-                                                        wire:confirm="{{ $person->firstname }} {{ $person->name }} hinzufügen?"
+                                                        wire:confirm="{{ $person->firstname }} {{ $person->name }} als Teilnehmer hinzufügen?"
                                                         class="p-0 hover:bg-gray-200 cursor-pointer">
                                                         {{ $person->firstname }} {{ $person->name }}
                                                     </li>
@@ -58,6 +59,7 @@
                                 </div>
                             </div>
                         </div>
+                    @if(count($teilnehmer) > 0)
                         <table class="max-w-max rounded-md">
                             <thead>
                             <tr class="font-medium bg-gray-200">
@@ -74,9 +76,15 @@
 
                                         <select wire:model="newTeilnehmerSelections.{{ $tn->web_id }}" class="px-2 py-1 border rounded-md">
                                             <option value="tn">&#x2705; Teilnehmer</option>
-                                            <option value="cr">&#x2B06; zur Crew</option>
-                                            <option value="sv">&#x2B06; zum Service</option>
-                                            <option value="wl">&#x2B07; zur Warteliste</option>
+                                            @if(in_array($action->action_type_sc,['vf','af']))
+                                                <option value="cr">&#x2B06; zur Crew</option>
+                                            @endif
+                                            @if($action->action_type_sc == 'vf')
+                                                <option value="sv">&#x2B06; zum Service</option>
+                                            @endif
+                                            @if($action->ac_with_wl == 1)
+                                                <option value="wl">&#x2B07; zur Warteliste</option>
+                                            @endif
                                             <option value="del">&#x274C; abmelden</option>
                                         </select>
                                     </td>
@@ -91,15 +99,47 @@
                 @if($action->ac_with_wl)
                     <div class="border rounded-lg p-4 shadow-md">
                         <h3 class="font-medium mb-2">Teilnehmer-Warteliste</h3>
-                        @if( count($wlist) == 0 )
-                            <p>keine Warteliste</p>
-                        @else
                             <div class="mb-2 flex justify-between items-start w-full">
-                                <p class="font-bold">Status: {{ $action->ac_reg_state_tn_name }}</p>
+                                @if( count($wlist) == 0 )
+                                    <p>keine Warteliste</p>
+                                @else
+                                    <p class="font-bold">Status: {{ $action->ac_reg_state_tn_name }}</p>
+                                @endif
                                 <div x-data="{ open: false }" class="relative" @keydown.escape.window="open = false">
                                     <button @click="open = !open" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded">hinzufügen</button>
+                                    <div x-show="open" @click.away="open = false" class="absolute p-1 mt-2 w-60 bg-white border rounded shadow-lg z-50">
+                                        <p class="text-xl font-semibold mb-2">Teilnehmer hinzufügen</p>
+
+                                        <div class="flex flex-col mb-2 space-x-2">
+                                            <label for="field1" class="text-sm font-medium">Mitglied suchen</label>
+                                            <div x-data="{ open: false, search: @entangle('search') }">
+                                                <input
+                                                    type="text"
+                                                    x-model="search"
+                                                    wire:model.live.debounce.500ms="search"
+                                                    placeholder="Vorname..."
+                                                    @focus="open = true"
+                                                    @keydown.escape="open = false"
+                                                    class="border rounded-sm p-1">
+
+                                                <ul
+                                                    x-show="open"
+                                                    @mousedown.outside="open = false"
+                                                    class="absolute py-2 pe-2 bg-white border rounded w-80 mt-1 shadow-lg">
+                                                    @foreach($suchErgebnisse as $person)
+                                                        <li wire:click="addMember({{ $person->id }},'tn','wl'); open = false; search = ''"
+                                                            wire:confirm="{{ $person->firstname }} {{ $person->name }} zu Warteliste hinzufügen?"
+                                                            class="p-0 hover:bg-gray-200 cursor-pointer">
+                                                            {{ $person->firstname }} {{ $person->name }}
+                                                        </li>
+                                                    @endforeach
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
+                        @if( count($wlist) > 0 )
                             <table class="max-w-max rounded-md">
                                 <thead>
                                 <tr class="font-medium bg-gray-200">
