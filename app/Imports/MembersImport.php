@@ -2,13 +2,10 @@
 
 namespace App\Imports;
 
-use App\Models\Action;
-use Illuminate\Database\Eloquent\Model;
 use App\Models\Member;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
-//use function Psy\debug;
 
 class MembersImport implements ToModel, WithHeadingRow
 {
@@ -38,7 +35,13 @@ class MembersImport implements ToModel, WithHeadingRow
         $member = Member::where('mv_id', $row['nr'])->first();
 
         if (empty($member)) {
-            $member = Member::where('email', $row['e_mail'])->first();
+            if ($row['e_mail'] != '-') {
+                $member = Member::where('email', $row['e_mail'])->first();
+                Log::debug("import neu mit email '{$row['e_mail']}' und mv_id '{$row['nr']}'");
+            } else {
+                $member = Member::where('name', $row['nachname'])->where('firstname',$row['vorname'])->first();
+                Log::debug("import neu nachname '{$row['nachname']}' und mv_id '{$row['nr']}'");
+            }
         }
 
         // Wenn ja, nur groups und mv_id überschreiben
@@ -49,6 +52,7 @@ class MembersImport implements ToModel, WithHeadingRow
 
              // Wenn nein, neuen Datensatz anlegen
          } else {
+             Log::debug('insert: '.print_r($row, true));
              $member = Member::create([
                  'mv_id'     => $row['nr'] ?? null,
                  'firstname'  => $row['vorname'] ?? '',
