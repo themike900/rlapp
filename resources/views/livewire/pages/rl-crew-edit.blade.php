@@ -69,7 +69,7 @@
                             </tr>
                             </thead>
                             @foreach($crew as $cr)
-                                <tr class="hover:bg-blue-100">
+                                <tr class="hover:bg-blue-100" key="{{ $cr->web_id }}">
 
                                     <td class="px-2 py-1 border ">{{ $cr->display_name }}</td>
                                     <td class="text-center px-3 py-1 border">
@@ -153,7 +153,7 @@
                                 </tr>
                                 </thead>
                                 @foreach($service as $sv)
-                                    <tr class="hover:bg-blue-100">
+                                    <tr class="hover:bg-blue-100" key="{{ $sv->web_id }}">
                                         <td class="px-2 py-1 border ">{{ $sv->display_name }}</td>
                                         <td class="px-3 py-1 border">
                                             <select wire:model="newServiceSelections.{{ $sv->web_id }}" class="px-2 py-1 border rounded-md">

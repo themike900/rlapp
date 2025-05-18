@@ -61,10 +61,6 @@
                                 <button wire:click="openTeilnehmerPage({{ $action->id }})" class="block w-full px-3 py-1 text-gray-700 hover:bg-gray-200">Teilnehmer/Gäste</button>
                             @endif
                             <button wire:click="openStatusModal({{ $action->id }})" class="block w-full px-3 py-1 text-gray-700 hover:bg-gray-200">Status ändern</button>
-                            <button wire:click="openMembersModal({{ $action->id }})"
-                                    class="block w-full px-3 py-1 text-gray-700 hover:bg-gray-200">
-                                Teilnehmer hinzufügen
-                            </button>
                             <button @click="open = false; window.open('{{ route('rl-fahrtenblatt', ['actionId' => $action->id]) }}', '_blank')"
                                     class="block w-full px-3 py-1 text-gray-700 hover:bg-gray-200">
                                 Fahrtenblatt

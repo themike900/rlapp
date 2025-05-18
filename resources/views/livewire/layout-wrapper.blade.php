@@ -4,7 +4,7 @@
         <p class="pb-1 mb-0 text-white text-3xl text-center">ROYAL-LOUISE</p>
         <p class="text-white text-xl text-center">Aktivitätenplanung</p>
 
-        <ul class=" pt-4 space-y-2">
+        <ul class=" pt-4 pe-4 space-y-2">
             @foreach ([
                 ['name' => 'Aktivitätenliste', 'route' => 'rl-action-list'],
                 ['name' => 'Neue Aktivität', 'route' => 'rl-action-new'],
@@ -25,7 +25,7 @@
             @endforeach
         </ul>
 
-        <div class="space-y-2 pt-3 pl-8">
+        <div class="space-y-2 pt-3 pl-8 pe-4">
             <div class="block px-1 rounded-md hover:bg-blue-900">
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
