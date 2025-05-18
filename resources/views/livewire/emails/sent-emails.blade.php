@@ -1,6 +1,6 @@
 <div class="w-full flex flex-row">
     @if($sentEmails)
-        <div>
+        <div class="basis-1/2">
             <table class="w-full border-collapse border border-gray-300">
                 <thead>
                 <tr class="bg-gray-100">
@@ -20,7 +20,7 @@
                 </tbody>
             </table>
         </div>
-        <div class="w-full ml-4">
+        <div class="basis-1/2 ml-4">
             <p>Datum</p>
             <p>Absender</p>
             <div>
