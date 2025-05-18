@@ -11,7 +11,7 @@
             <label for="field2" class="text-sm font-medium">Rollen-Filter:</label>
             <select wire:model.live="filter" class="border p-2 rounded min-w-36" title="Filter nach Rolle">
                 <option value="">Alle Rollen</option>
-                <option value="cr">Deckscrew</option>
+                <option value="cr">Decks-Crew</option>
                 <option value="sv">Service-Crew</option>
                 <option value="sh">Shanty</option>
                 <option value="wa">Winterarbeit</option>

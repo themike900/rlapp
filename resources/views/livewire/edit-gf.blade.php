@@ -1,10 +1,10 @@
 <form wire:submit="save" class="space-y-2">
     <div x-data="{ activeTab: 'general' }">
         <div class="flex space-x-4 border-b">
-            <button @click="activeTab = 'general'" :class="{ 'px-2 font-bold border-b-2 bg-blue-100': activeTab === 'general' }">
+            <button @click="activeTab = 'general'" class="px-2 py-1 rounded-t" :class="{ 'font-bold bg-indigo-600 text-white': activeTab === 'general' }">
                 Fahrtendaten
             </button>
-            <button @click="activeTab = 'details'" :class="{ 'px-2 font-bold border-b-2 bg-blue-100': activeTab === 'details' }">
+            <button @click="activeTab = 'details'" class="px-2 py-1" :class="{ 'font-bold bg-indigo-600 text-white': activeTab === 'details' }">
                 Auftraggeber
             </button>
         </div>

@@ -24,6 +24,10 @@
             @livewire('pages.rl-mem-edit')
             @break
 
+        @case('rl-emails')
+            @livewire('pages.rl-emails')
+            @break
+
         @default
             <div>Seite nicht gefunden</div>
     @endswitch
