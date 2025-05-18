@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use Carbon\Carbon;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Foundation\Queue\Queueable;
@@ -61,7 +62,7 @@ class SendEmail implements ShouldQueue
         $action = DB::table('actions')->where('id', $this->data['action_id'])->first();
         $data = array_merge($this->data, [
             'action_name' => $action->action_name,
-            'action_date' => $action->action_date,
+            'action_date' => Carbon::createFromFormat('Y-m-d', $action->action_date)->isoFormat('dddd DD.MM.'),
             'crew_start_at' => $action->crew_start_at,
             'action_start_at' => $action->action_start_at,
             'firstname' => $member->firstname,
