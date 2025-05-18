@@ -25,7 +25,7 @@ class EmailTexts extends Component
         $this->saved = true;
     }
 
-    public function changeTemplateId(): void
+    public function updatedTemplateId(): void
     {
         $this->saved = false;
     }
