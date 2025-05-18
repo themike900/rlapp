@@ -34,17 +34,22 @@ class MembersImport implements ToModel, WithHeadingRow
         // ist der Member mit der mv_id schon da?
         $member = Member::where('mv_id', $row['nr'])->first();
 
+        // wenn die mv_id noch nicht existiert
         if (empty($member)) {
+            // wenn der zu importierende Kontakt eine Email-Adresse hat
             if ($row['e_mail'] != '-') {
-                $member = Member::where('email', $row['e_mail'])->first();
+                // suche ein Mitglied mit dieser Email-Adresse und diesem Vornamen
+                $member = Member::where('email', $row['e_mail'])->where('firstname',$row['vorname'])->first();
                 Log::debug("import neu mit email '{$row['e_mail']}' und mv_id '{$row['nr']}'");
             } else {
+                // wenn zu importierendes Mitglied kein Email-Adresse hat
+                // suche Mitglied mit Vorname und Nachname
                 $member = Member::where('name', $row['nachname'])->where('firstname',$row['vorname'])->first();
                 Log::debug("import neu nachname '{$row['nachname']}' und mv_id '{$row['nr']}'");
             }
         }
 
-        // Wenn ja, nur groups und mv_id überschreiben
+        // Wenn Mitglied schon vorhanden, nur groups und mv_id überschreiben
          if ($member) {
              $member->mv_id = $row['nr'];
              $member->groups = $groups;
