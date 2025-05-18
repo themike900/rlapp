@@ -63,6 +63,7 @@ class SendEmail implements ShouldQueue
             'action_name' => $action->action_name,
             'action_date' => $action->action_date,
             'crew_start_at' => $action->crew_start_at,
+            'action_start_at' => $action->action_start_at,
             'firstname' => $member->firstname,
             'captain' => $captain->firstname
         ]);
