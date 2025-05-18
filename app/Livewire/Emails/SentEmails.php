@@ -28,11 +28,11 @@ class SentEmails extends Component
             $this->selectedEmail = DB::table("sent_emails")->where("id",$this->selectedId)->first();
         } else {
             $this->selectedEmail = DB::table("sent_emails")->orderBy("created_at","desc")->first();
-            $this->selectedId = $this->selectedEmail->id;
+            $this->selectedId = $this->selectedEmail->id ?? null;
         }
-        $this->subject = $this->selectedEmail->subject;
-        $this->text = $this->selectedEmail->text;
-        $this->receiver = $this->selectedEmail->receiver;
+        $this->subject = $this->selectedEmail->subject ?? null;
+        $this->text = $this->selectedEmail->text ?? null;
+        $this->receiver = $this->selectedEmail->receiver ?? null;
 
         return view('livewire.emails.sent-emails');
     }
