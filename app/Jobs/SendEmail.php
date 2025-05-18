@@ -88,7 +88,8 @@ class SendEmail implements ShouldQueue
         });
 
         DB::table('sent_emails')->insert([
-            'receiver' => "$member->fullname ($member->email)",
+            //'receiver' => "$member->fullname ($member->email)",
+            'receiver' => "$member->fullname ('test@rlapp.schummel.de')",
             'subject' => $template->subject,
             'text' => $emailText,
             'created_at' => now(),

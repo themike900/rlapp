@@ -69,7 +69,7 @@
                             </tr>
                             </thead>
                             @foreach($teilnehmer as $tn)
-                                <tr class="hover:bg-blue-100">
+                                <tr class="hover:bg-blue-100" wire:key="{{ $tn->web_id }}">
 
                                     <td class="px-2 py-1 border ">{{ $tn->display_name }}</td>
                                     <td class="text-center px-3 py-1 border">
@@ -149,7 +149,7 @@
                                 </tr>
                                 </thead>
                                 @foreach($wlist as $wl)
-                                    <tr class="hover:bg-blue-100" key="{{ $wl->web_id }}">
+                                    <tr class="hover:bg-blue-100" wire:key="{{ $wl->web_id }}">
 
                                         <td class="px-2 py-1 border ">{{ $wl->display_name }}</td>
                                         <td class="text-center px-3 py-1 border">
@@ -189,7 +189,7 @@
                                 </tr>
                                 </thead>
                                 @foreach($guests as $gst)
-                                    <tr class="hover:bg-blue-100" key="{{ $gst->id }}">
+                                    <tr class="hover:bg-blue-100" wire:key="{{ $gst->id }}">
                                         <td class="px-2 py-1 border ">{{ $gst->firstname }} {{ $gst->name }}</td>
                                         <td class="px-2 py-1 border ">{{ $gst->gst_name }}</td>
                                         <td class="px-3 py-1 border">

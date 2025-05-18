@@ -13,9 +13,9 @@ class RlMembersImport extends Component
 {
     public function emailTest(): void
     {
-        $web_id = 1;
+        $web_id = 322;
         $templateName = 'crew-zusage';
-        $data = ['action_id' => 13];
+        $data = ['action_id' => 18];
 
         dispatch(new SendEmail($web_id, $templateName, $data));
 
