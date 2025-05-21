@@ -71,7 +71,7 @@
                             @foreach($crew as $cr)
                                 <tr class="hover:bg-blue-100" wire:key="{{ $cr->web_id }}">
 
-                                    <td class="px-2 py-1 border ">{{ $cr->display_name }}</td>
+                                    <td class="px-2 py-1 border ">{{ $cr->fullname }}</td>
                                     <td class="text-center px-3 py-1 border">
 
                                         <select wire:model="newCrewSelections.{{ $cr->web_id }}" class="px-2 py-1 border rounded-md">
@@ -96,7 +96,25 @@
                                 </tr>
                             @endforeach
                         </table>
-                    <button wire:click="saveCrew" class="px-4 py-2 mt-2 bg-blue-500 text-white hover:bg-blue-700 rounded">Speichern und Abschließen</button>
+
+                        <div class=" flex flex-row">
+                            <button wire:click="saveCrew" class="px-4 py-2 mt-2 bg-blue-500 text-white hover:bg-blue-700 rounded">Speichern und Emails senden</button>
+                            @if($savedCrew)
+                                <div class="px-4 pt-3 font-bold text-blue-500">Änderungen gespeichert und {{ $crewEmailCount }} Emails gesendet</div>
+                            @endif
+                        </div>
+
+                        <div class="flex flex-row">
+                            @if($action->ac_reg_state_cr == 'crbr')
+                                <button wire:click="closeCrew" class="px-4 py-2 mt-2 bg-blue-500 text-white hover:bg-blue-700 rounded">Abschließen</button>
+                            @else
+                                <button class="px-4 py-2 mt-2 bg-gray-300 text-white rounded">Abschließen</button>
+                            @endif
+                            @if($closedCrew)
+                                <div class="px-4 pt-3 font-bold text-blue-500">Planung abgeschlossen</div>
+                            @endif
+                        </div>
+
                     @endif
                 </div>
 
@@ -154,7 +172,7 @@
                                 </thead>
                                 @foreach($service as $sv)
                                     <tr class="hover:bg-blue-100" wire:key="{{ $sv->web_id }}">
-                                        <td class="px-2 py-1 border ">{{ $sv->display_name }}</td>
+                                        <td class="px-2 py-1 border ">{{ $sv->fullname }}</td>
                                         <td class="px-3 py-1 border">
                                             <select wire:model="newServiceSelections.{{ $sv->web_id }}" class="px-2 py-1 border rounded-md">
                                                 <option value="br">&#x2753; gemeldet</option>
@@ -166,7 +184,25 @@
                                     </tr>
                                 @endforeach
                             </table>
-                            <button wire:click="saveService" class="px-4 py-2 mt-2 bg-blue-500 text-white hover:bg-blue-700 rounded">Speichern und Abschließen</button>
+
+                            <div class=" flex flex-row">
+                                <button wire:click="saveService" class="px-4 py-2 mt-2 bg-blue-500 text-white hover:bg-blue-700 rounded">Speichern und Emails senden</button>
+                                @if($savedService)
+                                    <div class="px-4 pt-3 font-bold text-blue-500">Änderungen gespeichert x Emails gesendet</div>
+                                @endif
+                            </div>
+
+                            <div class="flex flex-row">
+                                @if($action->ac_reg_state_sv == 'svbr')
+                                    <button wire:click="closeService" class="px-4 py-2 mt-2 bg-blue-500 text-white hover:bg-blue-700 rounded">Abschließen</button>
+                                @else
+                                    <button class="px-4 py-2 mt-2 bg-gray-300 text-white rounded">Abschließen</button>
+                                @endif
+                                @if($closedService)
+                                    <div class="px-4 pt-3 font-bold text-blue-500">Planung abgeschlossen</div>
+                                @endif
+                            </div>
+
                         @endif
                     </div>
 

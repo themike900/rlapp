@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Pages;
 
+use App\Jobs\SendEmail;
 use App\Models\Member;
 use App\Services\ParticipantsCalcService;
 use Illuminate\Support\Facades\DB;
@@ -18,12 +19,21 @@ class RlCrewEdit extends Component
 {
     public $action = null;
     public $actionId = null;
+
     public $crew = null;
     public $crewSelections = [];
     public $newCrewSelections = [];
+    public $savedCrew = false;
+    public $closedCrew = false;
+    public $crewEmailCount = 0;
+
     public $service = null;
     public $serviceSelections = [];
     public $newServiceSelections = [];
+    public $savedService = false;
+    public $closedService = false;
+    public $serviceEmailCount = 0;
+
     public $captain = 0;
     public $captainName = '';
     public $newCaptain = 0;
@@ -62,7 +72,7 @@ class RlCrewEdit extends Component
             ->orderBy('action_date')
             ->orderBy('action_start_at')
             ->get(['id', 'action_name', 'action_date', 'action_start_at', 'action_end_at']);
-        Log::debug('actions für select aus DB : '.print_r($this->selectActions, true));
+        //Log::debug('actions für select aus DB : '.print_r($this->selectActions, true));
         $this->actionId = (empty($this->actionId)) ? $this->selectActions[0]->id : $this->actionId;
 
         $this->captains = DB::table('members')
@@ -74,7 +84,7 @@ class RlCrewEdit extends Component
                     ELSE CONCAT(firstname, ' ', name)
                 END AS display_name"))
             ->get();
-        Log::debug('captains für select aus DB : '.print_r($this->captains, true));
+        //Log::debug('captains für select aus DB : '.print_r($this->captains, true));
 
     }
 
@@ -190,7 +200,8 @@ class RlCrewEdit extends Component
      ****************************************/
     public function updated($property): void
     {
-        Log::debug("--- RlCrewEdit.updatedNewCaptain -----------------------------");
+        Log::debug("--- RlCrewEdit.updated property: $property -----------------------------");
+
         if ($property == 'newCaptain') {
             $this->newCaptainName = ($this->newCaptain > 0) ? $this->captains->firstWhere('webid', $this->newCaptain)->display_name : '';
         }
@@ -202,7 +213,7 @@ class RlCrewEdit extends Component
     }
 
     /* **************************************
-     *    saveCrew()
+     *    saveCrew() and SendEmail
      ****************************************/
     public function saveCrew(): void
     {
@@ -214,15 +225,44 @@ class RlCrewEdit extends Component
 
             //Log::debug("foreach: ".$web_id.','.$reg_state);
 
+            $this->crewEmailCount = 0;
             if ( $reg_state != $this->crewSelections[$web_id]) {
                 Log::debug("foreach change: ".$web_id.','.$reg_state);
+
                 ActionMember::updateRecord($this->actionId, $web_id,['reg_state' => $reg_state]);
+
+                if ($reg_state == 'gpl') {
+                    dispatch(new SendEmail($web_id, 'crew-zusage', ['action_id' => $this->actionId]));
+                    $this->crewEmailCount = $this->crewEmailCount + 1;
+                } elseif ($reg_state == 'abgl') {
+                    dispatch(new SendEmail($web_id, 'crew-absage', ['action_id' => $this->actionId]));
+                    $this->crewEmailCount = $this->crewEmailCount + 1;
+                }
+
             }
         }
+        $this->savedCrew = true;
+        $this->closedCrew = false;
+        $this->savedService = false;
+        $this->closedService = false;
+
+    }
+
+    /* **************************************
+     *    closeCrew()
+     ****************************************/
+    public function closeCrew(): void
+    {
+        Log::debug("--- RlCrewEdit.closeCrew ------------------------------");
 
         DB::table('actions')
             ->where('id', $this->actionId)
             ->update(['ac_reg_state_cr' => 'crgpl']);
+
+        $this->savedCrew = false;
+        $this->closedCrew = true;
+        $this->savedService = false;
+        $this->closedService = false;
     }
 
     /* **************************************
@@ -231,8 +271,8 @@ class RlCrewEdit extends Component
     public function saveService(): void
     {
         Log::debug("--- RlCrewEdit.saveService ------------------------------");
-        Log::debug('serviceSelections: ' . print_r($this->serviceSelections, true));
-        Log::debug('newServiceSelections: ' . print_r($this->newServiceSelections, true));
+        //Log::debug('serviceSelections: ' . print_r($this->serviceSelections, true));
+        //Log::debug('newServiceSelections: ' . print_r($this->newServiceSelections, true));
 
         foreach ($this->newServiceSelections as $web_id => $reg_state) {
 
@@ -241,16 +281,44 @@ class RlCrewEdit extends Component
             if ( $reg_state != $this->serviceSelections[$web_id]) {
                 Log::debug("foreach change: ".$web_id.','.$reg_state);
                 ActionMember::updateRecord($this->actionId, $web_id,['reg_state' => $reg_state]);
+
+                if ($reg_state == 'gpl') {
+                    dispatch(new SendEmail($web_id, 'service-zusage', ['action_id' => $this->actionId]));
+                } elseif ($reg_state == 'abgl') {
+                    dispatch(new SendEmail($web_id, 'service-absage', ['action_id' => $this->actionId]));
+                }
             }
         }
+
+        $this->savedCrew = false;
+        $this->closedCrew = false;
+        $this->savedService = true;
+        $this->closedService = false;
+    }
+
+    /* **************************************
+    *    closeService()
+    ****************************************/
+    public function closeService(): void
+    {
+        Log::debug("--- RlCrewEdit.closeService ------------------------------");
 
         DB::table('actions')
             ->where('id', $this->actionId)
             ->update(['ac_reg_state_sv' => 'svgpl']);
+
+        $this->savedCrew = false;
+        $this->closedCrew = false;
+        $this->savedService = false;
+        $this->closedService = true;
     }
+
+    /* **************************************
+    *    updatedSearch()
+    ****************************************/
     public function updatedSearch(): void
     {
-        Log::debug('updatedSearch: '.$this->search.' '.'%' . $this->search . '%');
+        Log::debug('--- RlCrewEdit.updatedSearch: '.$this->search.' '.'%' . $this->search . '%');
         //$this->suchErgebnisse = DB::table('members')
         //    ->where('firstname', 'like', '%' . $this->search . '%')
         //    ->get();
@@ -261,10 +329,18 @@ class RlCrewEdit extends Component
             ->get();
         Log::debug(count($this->suchErgebnisse));
 
+        $this->savedCrew = false;
+        $this->closedCrew = false;
+        $this->savedService = false;
+        $this->closedService = false;
+
     }
+    /* **************************************
+    *    addCrew()
+    ****************************************/
     public function addCrew($memberId,$group,$state=null): void
     {
-        Log::debug('-------- addCrew: '.$memberId);
+        Log::debug("--- RlCrewEdit.addCrew: $memberId ----------------------------");
         $member = DB::table('members')->find($memberId);
         if ($member) {
 
@@ -324,11 +400,22 @@ class RlCrewEdit extends Component
 
         $this->show = false;
 
+        $this->savedCrew = false;
+        $this->closedCrew = false;
+        $this->savedService = false;
+        $this->closedService = false;
     }
+
+    /* **************************************
+    *    close()
+    ****************************************/
     public function close(): void
     {
+        Log::debug("--- RlCrewEdit.close ------------------------------");
+
         $this->dispatch('refreshTable');
         $this->show = false;
+
     }
 
     /* **************************************
@@ -363,15 +450,15 @@ class RlCrewEdit extends Component
                 ->where('action_members.action_id', $this->actionId)
                 ->whereLike('action_members.group', '%cr%')
                 ->orderBy('created_at')
-                ->select('action_members.web_id', 'action_members.created_at', 'action_members.reg_state', 'action_members.group', 'members.groups',
-                    DB::raw("
-                    CASE
-                        WHEN nickname IS NOT NULL AND nickname != '' THEN CONCAT(nickname, ' ', name)
-                        ELSE CONCAT(firstname, ' ', name)
-                    END AS display_name"))
+                ->select('action_members.web_id',
+                    'action_members.created_at',
+                    'action_members.reg_state',
+                    'action_members.group',
+                    'members.groups',
+                    'members.fullname')
                 ->get();
 
-            Log::debug('crew: '.print_r($this->crew, true));
+            //Log::debug('crew: '.print_r($this->crew, true));
 
             foreach ($this->crew as $crew) {
 
@@ -379,6 +466,7 @@ class RlCrewEdit extends Component
                 $crew->count = DB::table('action_members')
                     ->where('web_id', $crew->web_id)
                     ->whereYear('created_at', now()->year)
+                    ->whereLike('group', '%cr%')
                     ->count('id');
             }
             $this->newCrewSelections = $this->crewSelections;
@@ -389,18 +477,18 @@ class RlCrewEdit extends Component
                 ->where('action_members.action_id', $this->actionId)
                 ->whereLike('action_members.group', '%sv%')
                 ->orderBy('created_at')
-                ->select('action_members.web_id', 'action_members.created_at', 'action_members.reg_state', DB::raw("
-                    CASE
-                        WHEN nickname IS NOT NULL AND nickname != '' THEN CONCAT(nickname, ' ', name)
-                        ELSE CONCAT(firstname, ' ', name)
-                    END AS display_name"))
+                ->select('action_members.web_id',
+                    'action_members.created_at',
+                    'action_members.reg_state',
+                    'members.fullname')
                 ->get();
-            Log::debug('service: '.print_r($this->service, true));
+            //Log::debug('service: '.print_r($this->service, true));
             foreach ($this->service as $service) {
                 $this->serviceSelections[$service->web_id] = $service->reg_state;
                 $service->count = DB::table('action_members')
                     ->where('web_id', $service->web_id)
                     ->whereYear('created_at', now()->year)
+                    ->whereLike('group', '%sv%')
                     ->count('id');
             }
             $this->newServiceSelections = $this->serviceSelections;
@@ -414,8 +502,8 @@ class RlCrewEdit extends Component
             $this->captainName = ($this->captain > 0) ? $this->captains->firstWhere('webid', $this->captain)->display_name : '';
             //$this->captainName = $this->captains->firstWhere('webid', $this->captain)->display_name ?? '';
             $this->newCaptainName = $this->captains->firstWhere('webid', $this->newCaptain)->display_name ?? '';
-            Log::debug('captain name: '.print_r($this->captainName, true));
-            Log::debug('new captain name: '.print_r($this->newCaptainName, true));
+            //Log::debug('captain name: '.print_r($this->captainName, true));
+            //Log::debug('new captain name: '.print_r($this->newCaptainName, true));
 
             $this->cnt = (new ParticipantsCalcService())->counts($this->actionId);
 

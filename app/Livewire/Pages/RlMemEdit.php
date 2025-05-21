@@ -37,6 +37,10 @@ class RlMemEdit extends Component
     public $members = [];
     public $action_members = [];
 
+    public $savedTn = false;
+    public $savedWlist = false;
+    public $savedGuests = false;
+
     /* **************************************
      *    mount($actionId)
      ****************************************/
@@ -101,16 +105,16 @@ class RlMemEdit extends Component
 
                 if ($group == 'del') {
                     ActionMember::deleteRecord($this->actionId, $web_id);
-                } else {
+                } elseif ($group != $this->teilnehmerSelections[$web_id]) {
                     ActionMember::updateRecord($this->actionId, $web_id,['reg_state' => $reg_state, 'group' => $group]);
                 }
 
             }
         }
+        $this->savedTn = true;
+        $this->savedWlist = false;
+        $this->savedGuests = false;
 
-        DB::table('actions')
-            ->where('id', $this->actionId)
-            ->update(['ac_reg_state_cr' => 'crgpl']);
     }
 
     /* **************************************
@@ -124,22 +128,30 @@ class RlMemEdit extends Component
 
         foreach ($this->newWlistSelections as $web_id => $group) {
 
-            //Log::debug("foreach: ".$web_id.','.$reg_state);
+            Log::debug("foreach: ".$web_id.','.$group);
             $reg_state = match($group) {
                 'tn' => 'ang',
                 'cr' => 'br',
                 default => ''
             };
-            $group = ($group == 'wl') ? 'tn' : $group;
+            //$group = ($group == 'wl') ? 'tn' : $group;
 
             if ($group == 'del') {
                 ActionMember::deleteRecord($this->actionId, $web_id);
-                //dispatch(new SendEmail($web_id, 'del_tn_wlist', ['action_id' => $this->actionId]));
-            } elseif ( $group != $this->wlistSelections[$group]) {
+                dispatch(new SendEmail($web_id, 'del_tn_wlist', ['action_id' => $this->actionId]));
+            } elseif ( $group != $this->wlistSelections[$web_id]) {
                 ActionMember::updateRecord($this->actionId, $web_id,['reg_state' => $reg_state, 'group' => $group]);
-                //dispatch(new SendEmail($web_id, 'wl-to-crew', ['action_id' => $this->actionId]));
+                if ($group == 'cr') {
+                    dispatch(new SendEmail($web_id, 'wl-to-crew', ['action_id' => $this->actionId]));
+                }
+                if ($group == 'tn') {
+                    dispatch(new SendEmail($web_id, 'wl-to-tn', ['action_id' => $this->actionId]));
+                }
             }
         }
+        $this->savedTn = false;
+        $this->savedWlist = true;
+        $this->savedGuests = false;
 
     }
 
@@ -148,8 +160,8 @@ class RlMemEdit extends Component
      ****************************************/
     public function saveGuests(): void
     {
-        Log::debug("--- RlCrewEdit.saveWarteliste ------------------------------");
-        Log::debug('wGuestSelections: ' . print_r($this->guestSelections, true));
+        Log::debug("--- RlCrewEdit.saveGuests ------------------------------");
+        Log::debug('guestSelections: ' . print_r($this->guestSelections, true));
         Log::debug('newGuestSelections: ' . print_r($this->newGuestSelections, true));
 
         foreach ($this->newGuestSelections as $web_id => $group) {
@@ -164,13 +176,20 @@ class RlMemEdit extends Component
 
             if ($group == 'del') {
                 ActionMember::deleteRecord($this->actionId, $web_id);
-            } else {
+            } elseif ($group != $this->guestSelections[$web_id]) {
                 ActionMember::updateRecord($this->actionId, $web_id,['reg_state' => $reg_state, 'group' => $group]);
             }
         }
 
+        $this->savedTn = false;
+        $this->savedWlist = false;
+        $this->savedGuests = true;
+
     }
 
+    /* **************************************
+     *    updatedSearch()
+     ****************************************/
     public function updatedSearch(): void
     {
         Log::debug('updatedSearch: '.$this->search.' '.'%' . $this->search . '%');
@@ -184,7 +203,14 @@ class RlMemEdit extends Component
             ->get();
         Log::debug(count($this->suchErgebnisse));
 
+        $this->savedTn = false;
+        $this->savedWlist = false;
+        $this->savedGuests = false;
+
     }
+    /* **************************************
+     *    addMember()
+     ****************************************/
     public function addMember($memberId,$group,$state=null): void
     {
         Log::debug('addMember: '.$memberId);
@@ -243,6 +269,9 @@ class RlMemEdit extends Component
             ->get();
 
     }
+    /* **************************************
+     *    close()
+     ****************************************/
     public function close(): void
     {
         $this->dispatch('refreshTable');
@@ -287,7 +316,7 @@ class RlMemEdit extends Component
                         ELSE CONCAT(firstname, ' ', name)
                     END AS display_name"))
                 ->get();
-            Log::debug('teilnehmer: '.print_r($this->teilnehmer, true));
+            //Log::debug('teilnehmer: '.print_r($this->teilnehmer, true));
 
 
             foreach ($this->teilnehmer as $tn) {
@@ -300,7 +329,7 @@ class RlMemEdit extends Component
             }
             $this->newTeilnehmerSelections = $this->teilnehmerSelections;
 
-            Log::debug('teilnehmer: '.print_r($this->teilnehmer, true));
+            //Log::debug('teilnehmer: '.print_r($this->teilnehmer, true));
             //Log::debug('sql: '.print_r(DB::getQueryLog(), true));
 
             /********************
@@ -320,7 +349,7 @@ class RlMemEdit extends Component
                     END AS display_name"))
                 ->get();
 
-            Log::debug('warteliste: '.print_r($this->wlist, true));
+            //Log::debug('warteliste: '.print_r($this->wlist, true));
 
             foreach ($this->wlist as $wl ) {
                 $this->wlistSelections[$wl->web_id] = 'wl';
@@ -338,7 +367,7 @@ class RlMemEdit extends Component
                 ->select('guests.id','guests.reg_id', 'members.webid','guests.gst_state', 'guests.name as gst_name', 'members.name', 'members.firstname')
                 ->get();
 
-            Log::debug('guests: '.print_r($this->wlist, true));
+            Log::debug('guests: '.print_r($this->guests, true));
 
             foreach ($this->guests as $gst ) {
                 $this->guestSelections[$gst->id] = $gst->gst_state;

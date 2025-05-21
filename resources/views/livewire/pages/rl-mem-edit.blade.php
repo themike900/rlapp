@@ -92,7 +92,10 @@
                                 </tr>
                             @endforeach
                         </table>
-                    <button wire:click="saveTeilnehmer" class="px-4 py-2 mt-2 bg-blue-500 text-white hover:bg-blue-700 rounded">Änderungen speichern</button>
+                        <button wire:click="saveTeilnehmer" class="px-4 py-2 mt-2 bg-blue-500 text-white hover:bg-blue-700 rounded">Änderungen speichern</button>
+                        @if($savedTn)
+                            <div class="px-4 pt-3 font-bold text-blue-500">Änderungen gespeichert</div>
+                        @endif
                     @endif
                 </div>
 
@@ -155,6 +158,7 @@
                                         <td class="text-center px-3 py-1 border">
 
                                             <select wire:model="newWlistSelections.{{ $wl->web_id }}" class="px-2 py-1 border rounded-md">
+                                                <option value="wl">&#x2753; Warteliste</option>
                                                 <option value="tn">&#x2B06; zu Teilnehmern</option>
                                                 <option value="cr">&#x2B06; zu Crew</option>
                                                 <option value="del">&#x274C; abmelden</option>
@@ -203,7 +207,12 @@
                                     </tr>
                                 @endforeach
                             </table>
-                            <button wire:click="saveGuests" class="px-4 py-2 mt-2 bg-blue-500 text-white hover:bg-blue-700 rounded">Änderungen speichern</button>
+                            <div class=" flex flex-row">
+                                <button wire:click="saveGuests" class="px-4 py-2 mt-2 bg-blue-500 text-white hover:bg-blue-700 rounded">Änderungen speichern</button>
+                                @if($savedGuests)
+                                    <div class="px-4 pt-3 font-bold text-blue-500">Änderungen gespeichert und x Emails gesendet</div>
+                                @endif
+                            </div>
                         @endif
                     </div>
                 @endif
