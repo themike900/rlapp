@@ -425,6 +425,20 @@ class RlCrewEdit extends Component
     }
 
     /* **************************************
+    *    deleteMessages()
+    ****************************************/
+    public function deleteMessages(): void
+    {
+        Log::debug("--- RlCrewEdit.deleteMessages ------------------------------");
+
+        $this->savedCrew = false;
+        $this->closedCrew = false;
+        $this->savedService = false;
+        $this->closedService = false;
+
+    }
+
+    /* **************************************
      *    render()
      ****************************************/
     public function render(): View
@@ -475,8 +489,17 @@ class RlCrewEdit extends Component
                     ->whereYear('created_at', now()->year)
                     ->whereLike('group', '%cr%')
                     ->count('id');
+
+                if (str_contains($crew->groups, 'cr')){
+                    $crew->groupName = 'Crew';
+                } elseif (str_contains($crew->groups, 'tr')){
+                    $crew->groupName = 'Trainee';
+                } else {
+                    $crew->groupName = '';
+                }
             }
             $this->newCrewSelections = $this->crewSelections;
+            //Log::debug('crew: '.print_r($this->crew, true));
             //Log::debug('sql: '.print_r(DB::getQueryLog(), true));
 
             $this->service = DB::table('action_members')

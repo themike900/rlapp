@@ -81,12 +81,7 @@
                                         </select>
                                     </td>
                                     <td class="text-center px-2 py-1 border">{{ $cr->count }}</td>
-
-                                    @if($cr->group == 'cr')
-                                        <td class="px-2 py-1 border">Crew</td>
-                                    @else
-                                        <td class="px-2 py-1 border">Trainee</td>
-                                    @endif
+                                    <td class="px-2 py-1 border">{{ $cr->groupName }}</td>
 
                                     @if(str_contains($cr->groups, 'ae'))
                                         <td class="text-center px-2 py-1 border">ja</td>
