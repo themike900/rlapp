@@ -34,8 +34,8 @@ class EditAf extends Component
         //$this->ac_type = $action->action_type_sc;
         $this->action_type_sc = $action->action_type_sc;
         $this->action_date = $action->action_date;
-        //$this->crew_start_at = $action->crew_start_at;
-        //$this->crew_end_at = $action->crew_end_at;
+        //$this->crew_start_at = $action->action_start_at;
+        //$this->crew_end_at = $action->action_end_at;
         $this->action_start_at = $action->action_start_at;
         $this->action_end_at = $action->action_end_at;
         //$this->ice_info = $action->ice_info ?? '';
@@ -51,8 +51,8 @@ class EditAf extends Component
             'action_name' => $this->action_name,
             'action_type_sc' => $this->action_type_sc,
             'action_date' => $this->action_date,
-            //'crew_start_at' => $this->crew_start_at,
-            //'crew_end_at' => $this->crew_end_at,
+            'crew_start_at' => $this->action_start_at,
+            'crew_end_at' => $this->action_end_at,
             'action_start_at' => $this->action_start_at,
             'action_end_at' => $this->action_end_at,
             //'ice_info' => $this->ice_info,
