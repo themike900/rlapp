@@ -345,10 +345,12 @@ class ApiDetailsController extends Controller
             }
             // CR Bereitschaft geplant
             if ($reg_reg_state == 'cr_gpl') {
-                if ($action['ac_reg_state_cr'] == 'crgpl') {
+                $anm_opt[] = 'abm_cr_tel';
+                if ($reg_guests_count > 0) { $anm_opt[] = 'gst_list_no_del'; }             // Anzeige Gästeliste
+                /*if ($action['ac_reg_state_cr'] == 'crgpl') {
                     $anm_opt[] = 'abm_cr_tel';
                     if ($reg_guests_count > 0) { $anm_opt[] = 'gst_list_no_del'; }             // Anzeige Gästeliste
-                }
+                }*/
             }
             // CR Bereitschaft abgelehnt
             if ($reg_reg_state == 'cr_abgl') {
