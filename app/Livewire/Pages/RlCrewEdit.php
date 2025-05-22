@@ -20,28 +20,36 @@ class RlCrewEdit extends Component
     public $action = null;
     public $actionId = null;
 
+    // Crew --------------------------
     public $crew = null;
     public $crewSelections = [];
     public $newCrewSelections = [];
     public $savedCrew = false;
     public $closedCrew = false;
     public $crewEmailCount = 0;
+    public $crewCount = 0;
 
+    // Service -----------------------
     public $service = null;
     public $serviceSelections = [];
     public $newServiceSelections = [];
     public $savedService = false;
     public $closedService = false;
     public $serviceEmailCount = 0;
+    public $serviceCount = 0;
 
+    // captain -----------------------
     public $captain = 0;
     public $captainName = '';
     public $newCaptain = 0;
     public $newCaptainName = '';
     public $selectActions = null;
     public $captains;
+
+    // $cnt array
     public $cnt = [];
 
+    // Suche für Hinzufügen
     public $suchErgebnisse = [];
     public $search = '';
     public $show;
@@ -221,11 +229,11 @@ class RlCrewEdit extends Component
         Log::debug('crewSelections: ' . print_r($this->crewSelections, true));
         Log::debug('newCrewSelections: ' . print_r($this->newCrewSelections, true));
 
+        $this->crewEmailCount = 0;
         foreach ($this->newCrewSelections as $web_id => $reg_state) {
 
             //Log::debug("foreach: ".$web_id.','.$reg_state);
 
-            $this->crewEmailCount = 0;
             if ( $reg_state != $this->crewSelections[$web_id]) {
                 Log::debug("foreach change: ".$web_id.','.$reg_state);
 
@@ -274,6 +282,7 @@ class RlCrewEdit extends Component
         //Log::debug('serviceSelections: ' . print_r($this->serviceSelections, true));
         //Log::debug('newServiceSelections: ' . print_r($this->newServiceSelections, true));
 
+        $this->serviceEmailCount = 0;
         foreach ($this->newServiceSelections as $web_id => $reg_state) {
 
             //Log::debug("foreach: ".$web_id.','.$reg_state);
@@ -284,8 +293,11 @@ class RlCrewEdit extends Component
 
                 if ($reg_state == 'gpl') {
                     dispatch(new SendEmail($web_id, 'service-zusage', ['action_id' => $this->actionId]));
+                    $this->serviceEmailCount +=  1;
                 } elseif ($reg_state == 'abgl') {
                     dispatch(new SendEmail($web_id, 'service-absage', ['action_id' => $this->actionId]));
+                    $this->serviceEmailCount +=  1;
+
                 }
             }
         }
@@ -392,12 +404,6 @@ class RlCrewEdit extends Component
 
         $this->members = [];
 
-        /*$this->members = DB::table('members')
-            ->leftJoin('action_members', 'members.webid', '=', 'action_members.web_id')
-            ->whereNull('action_members.web_id') // Nur Mitglieder, die nicht in action_members sind
-            ->whereNot('members.firstname','-')
-            ->get();*/
-
         $this->show = false;
 
         $this->savedCrew = false;
@@ -457,6 +463,7 @@ class RlCrewEdit extends Component
                     'members.groups',
                     'members.fullname')
                 ->get();
+            $this->crewCount = count($this->crew);
 
             //Log::debug('crew: '.print_r($this->crew, true));
 
@@ -482,6 +489,8 @@ class RlCrewEdit extends Component
                     'action_members.reg_state',
                     'members.fullname')
                 ->get();
+            $this->serviceCount = count($this->service);
+
             //Log::debug('service: '.print_r($this->service, true));
             foreach ($this->service as $service) {
                 $this->serviceSelections[$service->web_id] = $service->reg_state;

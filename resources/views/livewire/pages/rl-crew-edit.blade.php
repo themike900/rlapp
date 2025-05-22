@@ -11,7 +11,7 @@
                 <label for="field2" class="text-sm font-medium text-gray-700">Aktivität auswählen:</label>
                 <select wire:model.live="actionId" class="font-bold block border p-2 rounded min-w-36" title="Aktivität">
                     @foreach($selectActions as $sel)
-                        <option value="{{ $sel->id }}" key="{{ $sel->id }}">{{ \Carbon\Carbon::parse($sel->action_date)->format('d.m.') }} - {{ $sel->action_name }} - {{ $sel->action_start_at }}</option>
+                        <option value="{{ $sel->id }}" key="{{ $sel->id }}">{{ \Carbon\Carbon::parse($sel->action_date)->isoFormat('dd DD.MM.') }} - {{ $sel->action_name }} - {{ $sel->action_start_at }}</option>
                     @endforeach
                 </select>
             </div>
@@ -100,12 +100,12 @@
                         <div class=" flex flex-row">
                             <button wire:click="saveCrew" class="px-4 py-2 mt-2 bg-blue-500 text-white hover:bg-blue-700 rounded">Speichern und Emails senden</button>
                             @if($savedCrew)
-                                <div class="px-4 pt-3 font-bold text-blue-500">Änderungen gespeichert und {{ $crewEmailCount }} Emails gesendet</div>
+                                <div class="px-4 pt-3 font-bold text-blue-500">Änderungen gespeichert, {{ $crewEmailCount }} Emails gesendet</div>
                             @endif
                         </div>
 
                         <div class="flex flex-row">
-                            @if($action->ac_reg_state_cr == 'crbr')
+                            @if($action->ac_reg_state_cr == 'crbr' and $crewCount >= 5)
                                 <button wire:click="closeCrew" class="px-4 py-2 mt-2 bg-blue-500 text-white hover:bg-blue-700 rounded">Abschließen</button>
                             @else
                                 <button class="px-4 py-2 mt-2 bg-gray-300 text-white rounded">Abschließen</button>
@@ -188,12 +188,12 @@
                             <div class=" flex flex-row">
                                 <button wire:click="saveService" class="px-4 py-2 mt-2 bg-blue-500 text-white hover:bg-blue-700 rounded">Speichern und Emails senden</button>
                                 @if($savedService)
-                                    <div class="px-4 pt-3 font-bold text-blue-500">Änderungen gespeichert x Emails gesendet</div>
+                                    <div class="px-4 pt-3 font-bold text-blue-500">Änderungen gespeichert, {{ $serviceEmailCount }} Emails gesendet</div>
                                 @endif
                             </div>
 
                             <div class="flex flex-row">
-                                @if($action->ac_reg_state_sv == 'svbr')
+                                @if($action->ac_reg_state_sv == 'svbr' and $serviceCount >= 1)
                                     <button wire:click="closeService" class="px-4 py-2 mt-2 bg-blue-500 text-white hover:bg-blue-700 rounded">Abschließen</button>
                                 @else
                                     <button class="px-4 py-2 mt-2 bg-gray-300 text-white rounded">Abschließen</button>
