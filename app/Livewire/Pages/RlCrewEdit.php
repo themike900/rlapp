@@ -493,6 +493,7 @@ class RlCrewEdit extends Component
                     ->where('web_id', $crew->web_id)
                     ->whereYear('created_at', now()->year)
                     ->whereLike('group', '%cr%')
+                    ->where('reg_state', 'gpl')
                     ->count('id');
 
                 if (str_contains($crew->groups, 'cr')){
@@ -526,6 +527,7 @@ class RlCrewEdit extends Component
                     ->where('web_id', $service->web_id)
                     ->whereYear('created_at', now()->year)
                     ->whereLike('group', '%sv%')
+                    ->where('reg_state', 'gpl')
                     ->count('id');
             }
             $this->newServiceSelections = $this->serviceSelections;
