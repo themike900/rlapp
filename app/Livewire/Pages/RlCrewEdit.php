@@ -30,6 +30,7 @@ class RlCrewEdit extends Component
     public $crewEmailsCount = 0;
     public $crewEmailsSent = 0;
     public $crewCount = 0;
+    public $crewCloseBtn = false;
 
     // Service -----------------------
     public $service = null;
@@ -41,6 +42,7 @@ class RlCrewEdit extends Component
     public $serviceEmailsCount = 0;
     public $serviceEmailsSent = 0;
     public $serviceCount = 0;
+    public $serviceCloseBtn = false;
 
     // captain -----------------------
     public $captain = 0;
@@ -90,11 +92,7 @@ class RlCrewEdit extends Component
         $this->captains = DB::table('members')
             ->whereLike('groups', '%sf%')
             ->orderBy('firstname')
-            ->select('webid', 'firstname', 'name', 'nickname', DB::raw("
-                CASE
-                    WHEN nickname IS NOT NULL AND nickname != '' THEN CONCAT(nickname, ' ', name)
-                    ELSE CONCAT(firstname, ' ', name)
-                END AS display_name"))
+            ->select('webid', 'firstname', 'name', 'nickname', 'fullname')
             ->get();
         //Log::debug('captains für select aus DB : '.print_r($this->captains, true));
 
@@ -548,6 +546,7 @@ class RlCrewEdit extends Component
             //$q = ;
             //Log::debug('sql: '.print_r(DB::getQueryLog(), true));
 
+            // ------ Crew --------------------------------------------------------------
             $this->crew = DB::table('action_members')
                 ->join('members', 'action_members.web_id', '=', 'members.webid')
                 ->where('action_members.action_id', $this->actionId)
@@ -562,6 +561,18 @@ class RlCrewEdit extends Component
                 ->get();
             $this->crewCount = count($this->crew);
 
+            $crewGpl = DB::table('action_members')
+                ->where('action_id', $this->actionId)
+                ->where('group', 'cr')
+                ->where('reg_state', 'gpl')
+                ->count();
+            $crewBr = DB::table('action_members')
+                ->where('action_id', $this->actionId)
+                ->whereLike('group', '%cr%')
+                ->where('reg_state', 'br')
+                ->count();
+            $this->crewCloseBtn = ($crewGpl >= 5 && $crewBr == 0);
+
             //Log::debug('crew: '.print_r($this->crew, true));
 
             foreach ($this->crew as $crew) {
@@ -570,7 +581,7 @@ class RlCrewEdit extends Component
                 $crew->count = DB::table('action_members')
                     ->where('web_id', $crew->web_id)
                     ->whereYear('created_at', now()->year)
-                    ->whereLike('group', '%cr%')
+                    ->where('group', 'cr')
                     ->where('reg_state', 'gpl')
                     ->count('id');
 
@@ -587,11 +598,12 @@ class RlCrewEdit extends Component
             //Log::debug('sql: '.print_r(DB::getQueryLog(), true));
             $this->crewEmailsCount = DB::table('action_members')
                 ->where('action_id', $this->actionId)
-                ->where('group', 'cr')
+                ->whereLike('group', '%cr%')
                 ->whereNot('reg_email', '')
                 ->count();
             Log::debug("crewEmailsCount: $this->crewEmailsCount");
 
+            // ------ Service --------------------------------------------------------------
             $this->service = DB::table('action_members')
                 ->join('members', 'action_members.web_id', '=', 'members.webid')
                 ->where('action_members.action_id', $this->actionId)
@@ -604,13 +616,25 @@ class RlCrewEdit extends Component
                 ->get();
             $this->serviceCount = count($this->service);
 
+            $serviceGpl = DB::table('action_members')
+                ->where('action_id', $this->actionId)
+                ->where('group', 'sv')
+                ->where('reg_state', 'gpl')
+                ->count();
+            $serviceBr = DB::table('action_members')
+                ->where('action_id', $this->actionId)
+                ->whereLike('group', '%sv%')
+                ->where('reg_state', 'br')
+                ->count();
+            $this->serviceCloseBtn = ($serviceGpl >= 1 && $serviceBr == 0);
+
             //Log::debug('service: '.print_r($this->service, true));
             foreach ($this->service as $service) {
                 $this->serviceSelections[$service->web_id] = $service->reg_state;
                 $service->count = DB::table('action_members')
                     ->where('web_id', $service->web_id)
                     ->whereYear('created_at', now()->year)
-                    ->whereLike('group', '%sv%')
+                    ->where('group', 'sv')
                     ->where('reg_state', 'gpl')
                     ->count('id');
             }
@@ -622,15 +646,16 @@ class RlCrewEdit extends Component
                 ->count();
             Log::debug("crewEmailsCount: $this->crewEmailsCount");
 
+            // ------ Schiffsführer --------------------------------------------------------------
             $this->captain = DB::table('action_members')
                 ->where('action_members.action_id', $this->actionId)
                 ->whereLike('action_members.group', '%sf%')
                 ->value('web_id');
             $this->newCaptain = $this->captain;
 
-            $this->captainName = ($this->captain > 0) ? $this->captains->firstWhere('webid', $this->captain)->display_name : '';
+            $this->captainName = ($this->captain > 0) ? $this->captains->firstWhere('webid', $this->captain)->fullname : '';
             //$this->captainName = $this->captains->firstWhere('webid', $this->captain)->display_name ?? '';
-            $this->newCaptainName = $this->captains->firstWhere('webid', $this->newCaptain)->display_name ?? '';
+            $this->newCaptainName = $this->captains->firstWhere('webid', $this->newCaptain)->fullname ?? '';
             //Log::debug('captain name: '.print_r($this->captainName, true));
             //Log::debug('new captain name: '.print_r($this->newCaptainName, true));
 

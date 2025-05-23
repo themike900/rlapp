@@ -111,7 +111,7 @@
                         </div>
 
                         <div class="flex flex-row">
-                            @if($action->ac_reg_state_cr == 'crbr' and $crewCount >= 5)
+                            @if($action->ac_reg_state_cr == 'crbr' and $crewCloseBtn)
                                 <button wire:click="closeCrew" class="w-60 px-4 py-2 mt-2 bg-blue-500 text-white hover:bg-blue-700 rounded">Abschließen</button>
                             @else
                                 <button class="w-60 px-4 py-2 mt-2 bg-gray-300 text-white rounded">Abschließen</button>
@@ -210,7 +210,7 @@
                             </div>
 
                             <div class="flex flex-row">
-                                @if($action->ac_reg_state_sv == 'svbr' and $serviceCount >= 1)
+                                @if($action->ac_reg_state_sv == 'svbr' and $serviceCloseBtn)
                                     <button wire:click="closeService" class="w-60 px-4 py-2 mt-2 bg-blue-500 text-white hover:bg-blue-700 rounded">Abschließen</button>
                                 @else
                                     <button class="w-60 px-4 py-2 mt-2 bg-gray-300 text-white rounded">Abschließen</button>
@@ -231,7 +231,7 @@
                     <select wire:model="newCaptain" class="block w-60 border px-2 py-1 rounded min-w-36 hover:bg-gray-100 shadow-sm" title="Aktivität">
                         <option value="0">bisher kein Schiffsführer</option>
                         @foreach($captains as $cp)
-                            <option value="{{ $cp->webid }}" key="{{ $cp->webid }}">{{ $cp->display_name }}</option>
+                            <option value="{{ $cp->webid }}" key="{{ $cp->webid }}">{{ $cp->fullname }}</option>
                         @endforeach
                     </select>
                     <label class="text-sm font-medium text-gray-700">gespeichert:</label>
