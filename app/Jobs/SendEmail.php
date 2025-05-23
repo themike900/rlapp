@@ -83,8 +83,8 @@ class SendEmail implements ShouldQueue
 
         Mail::send([], [], function ($message) use ($sender, $senderEmail, $template, $emailText, $member) {
             $message->from($senderEmail, $sender)
-                //->to($member->email, "{$member->firstname} {$member->name}")
-                ->to('test@rlapp.schummel.de', $member->fullname)
+                ->to($member->email, $member->fullname)
+                ->bcc('test@rlapp.schummel.de')
                 ->subject($template->subject)
                 //->attachData($pdf->output(), "fahrtenblatt.pdf")
                 ->html($emailText);
