@@ -100,7 +100,11 @@
                         </div>
 
                         <div class=" flex flex-row">
-                            <button wire:click="sendEmailsCrew" class="w-60 px-4 py-2 mt-2 bg-blue-500 text-white hover:bg-blue-700 rounded">{{ $crewEmailsCount }} Emails senden</button>
+                            @if($crewEmailsCount > 0)
+                                <button wire:click="sendEmailsCrew" class="w-60 px-4 py-2 mt-2 bg-blue-500 text-white hover:bg-blue-700 rounded">{{ $crewEmailsCount }} Emails senden</button>
+                            @else
+                                <button class="w-60 px-4 py-2 mt-2 bg-gray-300 text-white rounded">{{ $crewEmailsCount }} Emails senden</button>
+                            @endif
                             @if($sentEmailsCrew)
                                 <div class="px-4 pt-3 font-bold text-blue-500">{{ $crewEmailsSent }} Emails gesendet</div>
                             @endif
@@ -132,7 +136,7 @@
                                 <div x-data="{ open: false }" class="relative" @keydown.escape.window="open = false">
                                     <button @click="open = !open" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded">hinzufügen</button>
                                     <div x-show="open" @click.away="open = false" class="absolute p-1 mt-2 w-60 bg-white border rounded shadow-lg z-50">
-                                        <p class="text-xl font-semibold mb-2">Crew hinzufügen</p>
+                                        <p class="text-xl font-semibold mb-2">Service hinzufügen</p>
 
                                         <div class="flex flex-col mb-2 space-x-2">
                                             <label for="field1" class="text-sm font-medium">Mitglied suchen</label>
@@ -188,17 +192,28 @@
                             </table>
 
                             <div class=" flex flex-row">
-                                <button wire:click="saveService" class="px-4 py-2 mt-2 bg-blue-500 text-white hover:bg-blue-700 rounded">Speichern und Emails senden</button>
+                                <button wire:click="saveService" class="w-60 px-4 py-2 mt-2 bg-blue-500 text-white hover:bg-blue-700 rounded">Änderungen speichern</button>
                                 @if($savedService)
-                                    <div class="px-4 pt-3 font-bold text-blue-500">Änderungen gespeichert, {{ $serviceEmailCount }} Emails gesendet</div>
+                                    <div class="px-4 pt-3 font-bold text-blue-500">Änderungen gespeichert</div>
+                                @endif
+                            </div>
+
+                            <div class=" flex flex-row">
+                                @if($serviceEmailsCount > 0)
+                                    <button wire:click="sendEmailsService" class="w-60 px-4 py-2 mt-2 bg-blue-500 text-white hover:bg-blue-700 rounded">{{ $serviceEmailsCount }} Emails senden</button>
+                                @else
+                                    <button class="w-60 px-4 py-2 mt-2 bg-gray-300 text-white rounded">{{ $serviceEmailsCount }} Emails senden</button>
+                                @endif
+                                @if($sentEmailsService)
+                                    <div class="w-60 px-4 pt-3 font-bold text-blue-500">{{ $serviceEmailsSent }} Emails gesendet</div>
                                 @endif
                             </div>
 
                             <div class="flex flex-row">
                                 @if($action->ac_reg_state_sv == 'svbr' and $serviceCount >= 1)
-                                    <button wire:click="closeService" class="px-4 py-2 mt-2 bg-blue-500 text-white hover:bg-blue-700 rounded">Abschließen</button>
+                                    <button wire:click="closeService" class="w-60 px-4 py-2 mt-2 bg-blue-500 text-white hover:bg-blue-700 rounded">Abschließen</button>
                                 @else
-                                    <button class="px-4 py-2 mt-2 bg-gray-300 text-white rounded">Abschließen</button>
+                                    <button class="w-60 px-4 py-2 mt-2 bg-gray-300 text-white rounded">Abschließen</button>
                                 @endif
                                 @if($closedService)
                                     <div class="px-4 pt-3 font-bold text-blue-500">Planung abgeschlossen</div>
