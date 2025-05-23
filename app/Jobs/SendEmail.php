@@ -44,6 +44,8 @@ class SendEmail implements ShouldQueue
         if (empty($member)) { return; }
         //Log::debug('member '. $member->id);
 
+        if (empty($member->email)) { return; }
+
         $captain = DB::table('action_members')
             ->where('action_id',$this->data['action_id'])
             ->where('group','sf')
@@ -90,8 +92,8 @@ class SendEmail implements ShouldQueue
         });
 
         DB::table('sent_emails')->insert([
-            //'receiver' => "$member->fullname ($member->email)",
-            'receiver' => "$member->fullname ('test@rlapp.schummel.de')",
+            'receiver' => "$member->fullname ($member->email)",
+            //'receiver' => "$member->fullname ('test@rlapp.schummel.de')",
             'subject' => $template->subject,
             'text' => $emailText,
             'created_at' => now(),
