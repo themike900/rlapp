@@ -216,6 +216,11 @@ class RlCrewEdit extends Component
 
         if ($property == 'actionId') {
             session()->put('actionID', $this->actionId);
+
+            $this->savedCrew = false;
+            $this->closedCrew = false;
+            $this->savedService = false;
+            $this->closedService = false;
         }
 
     }
@@ -427,7 +432,7 @@ class RlCrewEdit extends Component
     /* **************************************
     *    deleteMessages()
     ****************************************/
-    public function deleteMessages(): void
+    /*public function deleteMessages(): void
     {
         Log::debug("--- RlCrewEdit.deleteMessages ------------------------------");
 
@@ -436,7 +441,7 @@ class RlCrewEdit extends Component
         $this->savedService = false;
         $this->closedService = false;
 
-    }
+    }*/
 
     /* **************************************
      *    render()
