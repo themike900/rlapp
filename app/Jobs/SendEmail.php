@@ -69,9 +69,9 @@ class SendEmail implements ShouldQueue
             'captain' => $captain->firstname
         ]);
 
-        $sender = 'Royal-Louise-Planung';
-        //$senderEmail = 'planung@royal-louise.de';
-        $senderEmail = 'test@rlapp.schummel.de';
+        $sender = 'Royal-Louise Planung';
+        $senderEmail = 'planung@royal-louise.de';
+        //$senderEmail = 'test@rlapp.schummel.de';
 
         Log::debug('Type template->text: '.gettype($template->text));
         $emailText = Blade::render($template->text,$data);

@@ -28,7 +28,7 @@
             </div>
             <div>
                 <label class="block text-sm font-medium text-gray-700">Absender</label>
-                <input type="text" readonly value="Royal-Louise-Fahrtenplanung (test@rlapp.schummel.de)"
+                <input type="text" readonly value="Royal-Louise Planung (planung@royal-louise.de)"
                        class="mt-1 px-2 py-1 block w-full rounded-md border shadow-sm">
             </div>
             <div>
