@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Log;
 
 class ActionMember extends Model
 {
-    protected $fillable = ['reg_state', 'action_id', 'web_id','group'];
+    protected $fillable = ['reg_state', 'action_id', 'web_id','group', 'reg_email'];
 
     // Update einer Anmeldung auf der Basis von action_id und web_id
     public static function updateRecord(int $actionId, int $webId, array $updateData)
@@ -18,7 +18,7 @@ class ActionMember extends Model
             ->where('web_id', $webId)
             ->firstOrFail();
 
-        Log::debug('ActionMember.record '. print_r($record, true));
+        //Log::debug('ActionMember.record '. print_r($record, true));
 
         return $record->update($updateData);
     }

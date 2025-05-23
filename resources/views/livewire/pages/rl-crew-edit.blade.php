@@ -93,17 +93,24 @@
                         </table>
 
                         <div class=" flex flex-row">
-                            <button wire:click="saveCrew" class="px-4 py-2 mt-2 bg-blue-500 text-white hover:bg-blue-700 rounded">Speichern und Emails senden</button>
+                            <button wire:click="saveCrew" class="w-60 px-4 py-2 mt-2 bg-blue-500 text-white hover:bg-blue-700 rounded">Änderungen speichern</button>
                             @if($savedCrew)
-                                <div class="px-4 pt-3 font-bold text-blue-500">Änderungen gespeichert, {{ $crewEmailCount }} Emails gesendet</div>
+                                <div class="px-4 pt-3 font-bold text-blue-500">Änderungen gespeichert</div>
+                            @endif
+                        </div>
+
+                        <div class=" flex flex-row">
+                            <button wire:click="sendEmailsCrew" class="w-60 px-4 py-2 mt-2 bg-blue-500 text-white hover:bg-blue-700 rounded">{{ $crewEmailsCount }} Emails senden</button>
+                            @if($sentEmailsCrew)
+                                <div class="px-4 pt-3 font-bold text-blue-500">{{ $crewEmailsSent }} Emails gesendet</div>
                             @endif
                         </div>
 
                         <div class="flex flex-row">
                             @if($action->ac_reg_state_cr == 'crbr' and $crewCount >= 5)
-                                <button wire:click="closeCrew" class="px-4 py-2 mt-2 bg-blue-500 text-white hover:bg-blue-700 rounded">Abschließen</button>
+                                <button wire:click="closeCrew" class="w-60 px-4 py-2 mt-2 bg-blue-500 text-white hover:bg-blue-700 rounded">Abschließen</button>
                             @else
-                                <button class="px-4 py-2 mt-2 bg-gray-300 text-white rounded">Abschließen</button>
+                                <button class="w-60 px-4 py-2 mt-2 bg-gray-300 text-white rounded">Abschließen</button>
                             @endif
                             @if($closedCrew)
                                 <div class="px-4 pt-3 font-bold text-blue-500">Planung abgeschlossen</div>

@@ -29,7 +29,7 @@ class SendEmail implements ShouldQueue
         $this->templateName = $templateName;
         $this->web_id = $web_id;
         $this->data = $data;
-        Log::debug("{$this->web_id} {$this->templateName}");
+        Log::debug("Job: $this->web_id, $this->templateName");
     }
 
     /**
@@ -42,7 +42,8 @@ class SendEmail implements ShouldQueue
         //Log::debug("{$this->web_id} {$this->templateName}");
         $member = DB::table('members')->where('webid',$this->web_id)->first();
         if (empty($member)) { return; }
-        //Log::debug('member '. $member->id);
+        //Log::debug('member: '. print_r($member, true));
+        //Log::debug("member.firstname: $member->firstname");
 
         if (empty($member->email)) { return; }
 
@@ -51,16 +52,17 @@ class SendEmail implements ShouldQueue
             ->where('group','sf')
             ->join('members','members.webid','=','action_members.web_id')
             ->first();
+        $sf_name = (!empty($captain)) ? $captain->firstname : 'noch offen';
 
-        Log::debug('template '. $this->templateName);
+        //Log::debug('template: '. $this->templateName);
 
         $template= DB::table('email_templates')->where('template', $this->templateName)->first();
         //Log::debug(print_r($template, true));
         if (empty($template)) { return; }
-        Log::debug("subject {$template->subject}");
+        Log::debug("subject: {$template->subject}");
 
 
-        Log::debug("action {$this->data['action_id']}");
+        Log::debug("action: {$this->data['action_id']}");
         $action = DB::table('actions')->where('id', $this->data['action_id'])->first();
         $data = array_merge($this->data, [
             'action_name' => $action->action_name,
@@ -68,7 +70,7 @@ class SendEmail implements ShouldQueue
             'crew_start_at' => $action->crew_start_at,
             'action_start_at' => $action->action_start_at,
             'firstname' => $member->firstname,
-            'captain' => $captain->firstname
+            'captain' => $sf_name
         ]);
 
         $sender = 'Royal-Louise Planung';
