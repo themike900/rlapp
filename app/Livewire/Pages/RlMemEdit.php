@@ -28,6 +28,9 @@ class RlMemEdit extends Component
     public $guests = null;
     public $guestSelections = [];
     public $newGuestSelections = [];
+    public $guestsEmailsCount = 0;
+    public $guestsEmailsSent = 0;
+    public $sentEmailsGuests = false;
 
     public $selectActions = null;
 
@@ -114,6 +117,7 @@ class RlMemEdit extends Component
         $this->savedTn = true;
         $this->savedWlist = false;
         $this->savedGuests = false;
+        $this->sentEmailsGuests = false;
 
     }
 
@@ -152,6 +156,7 @@ class RlMemEdit extends Component
         $this->savedTn = false;
         $this->savedWlist = true;
         $this->savedGuests = false;
+        $this->sentEmailsGuests = false;
 
     }
 
@@ -164,27 +169,70 @@ class RlMemEdit extends Component
         Log::debug('guestSelections: ' . print_r($this->guestSelections, true));
         Log::debug('newGuestSelections: ' . print_r($this->newGuestSelections, true));
 
-        foreach ($this->newGuestSelections as $web_id => $group) {
+        foreach ($this->newGuestSelections as $gst_id => $state) {
 
-            //Log::debug("foreach: ".$web_id.','.$reg_state);
-            $reg_state = match($group) {
-                'wl' => 'wl',
-                'cr' => 'br',
-                default => ''
-            };
-            $group = ($group == 'wl') ? 'tn' : $group;
+            if ($state != $this->guestSelections[$gst_id]) {
+                Log::debug("update: ".$gst_id.','.$state);
 
-            if ($group == 'del') {
-                ActionMember::deleteRecord($this->actionId, $web_id);
-            } elseif ($group != $this->guestSelections[$web_id]) {
-                ActionMember::updateRecord($this->actionId, $web_id,['reg_state' => $reg_state, 'group' => $group]);
+                $gst_email = match($state) {
+                    'abgelehnt' => 'gst-absage',
+                    'angenommen' => 'gst-zusage',
+                    default => ''
+                };
+
+                DB::table('guests')
+                    ->where(['id' => $gst_id])
+                    ->update([
+                        'gst_state' => $state,
+                        'gst_email' => $gst_email,
+                    ]);
+
+
             }
+
         }
 
         $this->savedTn = false;
         $this->savedWlist = false;
         $this->savedGuests = true;
+        $this->sentEmailsGuests = false;
 
+    }
+
+    /* **************************************
+    *    sendEmailsGuests()
+    ****************************************/
+    public function sendEmailsGuests(): void
+    {
+        Log::debug("--- RlCrewEdit.sendEmailsGuests ------------------------------");
+
+        $guests = DB::table('guests')
+            ->join('action_members', 'guests.reg_id', '=', 'action_members.id')
+            ->where('gst_action_id', $this->actionId)
+            ->whereNot('gst_email', '')
+            ->select('guests.*', 'action_members.web_id')
+            ->get();
+        Log::debug('guests: ' . print_r($guests, true));
+
+        $this->guestsEmailsSent = 0;
+        foreach ($guests as $gst) {
+            dispatch(new SendEmail($gst->web_id, $gst->gst_email, ['action_id' => $this->actionId, 'gst_name' => $gst->name]));
+            DB::table('guests')
+                ->where('id', $gst->id)
+                ->update([
+                    'gst_email' => '',
+                ]);
+            //ActionMember::updateRecord($this->actionId, $reg->web_id,['reg_email' => '']);
+            $this->guestsEmailsSent++;
+            Log::debug("SendEmail: $gst->web_id, $gst->gst_email, $this->actionId");
+        }
+
+        $this->guestsEmailsCount = 0;
+
+        $this->savedTn = false;
+        $this->savedWlist = false;
+        $this->savedGuests = false;
+        $this->sentEmailsGuests = true;
     }
 
     /* **************************************
@@ -206,6 +254,7 @@ class RlMemEdit extends Component
         $this->savedTn = false;
         $this->savedWlist = false;
         $this->savedGuests = false;
+        $this->sentEmailsGuests = false;
 
     }
     /* **************************************
@@ -226,32 +275,38 @@ class RlMemEdit extends Component
                     ->update(['webid' => $member->webid]);
             }
 
-            // reg_state für Gruppe des Members festlegen
-            Log::debug('selectedGroup: ' . $memberId);
-            $reg_state = match ($group) {
-                'tn', 'sf' => 'ang',
-                'cr', 'sv' => 'br',
-            };
-            $reg_state = ($state == 'wl') ? 'wl' : $reg_state;
+            if ($group == 'tn') {
 
-            $exists = DB::table('action_members')
-                ->where('action_id',$this->actionId)
-                ->where('web_id',$member->webid)
-                ->exists();
+                $exists = DB::table('action_members')
+                    ->where('action_id',$this->actionId)
+                    ->where('web_id',$member->webid)
+                    ->exists();
 
-            // Füge Member zu action_members hinzu
-            if (!$exists) {
-                DB::table('action_members')
+                // Füge Member zu action_members hinzu
+                if (!$exists) {
+                    DB::table('action_members')
+                        ->insert([
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                            'action_id' => $this->actionId,
+                            'web_id' => $member->webid,
+                            'group' => $group,
+                            'reg_state' => $state,
+                            'reg_error' => ''
+                        ]);
+                }
+            }
+
+            if ($group == 'gst') {
+
+                Log::debug('guest for: '.$memberId);
+                /*DB::table('guests')
                     ->insert([
                         'created_at' => now(),
-                        'updated_at' => now(),
-                        'action_id' => $this->actionId,
-                        'web_id' => $member->webid,
-                        'group' => $group,
-                        'reg_state' => $reg_state,
-                        'reg_error' => ''
-                    ]);
+                        'reg_id'
+                    ]);*/
             }
+
         }
         $this->search = '';
         //$this->updatedSearch();
@@ -268,6 +323,7 @@ class RlMemEdit extends Component
             ->whereNull('action_members.web_id') // Nur Mitglieder, die nicht in action_members sind
             ->get();
 
+        $this->show = false;
     }
     /* **************************************
      *    close()
@@ -309,12 +365,7 @@ class RlMemEdit extends Component
                 ->where('action_members.group', 'tn')
                 ->where('action_members.reg_state', 'ang')
                 ->orderBy('created_at')
-                ->select('action_members.web_id', 'action_members.created_at', 'action_members.reg_state', 'action_members.group', 'members.groups',
-                    DB::raw("
-                    CASE
-                        WHEN nickname IS NOT NULL AND nickname != '' THEN CONCAT(nickname, ' ', name)
-                        ELSE CONCAT(firstname, ' ', name)
-                    END AS display_name"))
+                ->select('action_members.web_id', 'action_members.created_at', 'action_members.reg_state', 'action_members.group', 'members.groups', 'members.fullname')
                 ->get();
             //Log::debug('teilnehmer: '.print_r($this->teilnehmer, true));
 
@@ -341,12 +392,7 @@ class RlMemEdit extends Component
                 ->where('action_members.group', 'tn')
                 ->where('action_members.reg_state', 'wl')
                 ->orderBy('created_at')
-                ->select('action_members.web_id', 'action_members.created_at', 'action_members.reg_state', 'action_members.group', 'members.groups',
-                    DB::raw("
-                    CASE
-                        WHEN nickname IS NOT NULL AND nickname != '' THEN CONCAT(nickname, ' ', name)
-                        ELSE CONCAT(firstname, ' ', name)
-                    END AS display_name"))
+                ->select('action_members.web_id', 'action_members.created_at', 'action_members.reg_state', 'action_members.group', 'members.groups', 'members.fullname')
                 ->get();
 
             //Log::debug('warteliste: '.print_r($this->wlist, true));
@@ -364,7 +410,7 @@ class RlMemEdit extends Component
                 ->join('members', 'action_members.web_id', '=', 'members.webid')
                 ->where('guests.gst_action_id', $this->actionId)
                 ->orderBy('guests.created_at')
-                ->select('guests.id','guests.reg_id', 'members.webid','guests.gst_state', 'guests.name as gst_name', 'members.name', 'members.firstname')
+                ->select('guests.id','guests.reg_id', 'members.webid','guests.gst_state', 'guests.name as gst_name', 'guests.reference', 'members.fullname')
                 ->get();
 
             Log::debug('guests: '.print_r($this->guests, true));
@@ -373,6 +419,11 @@ class RlMemEdit extends Component
                 $this->guestSelections[$gst->id] = $gst->gst_state;
             }
             $this->newGuestSelections = $this->guestSelections;
+            $this->guestsEmailsCount = DB::table('guests')
+                ->where('gst_action_id', $this->actionId)
+                ->whereNot('gst_email', '')
+                ->count();
+            Log::debug("guestsEmailsCount: $this->guestsEmailsCount");
 
 
         }
