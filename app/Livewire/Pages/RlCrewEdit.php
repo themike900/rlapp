@@ -220,7 +220,7 @@ class RlCrewEdit extends Component
         Log::debug("--- RlCrewEdit.updated property: $property -----------------------------");
 
         if ($property == 'newCaptain') {
-            $this->newCaptainName = ($this->newCaptain > 0) ? $this->captains->firstWhere('webid', $this->newCaptain)->display_name : '';
+            $this->newCaptainName = ($this->newCaptain > 0) ? $this->captains->firstWhere('webid', $this->newCaptain)->fullname : '';
         }
 
         if ($property == 'actionId') {
@@ -644,7 +644,7 @@ class RlCrewEdit extends Component
                 ->where('group', 'sv')
                 ->whereNot('reg_email', '')
                 ->count();
-            Log::debug("crewEmailsCount: $this->crewEmailsCount");
+            Log::debug("serviceEmailsCount: $this->serviceEmailsCount");
 
             // ------ Schiffsführer --------------------------------------------------------------
             $this->captain = DB::table('action_members')
