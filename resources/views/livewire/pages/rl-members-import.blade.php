@@ -17,9 +17,6 @@
                     <input id="file-upload" type="file" name="file" class="cursor-pointer space-x-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
                     <button type="submit" class="px-4 py-2 border text-white bg-blue-600 rounded-md">Import Excel</button>
                 </form>
-                    <div class="mt-6">
-                        <button wire:click="emailTest" class="px-4 py-2 rounded-md text-white bg-gray-600">Emailtest</button>
-                    </div>
             </main>
 
         </div>

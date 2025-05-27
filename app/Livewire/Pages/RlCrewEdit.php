@@ -93,7 +93,7 @@ class RlCrewEdit extends Component
         $this->captains = DB::table('members')
             ->whereLike('groups', '%sf%')
             ->orderBy('firstname')
-            ->select('webid', 'firstname', 'name', 'nickname', 'fullname')
+            ->select('webid', 'firstname', 'name', 'fullname')
             ->get();
         //Log::debug('captains für select aus DB : '.print_r($this->captains, true));
 
@@ -696,6 +696,8 @@ class RlCrewEdit extends Component
                 ->whereLike('action_members.group', '%sf%')
                 ->value('web_id');
             $this->newCaptain = $this->captain;
+            //Log::debug("captain: $this->captain");
+            //Log::debug("captains: " . print_r($this->captains, true));
 
             $this->captainName = ($this->captain > 0) ? $this->captains->firstWhere('webid', $this->captain)->fullname : '';
             //$this->captainName = $this->captains->firstWhere('webid', $this->captain)->display_name ?? '';
