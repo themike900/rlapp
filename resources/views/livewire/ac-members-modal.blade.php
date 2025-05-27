@@ -11,7 +11,7 @@
 
         <div class="flex flex-col mb-2 space-x-2">
             <label for="field1" class="text-sm font-medium">Mitglied suchen</label>
-            <div x-data="{ open: false, search: @entangle('search') }">
+            <div x-data="{ selectedGroup: null, open: false, search: @entangle('search') }">
                 <input
                     type="text"
                     x-model="search"

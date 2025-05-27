@@ -51,6 +51,7 @@ class RlCrewEdit extends Component
     public $newCaptainName = '';
     public $selectActions = null;
     public $captains;
+    public $savedCaptain = false;
 
     // $cnt array
     public $cnt = [];
@@ -102,6 +103,7 @@ class RlCrewEdit extends Component
         $this->savedService = false;
         $this->sentEmailsService = false;
         $this->closedService = false;
+        $this->savedCaptain = false;
 
     }
 
@@ -129,8 +131,10 @@ class RlCrewEdit extends Component
                 ->where('web_id', $this->captain)
                 ->where('action_id', $this->actionId)
                 ->delete();
-                //->update(['group' => 'cr', 'reg_state' => $reg_state]);
             Log::debug("RlCrewEdit update captain $this->captain to cr $reg_state");
+            dispatch(new SendEmail($this->captain, 'sf-absage', ['action_id' => $this->actionId]));
+            $this->savedCaptain = true;
+
         }
 
         // bisher kein Captain, neuen Captain setzen, eventuell erstellen
@@ -146,10 +150,10 @@ class RlCrewEdit extends Component
             if ($exists) {
                 // wenn existiert, dann update zu sf,ang
                 //ActionMember::updateRecord($this->actionId, $this->newCaptain,['group' => 'sf', 'reg_state' => 'ang']);
-                DB::table('action_members')
-                    ->where('web_id', $this->newCaptain)
-                    ->where('action_id', $this->actionId)
-                    ->update(['group' => 'sf', 'reg_state' => 'ang']);
+                ActionMember::updateRecord($this->actionId, $this->newCaptain,[
+                    'group' => 'sf',
+                    'reg_state' => 'ang',
+                ]);
                 Log::debug("RlCrewEdit update captain $this->newCaptain to sf ang");
             } else {
                 // wenn nicht existiert, neu mit sf, ang
@@ -163,6 +167,8 @@ class RlCrewEdit extends Component
                 ]);
                 Log::debug("RlCrewEdit new captain $this->newCaptain");
             }
+            dispatch(new SendEmail($this->newCaptain, 'sf-zusage', ['action_id' => $this->actionId]));
+            $this->savedCaptain = true;
 
         }
 
@@ -177,6 +183,7 @@ class RlCrewEdit extends Component
                 ->delete();
                 //->update(['group' => 'cr', 'reg_state' => $reg_state]);
             Log::debug("RlCrewEdit update old captain $this->captain to cr $reg_state");
+            dispatch(new SendEmail($this->captain, 'sf-absage', ['action_id' => $this->actionId]));
 
             // gibt es neuen Captain schon?
             $exists = DB::table('action_members')
@@ -189,10 +196,10 @@ class RlCrewEdit extends Component
             if ($exists) {
                 // wenn existiert, dann update zu sf,ang
                 //ActionMember::updateRecord($this->actionId, $this->newCaptain,['group' => 'sf', 'reg_state' => 'ang']);
-                DB::table('action_members')
-                    ->where('web_id', $this->newCaptain)
-                    ->where('action_id', $this->actionId)
-                    ->update(['group' => 'sf', 'reg_state' => 'ang']);
+                ActionMember::updateRecord($this->actionId, $this->newCaptain,[
+                    'group' => 'sf',
+                    'reg_state' => 'ang',
+                ]);
                 Log::debug("RlCrewEdit update captain $this->newCaptain to sf ang");
             } else {
                 // wenn nicht existiert, neu mit sf, ang
@@ -206,10 +213,17 @@ class RlCrewEdit extends Component
                 ]);
                 Log::debug("RlCrewEdit new captain $this->newCaptain");
             }
+            dispatch(new SendEmail($this->newCaptain, 'sf-zusage', ['action_id' => $this->actionId]));
+            $this->savedCaptain = true;
         }
 
         // wenn bisher gespeicherter Captain und neuer Captain gleich sind, passiert nichts
 
+        $this->savedCrew = false;
+        $this->sentEmailsCrew = false;
+        $this->closedCrew = false;
+        $this->savedService = false;
+        $this->sentEmailsService = false;
     }
 
     /* **************************************
@@ -231,6 +245,7 @@ class RlCrewEdit extends Component
             $this->closedCrew = false;
             $this->savedService = false;
             $this->sentEmailsService = false;
+            $this->savedCaptain = false;
         }
 
     }
@@ -252,11 +267,20 @@ class RlCrewEdit extends Component
                 Log::debug("foreach change: ".$web_id.','.$reg_state);
 
                 if ($reg_state == 'gpl') {
-                    ActionMember::updateRecord($this->actionId, $web_id,['reg_state' => $reg_state, 'reg_email' => 'crew-zusage']);
+                    ActionMember::updateRecord($this->actionId, $web_id,[
+                        'reg_state' => $reg_state,
+                        'reg_email' => 'crew-zusage'
+                    ]);
                 } elseif ($reg_state == 'abgl') {
-                    ActionMember::updateRecord($this->actionId, $web_id,['reg_state' => $reg_state, 'reg_email' => 'crew-absage']);
+                    ActionMember::updateRecord($this->actionId, $web_id,[
+                        'reg_state' => $reg_state,
+                        'reg_email' => 'crew-absage'
+                    ]);
                 } else {
-                    ActionMember::updateRecord($this->actionId, $web_id,['reg_state' => $reg_state, 'reg_email' => '']);
+                    ActionMember::updateRecord($this->actionId, $web_id,[
+                        'reg_state' => $reg_state,
+                        'reg_email' => ''
+                    ]);
                 }
 
             }
@@ -268,7 +292,7 @@ class RlCrewEdit extends Component
         $this->savedService = false;
         $this->sentEmailsService = false;
         $this->closedService = false;
-
+        $this->savedCaptain = false;
     }
 
     /* **************************************
@@ -287,7 +311,9 @@ class RlCrewEdit extends Component
         $this->crewEmailsSent = 0;
         foreach ($regs as $reg) {
             dispatch(new SendEmail($reg->web_id, $reg->reg_email, ['action_id' => $this->actionId]));
-            ActionMember::updateRecord($this->actionId, $reg->web_id,['reg_email' => '']);
+            ActionMember::updateRecord($this->actionId, $reg->web_id,[
+                'reg_email' => ''
+            ]);
             $this->crewEmailsSent++;
             Log::debug("SendEmail: $reg->web_id, $reg->reg_email, $this->actionId");
         }
@@ -299,6 +325,7 @@ class RlCrewEdit extends Component
         $this->closedCrew = false;
         $this->savedService = false;
         $this->sentEmailsService = false;
+        $this->savedCaptain = false;
     }
 
     /* **************************************
@@ -318,6 +345,7 @@ class RlCrewEdit extends Component
         $this->savedService = false;
         $this->sentEmailsService = false;
         $this->closedService = false;
+        $this->savedCaptain = false;
     }
 
     /* **************************************
@@ -337,11 +365,20 @@ class RlCrewEdit extends Component
                 Log::debug("foreach change: ".$web_id.','.$reg_state);
 
                 if ($reg_state == 'gpl') {
-                    ActionMember::updateRecord($this->actionId, $web_id,['reg_state' => $reg_state, 'reg_email' => 'service-zusage']);
+                    ActionMember::updateRecord($this->actionId, $web_id,[
+                        'reg_state' => $reg_state,
+                        'reg_email' => 'service-zusage'
+                    ]);
                 } elseif ($reg_state == 'abgl') {
-                    ActionMember::updateRecord($this->actionId, $web_id,['reg_state' => $reg_state, 'reg_email' => 'service-absage']);
+                    ActionMember::updateRecord($this->actionId, $web_id,[
+                        'reg_state' => $reg_state,
+                        'reg_email' => 'service-absage'
+                    ]);
                 } else {
-                    ActionMember::updateRecord($this->actionId, $web_id, ['reg_state' => $reg_state, 'reg_email' => '']);
+                    ActionMember::updateRecord($this->actionId, $web_id, [
+                        'reg_state' => $reg_state,
+                        'reg_email' => ''
+                    ]);
                 }
             }
         }
@@ -352,6 +389,7 @@ class RlCrewEdit extends Component
         $this->savedService = true;
         $this->sentEmailsService = false;
         $this->closedService = false;
+        $this->savedCaptain = false;
     }
 
     /* **************************************
@@ -370,7 +408,9 @@ class RlCrewEdit extends Component
         $this->serviceEmailsSent = 0;
         foreach ($regs as $reg) {
             dispatch(new SendEmail($reg->web_id, $reg->reg_email, ['action_id' => $this->actionId]));
-            ActionMember::updateRecord($this->actionId, $reg->web_id,['reg_email' => '']);
+            ActionMember::updateRecord($this->actionId, $reg->web_id,[
+                'reg_email' => ''
+            ]);
             $this->serviceEmailsSent++;
             Log::debug("SendEmail: $reg->web_id, $reg->reg_email, $this->actionId");
         }
@@ -383,6 +423,7 @@ class RlCrewEdit extends Component
         $this->savedService = false;
         $this->sentEmailsService = true;
         $this->closedService = false;
+        $this->savedCaptain = false;
     }
 
     /* **************************************
@@ -402,6 +443,7 @@ class RlCrewEdit extends Component
         $this->savedService = false;
         $this->sentEmailsService = false;
         $this->closedService = true;
+        $this->savedCaptain = false;
     }
 
     /* **************************************
@@ -425,8 +467,9 @@ class RlCrewEdit extends Component
         $this->closedCrew = false;
         $this->savedService = false;
         $this->sentEmailsService = false;
-
+        $this->savedCaptain = false;
     }
+
     /* **************************************
     *    addCrew()
     ****************************************/
@@ -491,6 +534,7 @@ class RlCrewEdit extends Component
         $this->closedCrew = false;
         $this->savedService = false;
         $this->sentEmailsService = false;
+        $this->savedCaptain = false;
     }
 
     /* **************************************

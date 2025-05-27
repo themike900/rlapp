@@ -236,7 +236,12 @@
                     </select>
                     <label class="text-sm font-medium text-gray-700">gespeichert:</label>
                     <input readonly type="text" wire:model="captainName" class="font-bold mt-1 px-2 py-1 block w-60 rounded-md border shadow-sm">
-                    <button wire:click="saveCaptain" class="px-4 py-2 mt-2 bg-blue-500 text-white hover:bg-blue-700 rounded">Speichern</button>
+                    <div class=" flex flex-row">
+                        <button wire:click="saveCaptain" class="w-60 px-4 py-2 mt-2 bg-blue-500 text-white hover:bg-blue-700 rounded">Änderung speichern und Email senden</button>
+                        @if($savedCaptain)
+                            <div class="px-4 pt-3 font-bold text-blue-500">Änderung gespeichert und Email gesendet</div>
+                        @endif
+                    </div>
                 </div>
             </div>
         </main>

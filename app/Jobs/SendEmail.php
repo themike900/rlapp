@@ -38,15 +38,14 @@ class SendEmail implements ShouldQueue
      */
     public function handle(): void
     {
-        Log::debug(' ---- SendEmail.handle');
-        //Log::debug("{$this->web_id} {$this->templateName}");
+        Log::debug(' ---- SendEmail.handle ----------------------------------');
+
+        // member, Empfänger holen
         $member = DB::table('members')->where('webid',$this->web_id)->first();
         if (empty($member)) { return; }
-        //Log::debug('member: '. print_r($member, true));
-        //Log::debug("member.firstname: $member->firstname");
-
         if (empty($member->email)) { return; }
 
+        // Schiffsführer holen
         $captain = DB::table('action_members')
             ->where('action_id',$this->data['action_id'])
             ->where('group','sf')
@@ -54,40 +53,42 @@ class SendEmail implements ShouldQueue
             ->first();
         $sf_name = (!empty($captain)) ? $captain->firstname : 'noch offen';
 
-        //Log::debug('template: '. $this->templateName);
-
+        // Email-Template holen
         $template= DB::table('email_templates')
             ->where('template', $this->templateName)
             ->first();
-        //Log::debug(print_r($template, true));
         if (empty($template)) { return; }
-        Log::debug("subject: {$template->subject}");
 
+        // Fahrt holen
+        $action = DB::table('actions')->where('id', $this->data['action_id'])->first();
+
+        // Daten vorbereiten
+        $action_date = Carbon::createFromFormat('Y-m-d', $action->action_date)->isoFormat('dddd DD.MM.');
+        $template->subject = "$template->subject für $action_date";
         $gst_name = (!empty($this->data['gst_name'])) ? $this->data['gst_name'] : '';
 
-
-        Log::debug("action: {$this->data['action_id']}");
-        $action = DB::table('actions')->where('id', $this->data['action_id'])->first();
+        // Array fürs Rendern auffüllen
         $data = array_merge($this->data, [
             'action_name' => $action->action_name,
-            'action_date' => Carbon::createFromFormat('Y-m-d', $action->action_date)->isoFormat('dddd DD.MM.'),
+            'action_date' => $action_date,
             'crew_start_at' => $action->crew_start_at,
             'action_start_at' => $action->action_start_at,
             'firstname' => $member->firstname,
             'captain' => $sf_name,
             'gst_name' => $gst_name
         ]);
+        Log::debug("data: " . print_r($data, true));
 
+        // Text rendern
+        $emailText = Blade::render($template->text,$data);
+
+        // Absender festlegen
         $sender = 'Royal-Louise Planung';
         $senderEmail = 'planung@royal-louise.de';
-        //$senderEmail = 'test@rlapp.schummel.de';
 
-        Log::debug('Type template->text: '.gettype($template->text));
-        $emailText = Blade::render($template->text,$data);
-        Log::debug('emailText: \n'.$emailText);
+        Log::debug("Email $this->templateName an $member->fullname für $action->action_name am $action->action_date Betreff: $template->subject");
 
-        Log::debug("Email {$this->templateName} an {$member->fullname} für {$action->action_name} am {$action->action_date} ");
-
+        // Email senden
         Mail::send([], [], function ($message) use ($sender, $senderEmail, $template, $emailText, $member) {
             $message->from($senderEmail, $sender)
                 ->to($member->email, $member->fullname)
@@ -98,9 +99,9 @@ class SendEmail implements ShouldQueue
 
         });
 
+        // Versand in DB eintragen
         DB::table('sent_emails')->insert([
             'receiver' => "$member->fullname ($member->email)",
-            //'receiver' => "$member->fullname ('test@rlapp.schummel.de')",
             'subject' => $template->subject,
             'text' => $emailText,
             'created_at' => now(),
