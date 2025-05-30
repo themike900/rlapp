@@ -122,9 +122,23 @@ Schedule::call(function () {
     Log::debug("--- Fahrten auf durchgeführt setzen ---");
 
     $today = now()->format('Y-m-d');
-    $actions = DB::table('actions')
+    DB::table('actions')
         ->whereDate('action_date', $today)
         ->whereIn('action_state_sc', ['of','gs'])
         ->update(['action_state_sc' => 'df']);
+
+    $actions = DB::table('actions')
+        ->whereDate('action_date', $today)
+        ->where('action_state_sc', 'df')
+        ->where('action_type_sc', 'gfx' )
+        ->get();
+
+    $schatzmeister = DB::table('members')
+        ->where('email', 'schatzmeister@royal-louise.de')
+        ->value('web_id');
+
+    foreach ($actions as $action) {
+        dispatch(new SendEmail($schatzmeister, 'sm-abrechnung', ['action_id' => $action->id,'preis' => $action->invoice_amount]));
+    }
 
 })->dailyAt('22:00');
