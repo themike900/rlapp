@@ -82,9 +82,6 @@
                                             @if($action->action_type_sc == 'vf')
                                                 <option value="sv">&#x2B06; zum Service</option>
                                             @endif
-                                            @if($action->ac_with_wl == 1)
-                                                <option value="wl">&#x2B07; zur Warteliste</option>
-                                            @endif
                                             <option value="del">&#x274C; abmelden</option>
                                         </select>
                                     </td>
@@ -92,10 +89,12 @@
                                 </tr>
                             @endforeach
                         </table>
-                        <button wire:click="saveTeilnehmer" class="px-4 py-2 mt-2 bg-blue-500 text-white hover:bg-blue-700 rounded">Änderungen speichern</button>
-                        @if($savedTn)
-                            <div class="px-4 pt-3 font-bold text-blue-500">Änderungen gespeichert</div>
-                        @endif
+                        <div class="flex flex-row">
+                            <button wire:click="saveTeilnehmer" class="px-4 py-2 mt-2 bg-blue-500 text-white hover:bg-blue-700 rounded">Änderungen speichern</button>
+                            @if($savedTn)
+                                <div class="px-4 pt-3 font-bold text-blue-500">Änderungen gespeichert, {{ $tnEmailsSent }} Emails gesendet</div>
+                            @endif
+                        </div>
                     @endif
                 </div>
 
@@ -160,15 +159,24 @@
                                             <select wire:model="newWlistSelections.{{ $wl->web_id }}" class="px-2 py-1 border rounded-md">
                                                 <option value="wl">&#x2753; Warteliste</option>
                                                 <option value="tn">&#x2B06; zu Teilnehmern</option>
-                                                <option value="cr">&#x2B06; zu Crew</option>
-                                                <option value="del">&#x274C; abmelden</option>
+                                                @if(in_array($action->action_type_sc,['vf','af']))
+                                                    <option value="cr">&#x2B06; zur Crew</option>
+                                                @endif
+                                                @if($action->action_type_sc == 'vf')
+                                                    <option value="sv">&#x2B06; zum Service</option>
+                                                @endif
                                             </select>
                                         </td>
                                         <td class="text-center px-2 py-1 border">0</td>
                                     </tr>
                                 @endforeach
                             </table>
-                            <button wire:click="saveWarteliste" class="px-4 py-2 mt-2 bg-blue-500 text-white hover:bg-blue-700 rounded">Änderungen speichern</button>
+                            <div class="flex flex-row">
+                                <button wire:click="saveWarteliste" class="px-4 py-2 mt-2 bg-blue-500 text-white hover:bg-blue-700 rounded">Änderungen speichern</button>
+                                @if($savedWlist)
+                                    <div class="px-4 pt-3 font-bold text-blue-500">Änderungen gespeichert, {{ $wlistEmailsSent }} Emails gesendet</div>
+                                @endif
+                            </div>
                         @endif
                     </div>
                 @endif

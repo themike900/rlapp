@@ -20,10 +20,12 @@ class RlMemEdit extends Component
     public $teilnehmer = null;
     public $teilnehmerSelections = [];
     public $newTeilnehmerSelections = [];
+    public $tnEmailsSent = 0;
 
     public $wlist = null;
     public $wlistSelections = [];
     public $newWlistSelections = [];
+    public $wlistEmailsSent = 0;
 
     public $guests = null;
     public $guestSelections = [];
@@ -90,6 +92,7 @@ class RlMemEdit extends Component
         Log::debug('teilnehmerSelections: ' . print_r($this->teilnehmerSelections, true));
         Log::debug('newTeilnehmerSelections: ' . print_r($this->newTeilnehmerSelections, true));
 
+        $this->tnEmailsSent = 0;
         foreach ($this->newTeilnehmerSelections as $web_id => $group) {
 
             //Log::debug("foreach: ".$web_id.','.$reg_state);
@@ -110,6 +113,14 @@ class RlMemEdit extends Component
                     ActionMember::deleteRecord($this->actionId, $web_id);
                 } elseif ($group != $this->teilnehmerSelections[$web_id]) {
                     ActionMember::updateRecord($this->actionId, $web_id,['reg_state' => $reg_state, 'group' => $group]);
+                    if ($group == 'cr') {
+                        dispatch(new SendEmail($web_id, 'tn-zu-crew', ['action_id' => $this->actionId]));
+                        $this->tnEmailsSent++;
+                    }
+                    if ($group == 'sv') {
+                        dispatch(new SendEmail($web_id, 'tn-zu-service', ['action_id' => $this->actionId]));
+                        $this->tnEmailsSent++;
+                    }
                 }
 
             }
@@ -130,12 +141,13 @@ class RlMemEdit extends Component
         Log::debug('wlistSelections: ' . print_r($this->wlistSelections, true));
         Log::debug('newWlistSelections: ' . print_r($this->newWlistSelections, true));
 
+        $this->wlistEmailsSent = 0;
         foreach ($this->newWlistSelections as $web_id => $group) {
 
             Log::debug("foreach: ".$web_id.','.$group);
             $reg_state = match($group) {
                 'tn' => 'ang',
-                'cr' => 'br',
+                'cr','sv' => 'br',
                 default => ''
             };
             //$group = ($group == 'wl') ? 'tn' : $group;
@@ -143,14 +155,22 @@ class RlMemEdit extends Component
             if ($group == 'del') {
                 ActionMember::deleteRecord($this->actionId, $web_id);
                 dispatch(new SendEmail($web_id, 'del_tn_wlist', ['action_id' => $this->actionId]));
+                $this->wlistEmailsSent++;
             } elseif ( $group != $this->wlistSelections[$web_id]) {
                 ActionMember::updateRecord($this->actionId, $web_id,['reg_state' => $reg_state, 'group' => $group]);
                 if ($group == 'cr') {
-                    dispatch(new SendEmail($web_id, 'wl-to-crew', ['action_id' => $this->actionId]));
+                    dispatch(new SendEmail($web_id, 'wl-zu-crew', ['action_id' => $this->actionId]));
+                    $this->wlistEmailsSent++;
                 }
                 if ($group == 'tn') {
-                    dispatch(new SendEmail($web_id, 'wl-to-tn', ['action_id' => $this->actionId]));
+                    dispatch(new SendEmail($web_id, 'wl-zu-tn', ['action_id' => $this->actionId]));
+                    $this->wlistEmailsSent++;
                 }
+                if ($group == 'sv') {
+                    dispatch(new SendEmail($web_id, 'wl-zu-service', ['action_id' => $this->actionId]));
+                    $this->wlistEmailsSent++;
+                }
+
             }
         }
         $this->savedTn = false;
