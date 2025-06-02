@@ -110,6 +110,12 @@ class ApiListController extends Controller
             Log::info('Doppelte User gelöscht.');
         }
 
+        // Member Fullname ins Log schreiben
+        $member_name = DB::table('members')
+            ->where('webid', $request->input('webid'))
+            ->value('fullname');
+        Log::debug("member name: $member_name");
+
         /*++++++++++++++++++++++++++++++++++++++++++++++++++
          * Festlegen, welche action_types auf welcher Liste angezeigt werden
          *
@@ -134,7 +140,7 @@ class ApiListController extends Controller
         if ($request->input('list_type') == 'Segeltermine' or $request->input('list_type') == 'Veranstaltungen') {
             $member_groups_array[] = 'tn';
         }
-        Log::debug("member_groups_array:\n" . print_r($member_groups_array, true));
+        Log::debug("member_groups_array: " . print_r($member_groups_array, true));
 
         /* -----------------------
             Aktivitätentypen für diesen Member holen
@@ -143,14 +149,16 @@ class ApiListController extends Controller
         $action_types = DB::table('action_types')
             ->whereIn('web_list', $list_type)
             ->get();
-        Log::debug("action_types:\n" . print_r($action_types, true));
+        Log::debug("action_types: " . print_r($action_types, true));
 
+        $list_action_types = [];
         foreach ($action_types as $action_type) {
+            Log::debug("action_type.groups: $action_type->groups");
             if (!empty(array_intersect(explode(',', $action_type->groups), $member_groups_array))) {
                 $list_action_types[] = $action_type->sc;
             }
         }
-        Log::debug("list_action_types:\n" . print_r($list_action_types, true));
+        Log::debug("list_action_types: " . print_r($list_action_types, true));
 
         /* -----------------------
             für den Member sichtbare Aktivitäten holen
@@ -161,7 +169,24 @@ class ApiListController extends Controller
             ->orderBy('action_date')
             ->orderBy('action_start_at')
             ->get();
-        //Log::debug("actions:\n" . print_r($actions, true));
+        Log::debug("actions:\n" . print_r($actions, true));
+
+        $reg_ids = DB::table('list_actions')
+            ->join('action_members', 'action_members.action_id', '=', 'list_actions.action_id')
+            ->where('action_members.web_id', $web_id)
+            ->whereIn('action_members.group', ['cr','sv'])
+            ->whereIn('list_actions.action_state_sc', ['of', 'gs'])
+            ->orderBy('action_date')
+            ->orderBy('action_start_at')
+            ->get('list_actions.action_id');
+        Log::debug("reg_actions:\n" . print_r($reg_ids, true));
+
+        foreach ($reg_ids as $reg_id) {
+            Log::debug("reg_action_id: " . $reg_id->action_id);
+            if ($reg_id->action_id == '???') {
+                Log::debug("reg_action_id: " . $reg_id->action_id);
+            }
+        }
 
         /* -----------------------
             in allen Fahrten Datum umformatieren und Anmeldestaus holen
