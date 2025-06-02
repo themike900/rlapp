@@ -131,7 +131,7 @@
             </td>
         </tr>
         @endif
-        @if(!in_array($action->action_type_sc, ['gfx','uf','af']))
+        @if(!in_array($action->action_type_sc, ['gfx','uf']))
         <tr>
             <td><b>Teilnehmer</b></td>
             <td>
