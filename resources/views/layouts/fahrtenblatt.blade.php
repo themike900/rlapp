@@ -33,7 +33,7 @@
             width: 30%;
             font-size: 18px;
             border: 1px solid #ccc;
-            padding: 10px;
+            padding: 8px;
         }
         td:nth-child(1) {width: 40%}
         td:nth-child(2) {width: 60%}
@@ -100,14 +100,18 @@
                 <td>{{ $action->catering_info ?? '' }}</td>
             </tr>
         @endif
-        <tr>
-            <td><b>Eis</b></td>
-            <td>{{ $action->ice_info ?? '' }}</td>
-        </tr>
-        <tr>
-            <td><b>Crew-Versorgung</b></td>
-            <td>{{ $action->crew_supply ?? '' }}</td>
-        </tr>
+        @if(in_array($action->action_type_sc, ['gfx','vf']))
+            <tr>
+                <td><b>Eis</b></td>
+                <td>{{ $action->ice_info ?? '' }}</td>
+            </tr>
+        @endif
+        @if($action->action_type_sc == 'gfx')
+            <tr>
+                <td><b>Crew-Versorgung</b></td>
+                <td>{{ $action->crew_supply ?? '' }}</td>
+            </tr>
+        @endif
         <tr>
             <td><b>Sonstiges</b></td>
             <td>{{ $action->additional_info ?? '' }}</td>
@@ -120,7 +124,7 @@
             <td><b>Crew an Bord - von Bord</b></td>
             <td>{{ $action->crew_start_at ?? '' }} - {{ $action->crew_end_at ?? '' }}</td>
         </tr>
-        @if(in_array($action->action_type_sc, ['vf','gfx','uf','af']))
+        @if(in_array($action->action_type_sc, ['gfx','uf']))
 
             <tr>
             <td><b>Besatzung</b></td>
@@ -131,7 +135,7 @@
             </td>
         </tr>
         @endif
-        @if(!in_array($action->action_type_sc, ['gfx','uf']))
+        @if(!in_array($action->action_type_sc, ['vf','af','gfx','uf']))
         <tr>
             <td><b>Teilnehmer</b></td>
             <td>
@@ -141,6 +145,28 @@
         @endif
         </tbody>
     </table>
+    @if(in_array($action->action_type_sc, ['vf','af']))
+    <table>
+        <thead>
+        <tr>
+            <td style="width: 50%"><b>Besatzung</b></td>
+            <td style="width: 50%"><b>Teilnehmer</b></td>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>
+                <b>Schiffsführer:</b><br/>- {{ $members['captain'] }}<br/>
+                <b>Crew:</b><<br/>- {!! str_replace(',', '<br/>- ', $members['crew']) !!}<br/>
+                <b>Service:</b><br/>- {!! str_replace(',', '<br/>- ', $members['service']) !!}
+            </td>
+            <td>
+                - {!! str_replace(',', '<br/>- ', $members['teilnehmer']) !!}<br/>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+    @endif
 </div>
 </body>
 </html>

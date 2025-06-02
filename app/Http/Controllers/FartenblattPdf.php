@@ -25,10 +25,10 @@ class FartenblattPdf extends Controller
             ->join('members', 'members.webid', '=', 'action_members.web_id')
             ->where('action_members.action_id', $actionId)
             ->where('action_members.group', 'sf')
-            ->select(['nickname','name','firstname'])
+            ->select(['nickname','name','firstname','fullname'])
             ->first();
         if (!empty($captain)) {
-            $members['captain'] = $captain['nickname'];
+            $members['captain'] = $captain['fullname'];
         } else {
             $members['captain'] = '';
         }
@@ -40,13 +40,13 @@ class FartenblattPdf extends Controller
             ->whereLike('action_members.group', '%cr%')
             ->whereNot('action_members.reg_state', 'abgl')
             ->orderBy('members.firstname')
-            ->select(['nickname','name','firstname'])
+            ->select(['nickname','name','firstname','fullname'])
             ->get();
         $members['crew'] = "&nbsp;";
         if (!empty($crew)) {
             $members['crew'] = [];
             foreach ($crew as $cr) {
-                $members['crew'][] = $cr->firstname . ' ' . $cr->name;
+                $members['crew'][] = $cr->fullname;
             }
             $members['crew'] = implode(", ", $members['crew']);
         }
@@ -59,13 +59,13 @@ class FartenblattPdf extends Controller
             ->whereLike('action_members.group', '%sv%')
             ->whereNot('action_members.reg_state', 'abgl')
             ->orderBy('members.firstname')
-            ->select(['nickname','name','firstname'])
+            ->select(['nickname','name','firstname','fullname'])
             ->get();
         $members['service'] = "&nbsp;";
         if (!empty($service)) {
             $members['service'] = [];
             foreach ($service as $sv) {
-                $members['service'][] = $sv->firstname . ' ' . $sv->name;
+                $members['service'][] = $sv->fullname;
             }
             $members['service'] = implode(", ", $members['service']);
         }
@@ -77,19 +77,21 @@ class FartenblattPdf extends Controller
             ->where('action_members.action_id', $actionId)
             ->where('action_members.group', 'tn')
             ->orderBy('members.firstname')
-            ->select(['nickname','name','firstname'])
+            ->select(['nickname','name','firstname','fullname'])
             ->get();
         $members['teilnehmer'] = "&nbsp;";
         if (!empty($teilnehmer)) {
             $members['teilnehmer'] = [];
             foreach ($teilnehmer as $tn) {
-                $members['teilnehmer'][] = $tn->firstname . ' ' . $tn->name;
+                $members['teilnehmer'][] = $tn->fullname;
             }
             $members['teilnehmer'] = implode(", ", $members['teilnehmer']);
         }
 
+        Log::debug("members:" . print_r($members, true));
 
         $pdf = Pdf::loadView('layouts.fahrtenblatt', compact('action','members')); // Blade-Template in PDF umwandeln
+
         return $pdf->stream('fahrtenblatt.pdf'); // Direkt im Browser anzeigen
     }
 }
