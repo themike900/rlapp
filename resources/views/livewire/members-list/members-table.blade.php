@@ -25,12 +25,27 @@
     <table class="w-full border-collapse border border-gray-300">
         <thead>
         <tr class="bg-gray-100">
-            <th class="border p-2">Vorname</th>
-            <th class="border p-2">Name</th>
+            <th class="w-60 border p-2 cursor-pointer" wire:click="sortBy('firstname')">
+                Vorname
+                @if($orderFirstname != '')
+                    {!! $orderFirstname == 'asc' ? '&#9650' : '&#9660'  !!}
+                @endif
+            </th>
+            <th class="w-60 border p-2 cursor-pointer" wire:click="sortBy('lastname')">
+                Name
+                @if($orderLastname != '')
+                    {!! $orderLastname == 'asc' ? '&#9650' : '&#9660'  !!}
+                @endif
+            </th>
             <th class="border p-2">Rolle</th>
-            <th class="border p-2">letzter Zugriff</th>
-            <th class="border p-2">web_id</th>
-            <th class="border p-2">mv_id</th>
+            <th class="border p-2">Teilnahmen cr/sv/sf/tn</th>
+            <th class="border p-2 cursor-pointer" wire:click="sortBy('lastAccess')">
+                letzter Zugriff
+                @if($orderLastAccess != '')
+                    {!! $orderLastAccess == 'asc' ? '&#9650' : '&#9660'  !!}
+                @endif
+            </th>
+            <th class="w-35 border p-2">app/web/mv-id</th>
         </tr>
         </thead>
         <tbody>
@@ -39,9 +54,9 @@
                 <td class="p-2">{{ $member->firstname }}</td>
                 <td class="p-2">{{ $member->name }}</td>
                 <td class="p-2">{{ $member->groups }}</td>
+                <td class="p-2">{{ $member->countCr }} - {{ $member->countSv }} - {{ $member->countSf }} - {{ $member->countTn }}</td>
                 <td class="p-2">{{ $member->last_access }}</td>
-                <td class="p-2">{{ $member->webid }}</td>
-                <td class="p-2">{{ $member->mv_id }}</td>
+                <td class="p-2">{{ $member->id }}-{{ $member->webid }}-{{ $member->mv_id }}</td>
             </tr>
         @endforeach
         </tbody>

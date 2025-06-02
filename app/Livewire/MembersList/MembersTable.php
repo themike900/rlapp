@@ -6,6 +6,7 @@ use App\Models\Member;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Application;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 
@@ -13,10 +14,43 @@ class MembersTable extends Component
 {
     public $search = '';
     public $filter = '';
+    public $orderFirstname = 'asc';
+    public $orderLastname = '';
+    public $orderLastAccess = '';
+
+    public $members = [];
 
     public function updated($propertyName): void
     {
         Log::info($this->$propertyName);
+    }
+
+    public function sortBy($column): void
+    {
+        if ($column == 'firstname') {
+            $this->orderFirstname = match ($this->orderFirstname) {
+                'asc' => 'desc',
+                'desc','' => 'asc',
+            };
+            $this->orderLastname = '';
+            $this->orderLastAccess = '';
+        }
+        if ($column == 'lastname') {
+            $this->orderLastname = match ($this->orderLastname) {
+                'asc' => 'desc',
+                'desc','' => 'asc',
+            };
+            $this->orderFirstname = '';
+            $this->orderLastAccess = '';
+        }
+        if ($column == 'lastAccess') {
+            $this->orderLastAccess = match ($this->orderLastAccess) {
+                'asc' => 'desc',
+                'desc','' => 'asc',
+            };
+            $this->orderFirstname = '';
+            $this->orderLastname = '';
+        }
     }
 
     public function render(): Application|Factory|View|\Illuminate\View\View
@@ -24,13 +58,69 @@ class MembersTable extends Component
         Log::debug('Search: '.$this->search);
         Log::debug('Filter: '.$this->filter);
 
+        $orderByPrim = 'firstname';
+        $orderPrim = 'asc';
+        $orderBySec = 'firstname';
+        $orderSec = 'asc';
+
+        if ($this->orderFirstname != '') {
+            $orderByPrim = 'firstname';
+            $orderPrim = $this->orderFirstname;
+            $orderBySec = 'name';
+        }
+        if ($this->orderLastname != '') {
+            $orderByPrim = 'name';
+            $orderPrim = $this->orderLastname;
+        }
+        if ($this->orderLastAccess != '') {
+            $orderByPrim = 'last_access';
+            $orderPrim = $this->orderLastAccess;
+        }
+
         $members = Member::query()
             ->when($this->search, fn($query) => $query->where('firstname', 'like', "%{$this->search}%"))
             ->when($this->filter, fn($query) => $query->where('groups', 'like', "%{$this->filter}%"))
             ->whereNot('firstname','-')
-            ->orderBy('firstname')
+            ->orderBy($orderByPrim, $orderPrim)
+            ->orderBy($orderBySec, $orderSec)
             ->get();
 
-        return view('livewire.members-list.members-table', compact('members'));
+        foreach ($members as $member) {
+
+            $member->countTn = DB::table('action_members')
+                ->join('actions', 'actions.id', '=', 'action_members.action_id')
+                ->where('web_id', '=', $member->webid)
+                ->whereYear('actions.action_date', '=', now()->year)
+                ->where('action_members.group', '=','tn')
+                ->whereIn('actions.action_type_sc', ['vf','gfx','uf','af'])
+                ->count();
+
+            $member->countCr = DB::table('action_members')
+                ->join('actions', 'actions.id', '=', 'action_members.action_id')
+                ->where('web_id', '=', $member->webid)
+                ->whereYear('actions.action_date', '=', now()->year)
+                ->where('action_members.group', '=','cr')
+                ->where('action_members.reg_state', '=','gpl')
+                ->count() ;
+
+            $member->countSv = DB::table('action_members')
+                ->join('actions', 'actions.id', '=', 'action_members.action_id')
+                ->where('web_id', '=', $member->webid)
+                ->whereYear('actions.action_date', '=', now()->year)
+                ->where('action_members.group', '=','sv')
+                ->where('action_members.reg_state', '=','gpl')
+                ->count();
+
+            $member->countSf = DB::table('action_members')
+                ->join('actions', 'actions.id', '=', 'action_members.action_id')
+                ->where('web_id', '=', $member->webid)
+                ->whereYear('actions.action_date', '=', now()->year)
+                ->where('action_members.group', '=','sf')
+                ->count();
+        }
+        $this->members = $members;
+
+        //return view('livewire.members-list.members-table', compact('members'));
+        return view('livewire.members-list.members-table');
     }
 }
