@@ -117,7 +117,7 @@ Schedule::call(function () {
 })->dailyAt('10:10');
 
 
-// Jeden Abend um 22:00 alle offenen und geschlossenen Fahrten auf durchgeführt setzen
+// Jeden Abend um 22:00 alle offenen und geschlossenen Aktivitäten auf durchgeführt setzen
 Schedule::call(function () {
     Log::debug("--- Fahrten auf durchgeführt setzen ---");
 
@@ -135,7 +135,7 @@ Schedule::call(function () {
 
     $schatzmeister = DB::table('members')
         ->where('email', 'schatzmeister@royal-louise.de')
-        ->value('web_id');
+        ->value('webid');
 
     foreach ($actions as $action) {
         dispatch(new SendEmail($schatzmeister, 'sm-abrechnung', ['action_id' => $action->id,'preis' => $action->invoice_amount]));
