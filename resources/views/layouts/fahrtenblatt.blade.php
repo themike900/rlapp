@@ -9,7 +9,7 @@
             text-align: center;
         }
         .container {
-            padding: 20px;
+            padding: 10px;
         }
         .date-box {
             position: absolute;
@@ -30,15 +30,10 @@
             margin-top: 20px;
         }
         td {
-            width: 30%;
             font-size: 18px;
             border: 1px solid #ccc;
             padding: 8px;
-        }
-        td:nth-child(1) {width: 40%}
-        td:nth-child(2) {width: 60%}
-        .text-center {
-            text-align: center;
+            vertical-align: top;
         }
     </style>
 </head>
@@ -55,8 +50,8 @@
     <table>
         <tbody>
         <tr>
-            <td><b>Datum</b></td>
-            <td>{{ $action->action_date }}</td>
+            <td style="width: 40%"><b>Datum</b></td>
+            <td style="width: 60%">{{ $action->action_date }}</td>
         </tr>
         <tr>
             <td><b>Fahrt</b></td>
@@ -145,6 +140,7 @@
         @endif
         </tbody>
     </table>
+
     @if(in_array($action->action_type_sc, ['vf','af']))
     <table>
         <thead>
