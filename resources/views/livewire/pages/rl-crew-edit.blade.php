@@ -21,43 +21,44 @@
                     <h3 class="font-medium mb-2">Crew-Planung</h3>
                     @if( count($crew) == 0 )
                         <p>keine Crew-Bereitschaften</p>
-                    @else
-                        <div class="mb-2 flex justify-between items-start w-full">
-                            <p class="font-bold">Status: {{ $action->ac_reg_state_cr_name }}</p>
-                            <div x-data="{ open: false }" class="relative" @keydown.escape.window="open = false">
-                                <button @click="open = !open" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded">hinzufügen</button>
-                                <div x-show="open" @click.away="open = false" class="absolute p-1 mt-2 w-60 bg-white border rounded shadow-lg z-50">
-                                    <p class="text-xl font-semibold mb-2">Teilnehmer hinzufügen</p>
+                    @endif
+                    <div class="mb-2 flex justify-between items-start w-full">
+                        <p class="font-bold">Status: {{ $action->ac_reg_state_cr_name }}</p>
+                        <div x-data="{ open: false }" class="relative" @keydown.escape.window="open = false">
+                            <button @click="open = !open" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded">hinzufügen</button>
+                            <div x-show="open" @click.away="open = false" class="absolute p-1 mt-2 w-60 bg-white border rounded shadow-lg z-50">
+                                <p class="text-xl font-semibold mb-2">Teilnehmer hinzufügen</p>
 
-                                    <div class="flex flex-col mb-2 space-x-2">
-                                        <label for="field1" class="text-sm font-medium">Mitglied suchen</label>
-                                        <div x-data="{ open: false, search: @entangle('search') }">
-                                            <input
-                                                type="text"
-                                                x-model="search"
-                                                wire:model.live.debounce.500ms="search"
-                                                placeholder="Vorname..."
-                                                @focus="open = true"
-                                                @keydown.escape="open = false"
-                                                class="border rounded-sm p-1">
+                                <div class="flex flex-col mb-2 space-x-2">
+                                    <label for="field1" class="text-sm font-medium">Mitglied suchen</label>
+                                    <div x-data="{ open: false, search: @entangle('search') }">
+                                        <input
+                                            type="text"
+                                            x-model="search"
+                                            wire:model.live.debounce.500ms="search"
+                                            placeholder="Vorname..."
+                                            @focus="open = true"
+                                            @keydown.escape="open = false"
+                                            class="border rounded-sm p-1">
 
-                                            <ul
-                                                x-show="open"
-                                                @mousedown.outside="open = false"
-                                                class="absolute py-2 pe-2 bg-white border rounded w-80 mt-1 shadow-lg">
-                                                @foreach($suchErgebnisse as $person)
-                                                    <li wire:click="addCrew({{ $person->id }},'cr','br'); open = false; search = ''"
-                                                        wire:confirm="{{ $person->firstname }} {{ $person->name }} als Crew hinzufügen?"
-                                                        class="p-0 hover:bg-gray-200 cursor-pointer">
-                                                        {{ $person->firstname }} {{ $person->name }}
-                                                    </li>
-                                                @endforeach
-                                            </ul>
-                                        </div>
+                                        <ul
+                                            x-show="open"
+                                            @mousedown.outside="open = false"
+                                            class="absolute py-2 pe-2 bg-white border rounded w-80 mt-1 shadow-lg">
+                                            @foreach($suchErgebnisse as $person)
+                                                <li wire:click="addCrew({{ $person->id }},'cr','br'); open = false; search = ''"
+                                                    wire:confirm="{{ $person->firstname }} {{ $person->name }} als Crew hinzufügen?"
+                                                    class="p-0 hover:bg-gray-200 cursor-pointer">
+                                                    {{ $person->firstname }} {{ $person->name }}
+                                                </li>
+                                            @endforeach
+                                        </ul>
                                     </div>
                                 </div>
                             </div>
                         </div>
+                    </div>
+                    @if( count($crew) > 0 )
                         <table class="max-w-max rounded-md">
                             <thead>
                             <tr class="font-medium bg-gray-200">
