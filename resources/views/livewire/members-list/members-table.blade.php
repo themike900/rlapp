@@ -28,24 +28,54 @@
             <th class="w-60 border p-2 cursor-pointer" wire:click="sortBy('firstname')">
                 Vorname
                 @if($orderFirstname != '')
-                    {!! $orderFirstname == 'asc' ? '&#9650' : '&#9660'  !!}
+                    {!! $orderFirstname == 'asc' ? '&#9650;' : '&#9660;' !!}
                 @endif
             </th>
             <th class="w-60 border p-2 cursor-pointer" wire:click="sortBy('lastname')">
                 Name
                 @if($orderLastname != '')
-                    {!! $orderLastname == 'asc' ? '&#9650' : '&#9660'  !!}
+                    {!! $orderLastname == 'asc' ? '&#9650;' : '&#9660;' !!}
                 @endif
             </th>
             <th class="border p-2">Rolle</th>
-            <th class="border p-2">Teilnahmen cr/sv/sf/tn</th>
+            <th class="border p-2 cursor-pointer" wire:click="sortBy('fahrten')">
+                Teilnahmen<br/>
+                @if($orderFahrten == 'countCr')
+                    <u>cr</u>/sv/sf/tn
+                @elseif ($orderFahrten == 'countSv')
+                    cr/<u>sv</u>/sf/tn
+                @elseif($orderFahrten == 'countSf')
+                    cr/sv/<u>sf</u>/tn
+                @elseif($orderFahrten == 'countTn')
+                    cr/sv/sf/<u>tn</u>
+                @else
+                    cr/sv/sf/tn
+                @endif
+                @if($orderFahrten != '')
+                    &#9660;
+                @endif
+            </th>
             <th class="border p-2 cursor-pointer" wire:click="sortBy('lastAccess')">
                 letzter Zugriff
                 @if($orderLastAccess != '')
-                    {!! $orderLastAccess == 'asc' ? '&#9650' : '&#9660'  !!}
+                    {!! $orderLastAccess == 'asc' ? '&#9650;' : '&#9660;'  !!}
                 @endif
             </th>
-            <th class="w-35 border p-2">app/web/mv-id</th>
+            <th class="w-35 border p-2 cursor-pointer" wire:click="sortBy('ids')">
+                IDs<br/>
+                @if($orderIds == 'id')
+                    <u>app</u>/web/mv
+                @elseif ($orderIds == 'webid')
+                    app/<u>web</u>/mv
+                @elseif($orderIds == 'mv_id')
+                    app/web/<u>mv</u>
+                @else
+                    app/web/mv
+                @endif
+                @if($orderIds != '')
+                    &#9650;
+                @endif
+            </th>
         </tr>
         </thead>
         <tbody>

@@ -17,8 +17,11 @@ class MembersTable extends Component
     public $orderFirstname = 'asc';
     public $orderLastname = '';
     public $orderLastAccess = '';
+    public $orderFahrten = '';
+    public $orderIds = '';
 
     public $members = [];
+    public $countMembers = 0;
 
     public function updated($propertyName): void
     {
@@ -27,6 +30,7 @@ class MembersTable extends Component
 
     public function sortBy($column): void
     {
+
         if ($column == 'firstname') {
             $this->orderFirstname = match ($this->orderFirstname) {
                 'asc' => 'desc',
@@ -34,6 +38,8 @@ class MembersTable extends Component
             };
             $this->orderLastname = '';
             $this->orderLastAccess = '';
+            $this->orderFahrten ='';
+            $this->orderIds = '';
         }
         if ($column == 'lastname') {
             $this->orderLastname = match ($this->orderLastname) {
@@ -42,15 +48,43 @@ class MembersTable extends Component
             };
             $this->orderFirstname = '';
             $this->orderLastAccess = '';
+            $this->orderFahrten ='';
+            $this->orderIds = '';
         }
         if ($column == 'lastAccess') {
             $this->orderLastAccess = match ($this->orderLastAccess) {
-                'asc' => 'desc',
-                'desc','' => 'asc',
+                'asc','' => 'desc',
+                'desc' => 'asc',
             };
             $this->orderFirstname = '';
             $this->orderLastname = '';
+            $this->orderFahrten ='';
+            $this->orderIds = '';
         }
+        if ($column == 'fahrten') {
+            $this->orderFahrten = match ($this->orderFahrten) {
+                '', 'countTn' => 'countCr',
+                'countCr' => 'countSv',
+                'countSv' => 'countSf',
+                'countSf' => 'countTn',
+            };
+            $this->orderFirstname = '';
+            $this->orderLastname = '';
+            $this->orderLastAccess = '';
+            $this->orderIds = '';
+        }
+        if ($column == 'ids') {
+            $this->orderIds = match ($this->orderIds) {
+                'mv_id','' => 'id',
+                'id' => 'webid',
+                'webid' => 'mv_id',
+            };
+            $this->orderFirstname = '';
+            $this->orderLastname = '';
+            $this->orderFahrten ='';
+            $this->orderLastAccess = '';
+        }
+
     }
 
     public function render(): Application|Factory|View|\Illuminate\View\View
@@ -64,7 +98,6 @@ class MembersTable extends Component
         $orderSec = 'asc';
 
         if ($this->orderFirstname != '') {
-            $orderByPrim = 'firstname';
             $orderPrim = $this->orderFirstname;
             $orderBySec = 'name';
         }
@@ -76,14 +109,20 @@ class MembersTable extends Component
             $orderByPrim = 'last_access';
             $orderPrim = $this->orderLastAccess;
         }
+        if ($this->orderIds != '') {
+            $orderByPrim = $this->orderIds;
+        }
 
-        $members = Member::query()
-            ->when($this->search, fn($query) => $query->where('firstname', 'like', "%{$this->search}%"))
-            ->when($this->filter, fn($query) => $query->where('groups', 'like', "%{$this->filter}%"))
-            ->whereNot('firstname','-')
-            ->orderBy($orderByPrim, $orderPrim)
-            ->orderBy($orderBySec, $orderSec)
-            ->get();
+        $members = collect(
+            Member::query()
+                ->when($this->search, fn($query) => $query->where('firstname', 'like', "%{$this->search}%"))
+                ->when($this->filter, fn($query) => $query->where('groups', 'like', "%{$this->filter}%"))
+                ->whereNot('firstname','-')
+                ->orderBy($orderByPrim, $orderPrim)
+                ->orderBy($orderBySec, $orderSec)
+                ->get()
+        );
+        $this->countMembers = $members->count();
 
         foreach ($members as $member) {
 
@@ -118,7 +157,15 @@ class MembersTable extends Component
                 ->where('action_members.group', '=','sf')
                 ->count();
         }
+
+        if ($this->orderFahrten != '') {
+            $members = $members->sortBy($this->orderFahrten,SORT_REGULAR,true);
+            //Log::debug("orderFahrten: $this->orderFahrten");
+        }
+
         $this->members = $members;
+
+
 
         //return view('livewire.members-list.members-table', compact('members'));
         return view('livewire.members-list.members-table');
