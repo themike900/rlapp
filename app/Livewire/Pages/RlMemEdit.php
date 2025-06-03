@@ -111,6 +111,8 @@ class RlMemEdit extends Component
 
                 if ($group == 'del') {
                     ActionMember::deleteRecord($this->actionId, $web_id);
+                    dispatch(new SendEmail($web_id, 'del-tn', ['action_id' => $this->actionId]));
+                    $this->tnEmailsSent++;
                 } elseif ($group != $this->teilnehmerSelections[$web_id]) {
                     ActionMember::updateRecord($this->actionId, $web_id,['reg_state' => $reg_state, 'group' => $group]);
                     if ($group == 'cr') {
@@ -154,7 +156,7 @@ class RlMemEdit extends Component
 
             if ($group == 'del') {
                 ActionMember::deleteRecord($this->actionId, $web_id);
-                dispatch(new SendEmail($web_id, 'del_tn_wlist', ['action_id' => $this->actionId]));
+                dispatch(new SendEmail($web_id, 'del_wl', ['action_id' => $this->actionId]));
                 $this->wlistEmailsSent++;
             } elseif ( $group != $this->wlistSelections[$web_id]) {
                 ActionMember::updateRecord($this->actionId, $web_id,['reg_state' => $reg_state, 'group' => $group]);
