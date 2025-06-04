@@ -4,6 +4,7 @@
 namespace App\Livewire;
 
 use App\Models\Action;
+use App\Models\ActionMember;
 use App\Services\ParticipantsCalcService;
 use Carbon\Carbon;
 use Illuminate\Contracts\View\View;
@@ -87,6 +88,11 @@ class ActionsTable extends Component
         foreach ($actions as $action) {
             $action->action_date = Carbon::createFromFormat('Y-m-d', $action->action_date)->isoFormat('dd DD.MM.');
             $action->cnt = $service->counts($action->id);
+            $action->captain = ActionMember::query()
+                ->where('action_id', $action->id)
+                ->where('group','sf')
+                ->join('members', 'members.webid', '=', 'action_members.web_id')
+                ->value('members.firstname');
         }
         $this->actions = $actions;
 
