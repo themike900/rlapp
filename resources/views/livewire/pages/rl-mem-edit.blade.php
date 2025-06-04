@@ -23,7 +23,7 @@
                             @if( count($teilnehmer) == 0 )
                                 <p>keine Teilnehmer-Meldungen</p>
                             @else
-                                <p class="m-0 font-bold">Status: {{ $action->ac_reg_state_tn_name }}<br/>Belegte Plätze gesamt: x, Teilnehmer frei: x</p>
+                                <p class="m-0 font-bold">Status: {{ $action->ac_reg_state_tn_name }}<br/>Belegte Plätze gesamt: {{ $cnt['ac_sum'] }}, Teilnehmer frei: {{ $cnt['ac_tn_free'] }}</p>
                             @endif
                             <div x-data="{ open: false }" class="relative" @keydown.escape.window="open = false">
                                 <button @click="open = !open" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded">hinzufügen</button>

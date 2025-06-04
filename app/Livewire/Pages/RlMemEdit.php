@@ -4,6 +4,7 @@ namespace App\Livewire\Pages;
 
 use App\Jobs\SendEmail;
 use App\Models\Member;
+use App\Services\ParticipantsCalcService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
@@ -16,6 +17,7 @@ class RlMemEdit extends Component
 {
     public $action = null;
     public $actionId = null;
+    public $cnt = [];
 
     public $teilnehmer = null;
     public $teilnehmerSelections = [];
@@ -377,6 +379,9 @@ class RlMemEdit extends Component
             //Log::debug('action aus DB : '.print_r($this->action, true));
             //$q = ;
             //Log::debug('sql: '.print_r(DB::getQueryLog(), true));
+
+            $cntService = new ParticipantsCalcService();
+            $this->cnt = $cntService->counts($this->actionId);
 
             /*+++++++++++++++++++
              * Teilnehmer

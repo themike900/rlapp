@@ -104,14 +104,21 @@ class ParticipantsCalcService
         if ( in_array($action_type_sc, ['vf','af','uf','gfx','gfm','bf'])) {
             $cnt['ac_tn_free'] = $cnt['ac_max_pers']  // maximale Plätze für die Fahrt
                 - 1                                // minus ein Kapitän
-                - $cnt['ac_guests_res']            // minus angenommene Gäste
-                - $cnt['ac_crew']                  // minus Crew (min 6)
-                - $cnt['ac_tn_ang'];               // minus angemeldete Teilnehmer
+                - $cnt['ac_guests_res']            // minus angenommene Gäste, minimum reservierte Gästeplätze
+                - $cnt['ac_crew']                  // minus Crew (min 5/6)
+                - $cnt['ac_tn_ang'];                // minus angemeldete Teilnehmer
+            $cnt['ac_sum'] = 1 +
+                $cnt['ac_crew'] +
+                $cnt['ac_tn_ang'] +
+                $cnt['ac_guests_angn'];
         // Bestimmung der freien Teilnehmer-Plätze für Veranstaltungen
         } else {
             $cnt['ac_tn_free'] = $cnt['ac_max_pers']
                 - $cnt['ac_guests_res']
                 - $cnt['ac_tn_ang'];
+            $cnt['ac_sum'] =
+                $cnt['ac_tn_ang'] +
+                $cnt['ac_guests_angn'];
         }
 
         //Log::debug(print_r($cnt, true));
@@ -132,6 +139,7 @@ class ParticipantsCalcService
          *  ac_reg_sv
          *  ac_reg_crsv
          *  ac_crew
+         *  ac_sum
          */
         return $cnt;
     }
