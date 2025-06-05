@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Pdfs;
 
 use App\Http\Controllers\Controller;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -11,23 +12,88 @@ class FartenlistePdf extends Controller
 {
     public function generatePdf($webId)
     {
+        $member = DB::table('members')
+            ->where('webid', $webId)
+            ->first();
+
+        if (str_contains($member->groups,'cr') or str_contains($member->groups,'sf')) {
+            $fahrten = ['vf', 'af', 'uf', 'gfx', 'bf'];
+        } elseif (str_contains($member->groups,'tr')) {
+            $fahrten = ['vf', 'af', 'gfx', 'bf'];
+        } elseif (str_contains($member->groups,'sv')) {
+            $fahrten = ['vf', 'af', 'gfx', 'bf'];
+        } else {
+            $fahrten = ['vf', 'af', 'bf'];
+        }
+
+        $actions = DB::table("actions")
+            //->leftJoin('action_members', 'actions.id', '=', 'action_members.action_id')
+            //->where('action_members.web_id', $webId)
+            ->whereIn('action_state_sc', ['of', 'gs'])
+            ->whereIn('action_type_sc', $fahrten)
+            ->whereDate('action_date', '>=', date('Y-m-d'))
+            ->orderBy('action_date')
+            ->orderBy('action_start_at')
+            ->get();
+
+        foreach ($actions as $action) {
+            $action->week = date('W', strtotime($action->action_date));
+            $action->action_date = Carbon::createFromFormat('Y-m-d', $action->action_date)->isoFormat('dd DD.MM.');
+            $reg = DB::table("action_members")
+                ->where('action_id', $action->id)
+                ->where('web_id', $webId)
+                ->first();
+            if ($reg) {
+                $reg_state = $reg->group . '_' . $reg->reg_state;
+                $action->reg_state_text = match ($reg_state) {
+                    'cr_gpl'  => 'Crew geplant',
+                    'cr_br'   => "Crew gemeldet",
+                    'cr_abgl' => 'Crew abgesagt',
+                    'sv_gpl'  => 'Service geplant',
+                    'sv_br'   => 'Service gemeldet',
+                    'sv_abgl' => 'Service abgesagt',
+                    'crsv_br' => 'Crew/Service bereit',
+                    'sf_ang'  => 'Schiffsführer',
+                    'tn_ang'  => 'Teilnehmer',
+                    'tn_wl'   => 'Teilnehmer Warteliste'
+                };
+
+                if ($reg->group == 'tn') {
+                    $action->start_time = $action->action_start_at;
+                } else {
+                    $action->start_time = $action->crew_start_at;
+                }
+
+            } else {
+                $action->reg_state_text = '';
+                if (str_contains($member->groups,'cr') or str_contains($member->groups,'sf') or str_contains($member->groups,'sv') or str_contains($member->groups,'tr')) {
+                    $action->start_time = $action->crew_start_at;
+                } else {
+                    $action->start_time = $action->action_start_at;
+                }
+
+            }
+
+        }
 
         $regs = DB::table('action_members')
             ->join('actions', 'actions.id', '=', 'action_members.action_id')
             ->where('action_members.web_id', $webId)
-            //->whereIn('action_members.reg_state', ['of', 'gs'])
+            ->whereIn('action_members.reg_state', ['of', 'gs'])
             ->whereDate('action_date', '>=', date('Y-m-d'))
             ->orderBy('actions.action_date')
             ->orderBy('action_start_at')
             ->get();
 
+        foreach ($regs as $reg) {
+            $reg->week = date('W', strtotime($reg->action_date));
+            $reg->action_date = Carbon::createFromFormat('Y-m-d', $reg->action_date)->isoFormat('dd DD.MM.');
+        }
+
         Log::debug($regs);
 
-        $member = DB::table('members')
-            ->where('webid', $webId)
-            ->first();
 
-        $pdf = Pdf::loadView('layouts.fahrtenliste', compact('regs', 'member')); // Blade-Template in PDF umwandeln
+        $pdf = Pdf::loadView('layouts.fahrtenliste', compact('actions', 'member')); // Blade-Template in PDF umwandeln
         return $pdf->stream('fahrtenliste.pdf'); // Direkt im Browser anzeigen
     }
 }

@@ -17,7 +17,7 @@
             font-size: 12px;
         }
         .title {
-            font-size: 24px;
+            font-size: 20px;
             font-weight: bold;
             text-align: center;
             margin-bottom: 20px;
@@ -29,9 +29,9 @@
             margin-top: 20px;
         }
         td {
-            font-size: 12px;
+            font-size: 14px;
             border: 1px solid #ccc;
-            padding: 10px;
+            padding: 5px;
         }
         .text-center {
             text-align: center;
@@ -48,21 +48,35 @@
 
     <h3 class="title">ROYAL-LOUISE Fartenliste für {{ $member->firstname }}</h3>
 
-    <p>No of regs: {{ count($regs) }}</p>
+    @php
+        $currentWeek = null;
+    @endphp
 
-    <table>
-        <tbody>
-        @foreach($regs as $reg)
-            <tr>
-                <td><b>{{ $reg->action_name }}</b></td>
-                <td>{{ $reg->action_date }}</td>
-                <td>{{ $reg->group }}</td>
-                <td>{{ $reg->reg_state }}</td>
-                <td>{{ $reg->action_state_sc }}</td>
-            </tr>
-        @endforeach
-        </tbody>
-    </table>
+    @foreach($actions as $action)
+
+        @if ($currentWeek != $action->week)
+            @php
+                $currentWeek = $action->week;
+            @endphp
+
+            @if(!$loop->first)
+                </tbody>
+                </table>
+            @endif
+            <table>
+                <tbody>
+        @endif
+        <tr>
+            <td style="width: 15%"><b>{{ $action->action_date }}</b></td>
+            <td style="width: 15%">{{ $action->start_time }}</td>
+            <td style="width: 40%"><b>{{ $action->action_name }}</b></td>
+            <td style="width: 30%">{!! $action->reg_state_text !!}</td>
+        </tr>
+    @endforeach
+    @if(!empty($actions))
+                </tbody>
+            </table>
+    @endif
 </div>
 </body>
 </html>
