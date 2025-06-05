@@ -70,7 +70,14 @@
             <td style="width: 15%"><b>{{ $action->action_date }}</b></td>
             <td style="width: 15%">{{ $action->start_time }}</td>
             <td style="width: 40%"><b>{{ $action->action_name }}</b></td>
-            <td style="width: 30%">{!! $action->reg_state_text !!}</td>
+            @if($action->reg_color == 'green')
+                <td style="width: 30%; background-color: lightgreen">{!! $action->reg_state_text !!}</td>
+            @elseif($action->reg_color == 'red')
+                <td style="width: 30%; background-color: lightcoral">{!! $action->reg_state_text !!}</td>
+            @else
+                <td style="width: 30%; background-color: white">{!! $action->reg_state_text !!}</td>
+            @endif
+
         </tr>
     @endforeach
     @if(!empty($actions))

@@ -47,15 +47,20 @@ class FartenlistePdf extends Controller
                 $reg_state = $reg->group . '_' . $reg->reg_state;
                 $action->reg_state_text = match ($reg_state) {
                     'cr_gpl'  => 'Crew geplant',
-                    'cr_br'   => "Crew gemeldet",
-                    'cr_abgl' => 'Crew abgesagt',
+                    'cr_br'   => '? - Crew gemeldet',
+                    'cr_abgl' => 'x - Crew abgesagt',
                     'sv_gpl'  => 'Service geplant',
-                    'sv_br'   => 'Service gemeldet',
-                    'sv_abgl' => 'Service abgesagt',
-                    'crsv_br' => 'Crew/Service bereit',
+                    'sv_br'   => '? - Service gemeldet',
+                    'sv_abgl' => 'x - Service abgesagt',
+                    'crsv_br' => '? - Crew/Service gemeldet',
                     'sf_ang'  => 'Schiffsführer',
                     'tn_ang'  => 'Teilnehmer',
-                    'tn_wl'   => 'Teilnehmer Warteliste'
+                    'tn_wl'   => '? - Teilnehmer Warteliste'
+                };
+                $action->reg_color = match ($reg_state) {
+                    'cr_gpl','sv_gpl','sf_ang','tn_ang'  => 'green',
+                    'cr_br','sv_br','crsv_br','tn_wl'  => 'white',
+                    'cr_abgl','sv_abgl' => 'red'
                 };
 
                 if ($reg->group == 'tn') {
@@ -66,6 +71,7 @@ class FartenlistePdf extends Controller
 
             } else {
                 $action->reg_state_text = '';
+                $action->reg_color = 'white';
                 if (str_contains($member->groups,'cr') or str_contains($member->groups,'sf') or str_contains($member->groups,'sv') or str_contains($member->groups,'tr')) {
                     $action->start_time = $action->crew_start_at;
                 } else {
