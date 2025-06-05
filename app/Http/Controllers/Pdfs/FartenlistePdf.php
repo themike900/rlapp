@@ -12,6 +12,10 @@ class FartenlistePdf extends Controller
 {
     public function generatePdf($webId)
     {
+        $multiplikator = (int)date('j') + (int)date('n') + (int)date('y');
+        Log::debug("multiplikator: $multiplikator");
+        $webId = $webId/$multiplikator;
+
         $member = DB::table('members')
             ->where('webid', $webId)
             ->first();
