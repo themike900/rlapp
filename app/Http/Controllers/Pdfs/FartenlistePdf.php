@@ -10,11 +10,14 @@ use Illuminate\Support\Facades\Log;
 
 class FartenlistePdf extends Controller
 {
-    public function generatePdf($webId)
+    public function generatePdf($webId_enc)
     {
-        $multiplikator = (int)date('j') + (int)date('n') + (int)date('y');
+        /*$multiplikator = (int)date('j') + (int)date('n') + (int)date('y');
         Log::debug("multiplikator: $multiplikator");
-        $webId = $webId/$multiplikator;
+        $webId = $webId/$multiplikator;*/
+
+        $decoded = base64_decode($webId_enc);
+        list($webId,$rand) = explode('/', $decoded);
 
         $member = DB::table('members')
             ->where('webid', $webId)
