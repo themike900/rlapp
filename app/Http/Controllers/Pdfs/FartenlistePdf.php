@@ -72,20 +72,30 @@ class FartenlistePdf extends Controller
 
                 if ($reg->group == 'tn') {
                     $action->start_time = $action->action_start_at;
+                    $action->end_time = $action->action_end_at;
                 } else {
                     $action->start_time = $action->crew_start_at;
+                    $action->end_time = $action->crew_end_at;
                 }
+
 
             } else {
                 $action->reg_state_text = '';
                 $action->reg_color = 'white';
                 if (str_contains($member->groups,'cr') or str_contains($member->groups,'sf') or str_contains($member->groups,'sv') or str_contains($member->groups,'tr')) {
                     $action->start_time = $action->crew_start_at;
+                    $action->end_time = $action->crew_end_at;
                 } else {
                     $action->start_time = $action->action_start_at;
+                    $action->end_time = $action->action_end_at;
                 }
 
             }
+            $action->sf_name = DB::table('action_members')
+                ->where('action_id', $action->id)
+                ->where('group', 'sf')
+                ->join('members', 'action_members.web_id', '=', 'members.webid')
+                ->value('members.firstname') ?? '';
 
         }
 

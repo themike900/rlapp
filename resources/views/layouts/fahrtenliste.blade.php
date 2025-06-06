@@ -67,15 +67,16 @@
                 <tbody>
         @endif
         <tr>
-            <td style="width: 15%"><b>{{ $action->action_date }}</b></td>
-            <td style="width: 15%">{{ $action->start_time }}</td>
-            <td style="width: 40%"><b>{{ $action->action_name }}</b></td>
+            <td style="width: 12%"><b>{{ $action->action_date }}</b></td>
+            <td style="width: 15%">{{ $action->start_time }}-{{ $action->end_time }}</td>
+            <td style="width: 30%"><b>{{ $action->action_name }}</b></td>
+            <td style="width: 15%">SF: {{ $action->sf_name }}</td>
             @if($action->reg_color == 'green')
-                <td style="width: 30%; background-color: #aff6af">{!! $action->reg_state_text !!}</td>
+                <td style="width: 25%; background-color: #aff6af">{!! $action->reg_state_text !!}</td>
             @elseif($action->reg_color == 'red')
-                <td style="width: 30%; background-color: #fbbcbc">{!! $action->reg_state_text !!}</td>
+                <td style="width: 25%; background-color: #fbbcbc">{!! $action->reg_state_text !!}</td>
             @else
-                <td style="width: 30%; background-color: white">{!! $action->reg_state_text !!}</td>
+                <td style="width: 25%; background-color: white">{!! $action->reg_state_text !!}</td>
             @endif
 
         </tr>
