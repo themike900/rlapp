@@ -56,10 +56,10 @@
                         <div x-show="open" @click.away="open = false" class="absolute p-1 mt-2 w-52 bg-white border rounded shadow-lg z-50">
                             <button wire:click="openViewModal({{ $action->id }})" class="block w-full px-3 py-1 text-gray-700 hover:bg-gray-200">Details anzeigen</button>
                             <button wire:click="openEditModal({{ $action->id }})" class="block w-full px-3 py-1 text-gray-700 hover:bg-gray-200">Daten ändern</button>
-                            @if (in_array($action->action_type_sc,['vf','gfx','af','uf','bf']))
+                            @if (in_array($action->action_type_sc,['vf','gfx','af','uf','bf']) and in_array($action->action_state_sc,['iv','br','of','gs']))
                                 <button wire:click="openCrewPage({{ $action->id }})" class="block w-full px-3 py-1 text-gray-700 hover:bg-gray-200">Crew-Planung</button>
                             @endif
-                            @if (in_array($action->action_type_sc,['vf','af','bf','vt','sc','mv','vr','afr','abr','wa']))
+                            @if (in_array($action->action_type_sc,['vf','af','bf','vt','sc','mv','vr','afr','abr','wa']) and in_array($action->action_state_sc,['of','gs']))
                                 <button wire:click="openTeilnehmerPage({{ $action->id }})" class="block w-full px-3 py-1 text-gray-700 hover:bg-gray-200">Teilnehmer/Gäste</button>
                             @endif
                             <button wire:click="openStatusModal({{ $action->id }})" class="block w-full px-3 py-1 text-gray-700 hover:bg-gray-200">Status ändern</button>

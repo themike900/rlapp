@@ -87,7 +87,15 @@ class RlCrewEdit extends Component
             ->orderBy('action_date')
             ->orderBy('action_start_at')
             ->get(['id', 'action_name', 'action_date', 'action_start_at', 'action_end_at']);
-        //Log::debug('actions für select aus DB : '.print_r($this->selectActions, true));
+        $otherAction = DB::table("actions")
+            ->where('id', $this->actionId)
+            ->whereIn('action_state_sc', ['iv', 'br'])
+            ->whereIn('action_type_sc', ['vf', 'af', 'uf', 'gfx','bf'])
+            ->first();
+        if (!empty($otherAction)) {
+            $this->selectActions->push($otherAction);
+        }
+        Log::debug('actions für select aus DB : '.print_r($this->selectActions, true));
         $this->actionId = (empty($this->actionId)) ? $this->selectActions[0]->id : $this->actionId;
 
         $this->captains = DB::table('members')
