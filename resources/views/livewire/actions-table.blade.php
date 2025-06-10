@@ -12,8 +12,8 @@
                 <option value="br">bereit (kann veröffentlicht werden)</option>
                 <option value="of">offen (sichtbar, Anmeldung möglich)</option>
                 <option value="gs">geschlossen (sichtbar, keine Anmeldungen mehr)</option>
-                <option value="df,as,ag">erledigt (nicht mehr sichtbar)</option>
-                <option value="iv,br,of,gs,df,as,ag">alle</option>
+                <option value="df,as,ag,af">erledigt (nicht mehr sichtbar)</option>
+                <option value="iv,br,of,gs,df,as,ag,af">alle</option>
             </select>
         </div>
     </div>
