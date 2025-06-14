@@ -23,11 +23,12 @@ class ParticipantsListService
             ->where('action_members.group', 'sf')
             ->select(['nickname','name','firstname'])
             ->first();
-        if (!empty($captain)) {
+        $members['captain'] = (!empty($captain)) ? $captain['nickname'] : '&nbsp;' ;
+        /*if (!empty($captain)) {
             $members['captain'] = $captain['nickname'];
         } else {
             $members['captain'] = '&nbsp;';
-        }
+        }*/
 
         //Nicknames der Crew-Mitglieder holen (alle Fahrten)
         $crew = DB::table('action_members')

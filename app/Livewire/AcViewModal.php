@@ -6,6 +6,7 @@ use App\Models\Action;
 use App\Services\ParticipantsCalcService;
 use App\Services\ParticipantsListService;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 
 class AcViewModal extends Component
@@ -34,6 +35,8 @@ class AcViewModal extends Component
             $members['crew']            = implode(", ", $members['crew']);
             $members['service']         = implode(", ", $members['service']);
             $this->members = $members;
+
+            Log::debug('members: '. print_r($members, true));
 
             $cnt_srv = new ParticipantsCalcService();
             $this->cnt = $cnt_srv->counts($actionId);

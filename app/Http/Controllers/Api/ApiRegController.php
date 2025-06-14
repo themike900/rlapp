@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\SendEmail;
 use App\Models\Action;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
@@ -215,7 +216,7 @@ class ApiRegController extends Controller
                 DB::table('action_members')
                     ->where('id', $reg_id)
                     ->delete();
-                Log::debug('ApiRegController.deleted tn');
+                Log::debug('ApiRegController.deleted Mitglied');
 
                 DB::table('guests')
                     ->where('reg_id', $reg_id)->delete();
@@ -237,15 +238,15 @@ class ApiRegController extends Controller
                             ->where('action_id', $action_id)
                             ->orderBy('created_at')
                             ->first('id');
-                        Log::debug('ApiRegController.wl_first');
-                        Log::debug("ApiRegController.wl_first\n".print_r($wl_first, true));
+                        //Log::debug('ApiRegController.wl_first');
+                        //Log::debug("ApiRegController.wl_first $wl_first");
 
                         if (!empty($wl_first)) {
                             DB::table('action_members')
                                 ->where('id', $wl_first->id)
                                 ->update(['reg_state' => 'ang','updated_at' => Carbon::now()]);
                             Log::debug('ApiRegController.tn_wl to tn_ang');
-
+                            dispatch(new SendEmail($web_id, 'wl-zu-tn', ['action_id' => $action_id]));
                         }
                     }
                 }
