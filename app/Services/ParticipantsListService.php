@@ -23,12 +23,8 @@ class ParticipantsListService
             ->where('action_members.group', 'sf')
             ->select(['nickname','name','firstname'])
             ->first();
-        $members['captain'] = (!empty($captain)) ? $captain['nickname'] : '&nbsp;' ;
-        /*if (!empty($captain)) {
-            $members['captain'] = $captain['nickname'];
-        } else {
-            $members['captain'] = '&nbsp;';
-        }*/
+        $members['captain'] = (!empty($captain)) ? $captain['firstname'] : '&nbsp;' ;
+
 
         //Nicknames der Crew-Mitglieder holen (alle Fahrten)
         $crew = DB::table('action_members')
@@ -55,13 +51,13 @@ class ParticipantsListService
             ->whereLike('action_members.group', '%sv%')
             ->whereNot('action_members.reg_state', 'abgl')
             ->orderBy('members.firstname')
-            ->select(['nickname','name','firstname'])
+            ->select(['nickname','name','firstname','fullname'])
             ->get();
         $members['service'] = "&nbsp;";
         if (!empty($service)) {
             $members['service'] = [];
             foreach ($service as $sv) {
-                $members['service'][] = $sv->firstname . ' ' . $sv->name;
+                $members['service'][] = $sv->fullname;
             }
             //$members['service'] = implode("<br/>", $members['service']);
         }
@@ -73,13 +69,13 @@ class ParticipantsListService
             ->where('action_members.group', 'tn')
             ->where('action_members.reg_state', 'ang')
             ->orderBy('members.firstname')
-            ->select(['nickname','name','firstname'])
+            ->select(['nickname','name','firstname','fullname'])
             ->get();
         $members['participants'] = "&nbsp;";
         if (!empty($participants)) {
             $members['participants'] = [];
             foreach ($participants as $pp) {
-                $members['participants'][] = $pp->firstname . ' ' . $pp->name;
+                $members['participants'][] = $pp->fullname;
             }
             //$members['participants'] = implode("<br>", $members['participants']);
         }
@@ -91,13 +87,13 @@ class ParticipantsListService
             ->where('action_members.group', 'tn')
             ->where('action_members.reg_state', 'wl')
             ->orderBy('members.firstname')
-            ->select(['nickname','name','firstname'])
+            ->select(['nickname','name','firstname','fullname'])
             ->get();
         $members['participants_wl'] = "&nbsp;";
         if (!empty($participants_wl)) {
             $members['participants_wl'] = [];
             foreach ($participants_wl as $pp) {
-                $members['participants_wl'][] = $pp->firstname . ' ' . $pp->name;
+                $members['participants_wl'][] = $pp->fullname;
             }
             //$members['participants_wl'] = implode("<br/>", $members['participants_wl']);
         }
