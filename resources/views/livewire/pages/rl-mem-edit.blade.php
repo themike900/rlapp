@@ -213,7 +213,7 @@
                                                 class="absolute py-2 pe-2 bg-white border rounded w-80 mt-1 shadow-lg">
                                                 @foreach($suchErgebnisse as $person)
                                                     <li wire:click="addMember({{ $person->id }},'gst','angefragt'); open = false; search = ''"
-                                                        wire:confirm="{{ $person->fullname }} zu Warteliste hinzufügen?; open = false"
+                                                        wire:confirm="Gast für {{ $person->fullname }} zu Gästeliste hinzufügen?"
                                                         class="p-0 hover:bg-gray-200 cursor-pointer">
                                                         {{ $person->fullname }}
                                                     </li>

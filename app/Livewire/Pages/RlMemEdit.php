@@ -286,7 +286,7 @@ class RlMemEdit extends Component
      ****************************************/
     public function addMember($memberId,$group,$state=null): void
     {
-        Log::debug('addMember: '.$memberId);
+        Log::debug("addMember: $memberId, $group, $state");
         $member = DB::table('members')->find($memberId);
         if ($member) {
 
@@ -323,12 +323,24 @@ class RlMemEdit extends Component
 
             if ($group == 'gst') {
 
-                Log::debug('guest for: '.$memberId);
-                /*DB::table('guests')
+                Log::debug('guest for webid: '.$memberId);
+
+                $reg_id = DB::table('action_members')
+                    ->where('action_id',$this->actionId)
+                    ->where('web_id',$member->webid)
+                    ->value('id');
+
+                Log::debug('guest for regid: '.$reg_id);
+
+                DB::table('guests')
                     ->insert([
                         'created_at' => now(),
-                        'reg_id'
-                    ]);*/
+                        'reg_id' => $reg_id,
+                        'gst_action_id' => $this->actionId,
+                        'gst_state' => 'angefragt',
+                        'name' => 'Gast',
+                        'reference' => 'manuell'
+                    ]);
             }
 
         }
