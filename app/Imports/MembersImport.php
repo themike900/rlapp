@@ -40,32 +40,40 @@ class MembersImport implements ToModel, WithHeadingRow
             if ($row['e_mail'] != '-') {
                 // suche ein Mitglied mit dieser Email-Adresse und diesem Vornamen
                 $member = Member::where('email', $row['e_mail'])->where('firstname',$row['vorname'])->first();
-                Log::debug("import neu mit email '{$row['e_mail']}' und mv_id '{$row['nr']}'");
+                Log::debug("import member, gefunden mit email '{$row['e_mail']}' und mv_id '{$row['nr']}'");
             } else {
                 // wenn zu importierendes Mitglied kein Email-Adresse hat
                 // suche Mitglied mit Vorname und Nachname
                 $member = Member::where('name', $row['nachname'])->where('firstname',$row['vorname'])->first();
-                Log::debug("import neu nachname '{$row['nachname']}' und mv_id '{$row['nr']}'");
+                Log::debug("import member, gefunden mit nachname '{$row['nachname']}' und mv_id '{$row['nr']}'");
             }
         }
 
         // Wenn Mitglied schon vorhanden, nur groups und mv_id überschreiben
          if ($member) {
-             $member->mv_id = $row['nr'];
-             $member->groups = $groups;
-             $member->save();
+
+             if ($member->mv_id != $row['nr'] or $member->groups != $groups) {
+
+                 Log::debug("import member ändern: $member->mv_id => {$row['nr']}, $member->groups => {$groups}");
+
+                 $member->mv_id = $row['nr'];
+                 $member->groups = $groups;
+                 $member->save();
+
+             }
 
              // Wenn nein, neuen Datensatz anlegen
          } else {
+
              Log::debug('insert: '.print_r($row, true));
+
              $member = Member::create([
-                 'mv_id'     => $row['nr'] ?? null,
+                 'mv_id'      => $row['nr'] ?? null,
                  'firstname'  => $row['vorname'] ?? '',
                  'name'       => $row['nachname'] ?? '',
-                 //'nickname'   => $row['vorname'] . ' ' . substr($row['nachname'], 0,1 )?? '',
                  'nickname'   => '',
-                 'email'      => $row['e_mail'] ?? null,
-                 'groups'     => $groups,
+                 'email'      => $row['e_mail'] ?? '',
+                 'groups'     => $groups ?? '',
              ]);
          }
 
