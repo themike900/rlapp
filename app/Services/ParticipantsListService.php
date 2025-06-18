@@ -33,15 +33,14 @@ class ParticipantsListService
             ->whereLike('action_members.group', '%cr%')
             ->whereNot('action_members.reg_state', 'abgl')
             ->orderBy('members.firstname')
-            ->select(['nickname','name','firstname'])
+            ->select(['fullname'])
             ->get();
         $members['crew'] = "&nbsp;";
         if (!empty($crew)) {
             $members['crew'] = [];
             foreach ($crew as $cr) {
-                $members['crew'][] = $cr->firstname . ' ' . $cr->name;
+                $members['crew'][] = $cr->fullname;
             }
-            //$members['crew'] = implode(", ", $members['crew']);
         }
 
         // Nicknames der Service-Mitglieder holen (Gästefahrt, Vereinsfahrt, Ausbildungsfahrt)
@@ -51,7 +50,7 @@ class ParticipantsListService
             ->whereLike('action_members.group', '%sv%')
             ->whereNot('action_members.reg_state', 'abgl')
             ->orderBy('members.firstname')
-            ->select(['nickname','name','firstname','fullname'])
+            ->select(['fullname'])
             ->get();
         $members['service'] = "&nbsp;";
         if (!empty($service)) {
@@ -59,7 +58,6 @@ class ParticipantsListService
             foreach ($service as $sv) {
                 $members['service'][] = $sv->fullname;
             }
-            //$members['service'] = implode("<br/>", $members['service']);
         }
 
         // Nicknames der Teilnehmer holen (Vereinsfahrt, Vereinstreffen, Shanty-Chor, ...)
@@ -69,7 +67,7 @@ class ParticipantsListService
             ->where('action_members.group', 'tn')
             ->where('action_members.reg_state', 'ang')
             ->orderBy('members.firstname')
-            ->select(['nickname','name','firstname','fullname'])
+            ->select(['fullname'])
             ->get();
         $members['participants'] = "&nbsp;";
         if (!empty($participants)) {
@@ -77,7 +75,6 @@ class ParticipantsListService
             foreach ($participants as $pp) {
                 $members['participants'][] = $pp->fullname;
             }
-            //$members['participants'] = implode("<br>", $members['participants']);
         }
 
         // Nicknames der Wartelisten-Teilnehmer holen (Vereinsfahrt, Vereinstreffen, ...)
@@ -87,7 +84,7 @@ class ParticipantsListService
             ->where('action_members.group', 'tn')
             ->where('action_members.reg_state', 'wl')
             ->orderBy('members.firstname')
-            ->select(['nickname','name','firstname','fullname'])
+            ->select(['fullname'])
             ->get();
         $members['participants_wl'] = "&nbsp;";
         if (!empty($participants_wl)) {
@@ -95,10 +92,8 @@ class ParticipantsListService
             foreach ($participants_wl as $pp) {
                 $members['participants_wl'][] = $pp->fullname;
             }
-            //$members['participants_wl'] = implode("<br/>", $members['participants_wl']);
         }
+
         return $members;
-
     }
-
 }
