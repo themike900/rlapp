@@ -238,8 +238,8 @@ class ApiRegController extends Controller
                             ->where('action_id', $action_id)
                             ->orderBy('created_at')
                             ->first('id');
-                        //Log::debug('ApiRegController.wl_first');
-                        //Log::debug("ApiRegController.wl_first $wl_first");
+                        Log::debug('ApiRegController.wl_first');
+                        //Log::debug("ApiRegController.wl_first $wl_first->id");
 
                         if (!empty($wl_first)) {
                             DB::table('action_members')

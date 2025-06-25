@@ -72,7 +72,7 @@ class FartenblattPdf extends Controller
         //Log::debug($members['service']);
 
         // Nicknames der Service-Mitglieder holen (Gästefahrt, Vereinsfahrt, Ausbildungsfahrt)
-         $teilnehmer = DB::table('action_members')
+        $teilnehmer = DB::table('action_members')
             ->join('members', 'members.webid', '=', 'action_members.web_id')
             ->where('action_members.action_id', $actionId)
             ->where('action_members.group', 'tn')

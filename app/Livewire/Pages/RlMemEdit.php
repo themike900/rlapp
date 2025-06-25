@@ -413,9 +413,20 @@ class RlMemEdit extends Component
 
                 $this->teilnehmerSelections[$tn->web_id] = 'tn';
                 $tn->count = DB::table('action_members')
+                    ->join('actions', 'actions.id', '=', 'action_members.action_id')
                     ->where('web_id', $tn->web_id)
-                    ->whereYear('created_at', now()->year)
-                    ->count('id');
+                    ->whereYear('action_members.created_at', now()->year)
+                    ->whereDate('action_members.created_at','<=',today() )
+                    ->whereIn('group', ['tn', 'gst'])
+                    ->whereIn('actions.action_type_sc', ['vf','af','bf'])
+                    ->count('action_members.id');
+
+                $tn->rols = (substr_count($tn->groups,'cr')) ? 'Crew,' : '';
+                $tn->rols = (substr_count($tn->groups, 'sv')) ? $tn->rols.'Service,' : $tn->rols;
+                $tn->rols = (substr_count($tn->groups, 'tr')) ? $tn->rols.'Trainee,' : $tn->rols;
+                $tn->rols = (substr_count($tn->groups, 'ae')) ? $tn->rols.'aufentern,' : $tn->rols;
+                $tn->rols = substr($tn->rols,0,strlen($tn->rols)-1);
+
             }
             $this->newTeilnehmerSelections = $this->teilnehmerSelections;
 

@@ -66,6 +66,7 @@
                                 <td class="max-w-80 min-w-60 px-2 py-1 border">Mitglied</td>
                                 <td class="min-w-40 px-3 py-1 border">Status</td>
                                 <td class="min-w-20 px-2 py-1 border">Fahrten</td>
+                                <td class="min-w-20 px-2 py-1 border">Rollen</td>
                             </tr>
                             </thead>
                             @foreach($teilnehmer as $tn)
@@ -86,6 +87,7 @@
                                         </select>
                                     </td>
                                     <td class="text-center px-2 py-1 border">{{ $tn->count }}</td>
+                                    <td class="px-2 py-1 border">{{ $tn->rols }}</td>
                                 </tr>
                             @endforeach
                         </table>
