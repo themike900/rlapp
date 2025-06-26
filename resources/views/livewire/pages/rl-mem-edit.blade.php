@@ -66,7 +66,7 @@
                                 <td class="max-w-80 min-w-60 px-2 py-1 border">Mitglied</td>
                                 <td class="min-w-40 px-3 py-1 border">Status</td>
                                 <td class="min-w-20 px-2 py-1 border">Fahrten</td>
-                                <td class="min-w-20 px-2 py-1 border">Rollen</td>
+                                <td class="min-w-20 px-2 py-1 border">Level</td>
                             </tr>
                             </thead>
                             @foreach($teilnehmer as $tn)

@@ -633,7 +633,7 @@ class RlCrewEdit extends Component
                 $crew->count = DB::table('action_members')
                     ->where('web_id', $crew->web_id)
                     ->whereYear('created_at', now()->year)
-                    ->where('group', 'cr')
+                    ->whereIn('group', ['cr','sf'])
                     ->where('reg_state', 'gpl')
                     ->count('id');
 
