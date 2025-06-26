@@ -46,7 +46,7 @@
         <span>{{ date('d.m.Y') }}</span>
     </div>
 
-    <h3 class="title">ROYAL-LOUISE Fartenliste für {{ $member->firstname }}</h3>
+    <h3 class="title">ROYAL-LOUISE Fahrtenliste für {{ $member->firstname }}</h3>
 
     @php
         $currentWeek = null;

@@ -156,6 +156,10 @@ class MembersTable extends Component
                 ->whereYear('actions.action_date', '=', now()->year)
                 ->where('action_members.group', '=','sf')
                 ->count();
+
+            $rand = mt_rand(1000000000,9999999999);
+            $member->webIdEnc = base64_encode( $member->webid . '/' . $rand);
+
         }
 
         if ($this->orderFahrten != '') {

@@ -80,7 +80,10 @@
         </thead>
         <tbody>
         @foreach($members as $member)
-            <tr class="border">
+            <tr class="border cursor-pointer hover:bg-gray-100"
+                @click="window.open('{{ route('rl-fahrtenliste', ['webId' => $member->webIdEnc]) }}', '_blank')"
+                title="Klicke, um die Fahrtenliste von {{ $member->fullname }} anzuzeigen"
+            >
                 <td class="p-2">{{ $member->firstname }}</td>
                 <td class="p-2">{{ $member->name }}</td>
                 <td class="p-2">{{ $member->groups }}</td>
