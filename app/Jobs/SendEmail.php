@@ -52,6 +52,7 @@ class SendEmail implements ShouldQueue
             ->join('members','members.webid','=','action_members.web_id')
             ->first();
         $sf_name = (!empty($captain)) ? $captain->firstname : 'noch offen';
+        $sf_mobile = (!empty($captain)) ? $captain->mobile : '';
 
         // Email-Template holen
         $template= DB::table('email_templates')
@@ -75,7 +76,9 @@ class SendEmail implements ShouldQueue
             'action_start_at' => $action->action_start_at,
             'firstname' => $member->firstname,
             'captain' => $sf_name,
-            'gst_name' => $gst_name
+            'gst_name' => $gst_name,
+            'sf_mobile' => $sf_mobile,
+            'cancel_reason' => $action->cancel_reason
         ]);
         Log::debug("data: " . print_r($data, true));
 

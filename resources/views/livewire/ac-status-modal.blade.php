@@ -49,7 +49,7 @@
             <label class="flex items-center space-x-3">
                 <input type="radio" name="state" value="af" wire:model="action_state_sc"
                        class="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500">
-                <span class="text-gray-700">ausgefallen</span>
+                <span class="text-gray-700">abgesagt</span>
             </label>
         </div>
 

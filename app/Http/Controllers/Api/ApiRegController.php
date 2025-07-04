@@ -237,7 +237,7 @@ class ApiRegController extends Controller
                             ->where('reg_state', 'wl')
                             ->where('action_id', $action_id)
                             ->orderBy('created_at')
-                            ->first('id');
+                            ->first();
                         Log::debug('ApiRegController.wl_first');
                         //Log::debug("ApiRegController.wl_first $wl_first->id");
 
@@ -246,7 +246,7 @@ class ApiRegController extends Controller
                                 ->where('id', $wl_first->id)
                                 ->update(['reg_state' => 'ang','updated_at' => Carbon::now()]);
                             Log::debug('ApiRegController.tn_wl to tn_ang');
-                            dispatch(new SendEmail($web_id, 'wl-zu-tn', ['action_id' => $action_id]));
+                            dispatch(new SendEmail($wl_first->web_id, 'wl-zu-tn', ['action_id' => $action_id]));
                         }
                     }
                 }

@@ -72,6 +72,15 @@ class ActionsTable extends Component
         $this->dispatch('open-ac-members-modal', actionId: $actionId);
     }
 
+    public function openCancelModal($actionId): void
+    {
+        //Log::debug('openCancelModal, actionID: ' . $actionId);
+        session()->put('actionID', $actionId);
+
+        $this->selectedActionId = $actionId;
+        $this->dispatch('open-ac-cancel-modal', actionId: $actionId);
+    }
+
     public function render(): View
     {
         //Log::debug('Filter: '.$this->filter);
