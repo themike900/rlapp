@@ -26,9 +26,9 @@ class FartenlistePdf extends Controller
         } elseif (str_contains($member->groups,'tr')) {
             $fahrten = ['vf', 'af', 'gfx', 'bf'];
         } elseif (str_contains($member->groups,'sv')) {
-            $fahrten = ['vf', 'af', 'gfx', 'bf'];
+            $fahrten = ['vf', 'af', 'gfx'];
         } else {
-            $fahrten = ['vf', 'af', 'bf'];
+            $fahrten = ['vf', 'af'];
         }
 
         $actions = DB::table("actions")
