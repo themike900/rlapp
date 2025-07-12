@@ -119,7 +119,7 @@
             <td><b>Crew an Bord - von Bord</b></td>
             <td>{{ $action->crew_start_at ?? '' }} - {{ $action->crew_end_at ?? '' }}</td>
         </tr>
-        @if(in_array($action->action_type_sc, ['gfx','uf']))
+        @if(in_array($action->action_type_sc, ['gfx','uf','bf']))
 
             <tr>
             <td><b>Besatzung</b></td>
