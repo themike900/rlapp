@@ -61,12 +61,6 @@
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700">Eis</label>
-                    <input type="text" placeholder="... wo kommt das Eis her?" wire:model.defer="ice_info"
-                           class="mt-1 w-full border border-gray-300 rounded px-2 py-1 shadow-sm hover:bg-gray-100 focus:ring-1">
-                </div>
-
-                <div>
                     <label class="block text-sm font-medium text-gray-700">Maximale Anzahl der Gäste</label>
                     <input type="number" min="0" max="20" wire:model.defer="ac_max_guests"
                            class="mt-1 px-2 py-1 block w-full rounded-md border shadow-sm hover:bg-gray-100focus:ring-indigo-500 focus:border-indigo-500">

@@ -95,13 +95,11 @@
                 <td>{{ $action->catering_info ?? '' }}</td>
             </tr>
         @endif
-        @if(in_array($action->action_type_sc, ['gfx','vf']))
+        @if($action->action_type_sc == 'gfx')
             <tr>
                 <td><b>Eis</b></td>
                 <td>{{ $action->ice_info ?? '' }}</td>
             </tr>
-        @endif
-        @if($action->action_type_sc == 'gfx')
             <tr>
                 <td><b>Crew-Versorgung</b></td>
                 <td>{{ $action->crew_supply ?? '' }}</td>

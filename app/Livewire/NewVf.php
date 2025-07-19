@@ -19,7 +19,7 @@ class NewVf extends Component
     public string $crew_end_at = "00:00";
     public string $action_start_at = "00:00";
     public string $action_end_at = "00:00";
-    public string $ice_info = "Bitte Eis besorgen";
+    public string $ice_info = "";
     public string $additional_info = "";
     public string $ac_with_wl = "0";
     public string $ac_max_guests = "0";
