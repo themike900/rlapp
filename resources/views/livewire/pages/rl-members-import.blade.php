@@ -11,6 +11,13 @@
                 @if(session('success'))
                     <div>{{ session('success') }}</div>
                 @endif
+                <div class="py-2">
+                    Bei MeinVerein eine Mitgliederliste mit allen aktiven Mitgliedern exportieren.<br>
+                    Es müssen mindestens folgende Spalten enthalten sein:<br>
+                    <b>Vorname, Nachname, E-Mail, Mobile, Mannschaft, Aufentern</b><br>
+                    Reihenfolge ist egal, und mehr Spalten stören nicht.<br>
+                    Dann Datei hier auswählen und importieren. Fertig.
+                </div>
 
                 <form action="{{ route('import') }}" method="POST" enctype="multipart/form-data">
                     @csrf

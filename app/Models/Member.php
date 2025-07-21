@@ -13,7 +13,8 @@ class Member extends Model
         'firstname',
         'mem_id',
         'groups',
-        'nickname'
+        'nickname',
+        'mobile'
     ];
 
 }

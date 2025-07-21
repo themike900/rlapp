@@ -15,7 +15,7 @@ class MembersImport implements ToModel, WithHeadingRow
      */
     public function model(array $row): Member
     {
-        //Log::debug(json_encode($row));
+        Log::debug(json_encode($row));
 
         $groups = str_replace('Deckscrew',        'cr', $row['mannschaft']);
         $groups = str_replace('Servicecrew',      'sv', $groups);
@@ -57,6 +57,7 @@ class MembersImport implements ToModel, WithHeadingRow
                  Log::debug("import member ändern: $member->mv_id => {$row['nr']}, $member->groups => {$groups}");
 
                  $member->mv_id = $row['nr'];
+                 $member->mobile = $row['mobile'] ?? '';
                  $member->groups = $groups;
                  $member->save();
 
@@ -74,6 +75,7 @@ class MembersImport implements ToModel, WithHeadingRow
                  'nickname'   => '',
                  'email'      => $row['e_mail'] ?? '',
                  'groups'     => $groups ?? '',
+                 'mobile'     => $row['mobile'] ?? '',
              ]);
          }
 
