@@ -15,7 +15,7 @@ class MembersImport implements ToModel, WithHeadingRow
      */
     public function model(array $row): Member
     {
-        Log::debug(json_encode($row));
+        //Log::debug(json_encode($row));
 
         $groups = str_replace('Deckscrew',        'cr', $row['mannschaft']);
         $groups = str_replace('Servicecrew',      'sv', $groups);
@@ -52,12 +52,12 @@ class MembersImport implements ToModel, WithHeadingRow
         // Wenn Mitglied schon vorhanden, nur groups und mv_id überschreiben
          if ($member) {
 
-             if ($member->mv_id != $row['nr'] or $member->groups != $groups) {
+             if ($member->mv_id != $row['nr'] or $member->groups != $groups or $member->mobile != $row['mobil']) {
 
-                 Log::debug("import member ändern: $member->mv_id => {$row['nr']}, $member->groups => {$groups}");
+                 Log::debug("import member ändern: $member->mv_id => {$row['nr']}, $member->groups => {$groups}, $member->mobile => {$row['mobil']}");
 
                  $member->mv_id = $row['nr'];
-                 $member->mobile = $row['mobile'] ?? '';
+                 $member->mobile = $row['mobil'];
                  $member->groups = $groups;
                  $member->save();
 
@@ -75,7 +75,7 @@ class MembersImport implements ToModel, WithHeadingRow
                  'nickname'   => '',
                  'email'      => $row['e_mail'] ?? '',
                  'groups'     => $groups ?? '',
-                 'mobile'     => $row['mobile'] ?? '',
+                 'mobile'     => $row['mobil'] ?? '',
              ]);
          }
 
