@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use App\Jobs\SendEmail;
 use App\Models\Action;
+use App\Models\ActionMember;
 use Carbon\Carbon;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\DB;
@@ -60,10 +61,7 @@ class AcCancelModal extends Component
 
         foreach ($alle_tn as $tn) {
             dispatch(new SendEmail($tn->web_id, 'fahrt-absage', ['action_id' => $this->actionId]));
-            $reg_state = match ($tn->group) {
-                'cr', 'sv', 'crsv' => 'abgl',
-                'tn' => 'del'
-            };
+            ActionMember::deleteRecord($this->actionId, $tn->web_id);
         }
 
         $this->dispatch('refreshTable');

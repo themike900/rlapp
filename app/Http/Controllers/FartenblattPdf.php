@@ -38,7 +38,7 @@ class FartenblattPdf extends Controller
             ->join('members', 'members.webid', '=', 'action_members.web_id')
             ->where('action_members.action_id', $actionId)
             ->whereLike('action_members.group', '%cr%')
-            ->whereNot('action_members.reg_state', 'abgl')
+            ->where('action_members.reg_state', 'gpl')
             ->orderBy('members.firstname')
             ->select(['nickname','name','firstname','fullname'])
             ->get();
@@ -57,7 +57,7 @@ class FartenblattPdf extends Controller
             ->join('members', 'members.webid', '=', 'action_members.web_id')
             ->where('action_members.action_id', $actionId)
             ->whereLike('action_members.group', '%sv%')
-            ->whereNot('action_members.reg_state', 'abgl')
+            ->where('action_members.reg_state', 'gpl')
             ->orderBy('members.firstname')
             ->select(['nickname','name','firstname','fullname'])
             ->get();
