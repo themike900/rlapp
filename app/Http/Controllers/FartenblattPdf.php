@@ -40,13 +40,13 @@ class FartenblattPdf extends Controller
             ->whereLike('action_members.group', '%cr%')
             ->where('action_members.reg_state', 'gpl')
             ->orderBy('members.firstname')
-            ->select(['nickname','name','firstname','fullname'])
+            ->select(['fullname','mobile'])
             ->get();
         $members['crew'] = "&nbsp;";
         if (!empty($crew)) {
             $members['crew'] = [];
             foreach ($crew as $cr) {
-                $members['crew'][] = $cr->fullname;
+                $members['crew'][] = "$cr->fullname<br>&nbsp;&nbsp;&nbsp;<small>($cr->mobile)</small>";
             }
             $members['crew'] = implode(", ", $members['crew']);
         }
@@ -59,13 +59,13 @@ class FartenblattPdf extends Controller
             ->whereLike('action_members.group', '%sv%')
             ->where('action_members.reg_state', 'gpl')
             ->orderBy('members.firstname')
-            ->select(['nickname','name','firstname','fullname'])
+            ->select(['fullname', 'mobile'])
             ->get();
         $members['service'] = "&nbsp;";
         if (!empty($service)) {
             $members['service'] = [];
             foreach ($service as $sv) {
-                $members['service'][] = $sv->fullname;
+                $members['service'][] = "$sv->fullname<br>&nbsp;&nbsp;&nbsp;<small>($cr->mobile)</small>";
             }
             $members['service'] = implode(", ", $members['service']);
         }
