@@ -284,6 +284,12 @@ class RlCrewEdit extends Component
                         'reg_state' => $reg_state,
                         'reg_email' => 'crew-absage'
                     ]);
+                } elseif ($reg_state == 'sv') {
+                    ActionMember::updateRecord($this->actionId, $web_id,[
+                        'reg_state' => 'br',
+                        'group' => 'sv',
+                        'reg_email' => 'crew-zu-service'
+                    ]);
                 } else {
                     ActionMember::updateRecord($this->actionId, $web_id,[
                         'reg_state' => $reg_state,
@@ -381,6 +387,12 @@ class RlCrewEdit extends Component
                     ActionMember::updateRecord($this->actionId, $web_id,[
                         'reg_state' => $reg_state,
                         'reg_email' => 'service-absage'
+                    ]);
+                } elseif ($reg_state == 'cr') {
+                    ActionMember::updateRecord($this->actionId, $web_id,[
+                        'reg_state' => 'br',
+                        'group' => 'cr',
+                        'reg_email' => 'service-zu-crew'
                     ]);
                 } else {
                     ActionMember::updateRecord($this->actionId, $web_id, [

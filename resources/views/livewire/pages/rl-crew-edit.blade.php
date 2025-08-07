@@ -79,6 +79,9 @@
                                             <option value="br">&#x2753; gemeldet</option>
                                             <option value="gpl">&#x2705; geplant</option>
                                             <option value="abgl">&#x274C; abgelehnt</option>
+                                            @if(in_array($action->action_type_sc,['vf','gfx']))
+                                                <option value="sv">&#x2B07; zum Service</option>
+                                            @endif
                                         </select>
                                     </td>
                                     <td class="text-center px-2 py-1 border">{{ $cr->count }}</td>
@@ -185,6 +188,9 @@
                                                 <option value="br">&#x2753; gemeldet</option>
                                                 <option value="gpl">&#x2705; geplant</option>
                                                 <option value="abgl">&#x274C; abgelehnt</option>
+                                                @if(in_array($action->action_type_sc,['vf','gfx']))
+                                                    <option value="cr">&#x2B06; zur Crew</option>
+                                                @endif
                                             </select>
                                         </td>
                                         <td class="text-center px-2 py-1 border">{{ $sv->count }}</td>
