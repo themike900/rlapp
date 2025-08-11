@@ -56,7 +56,7 @@ class AcCancelModal extends Component
 
         $alle_tn = DB::table('action_members')
             ->where('action_id', $this->actionId)
-            ->whereIn('reg_state',['br','ang'])
+            ->whereIn('reg_state',['br','ang','gpl'])
             ->get();
 
         foreach ($alle_tn as $tn) {
