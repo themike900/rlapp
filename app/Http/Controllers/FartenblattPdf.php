@@ -65,7 +65,7 @@ class FartenblattPdf extends Controller
         if (!empty($service)) {
             $members['service'] = [];
             foreach ($service as $sv) {
-                $members['service'][] = "$sv->fullname<br>&nbsp;&nbsp;&nbsp;<small>($cr->mobile)</small>";
+                $members['service'][] = "$sv->fullname<br>&nbsp;&nbsp;&nbsp;<small>($sv->mobile)</small>";
             }
             $members['service'] = implode(", ", $members['service']);
         }
