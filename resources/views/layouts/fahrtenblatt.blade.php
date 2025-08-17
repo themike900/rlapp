@@ -156,7 +156,7 @@
             </td>
             <td>
                 - {!! str_replace(',', '<br/>- ', $members['teilnehmer']) !!}<br/>
-                <b>Gäste</b><br/>- {!! str_replace(',','<br/>- ', $members['guests']) !!}<br/>
+                <b>Gäste</b><br/>- {!! str_replace(';','<br/>- ', $members['guests']) !!}<br/>
             </td>
         </tr>
         </tbody>
