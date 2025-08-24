@@ -103,7 +103,7 @@ class FartenblattPdf extends Controller
             foreach ($guests as $g) {
                 $members['guests'][] = "$g->name<br>&nbsp;&nbsp;&nbsp;<small>($g->fullname)</small>";
             }
-            $members['guests'] = implode("; ", $members['guests']);
+            $members['guests'] = implode(", ", $members['guests']);
         }
 
         Log::debug("members:" . print_r($members, true));
