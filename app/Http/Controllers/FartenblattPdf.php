@@ -46,7 +46,7 @@ class FartenblattPdf extends Controller
         if (!empty($crew)) {
             $members['crew'] = [];
             foreach ($crew as $cr) {
-                $members['crew'][] = "$cr->fullname<br>&nbsp;&nbsp;&nbsp;<small>($cr->mobile)</small>";
+                $members['crew'][] = "$cr->fullname <small>($cr->mobile)</small>";
             }
             $members['crew'] = implode(": ", $members['crew']);
         }
@@ -65,7 +65,7 @@ class FartenblattPdf extends Controller
         if (!empty($service)) {
             $members['service'] = [];
             foreach ($service as $sv) {
-                $members['service'][] = "$sv->fullname<br>&nbsp;&nbsp;&nbsp;<small>($sv->mobile)</small>";
+                $members['service'][] = "$sv->fullname <small>($sv->mobile)</small>";
             }
             $members['service'] = implode(": ", $members['service']);
         }
@@ -101,7 +101,7 @@ class FartenblattPdf extends Controller
         if (!empty($guests)) {
             $members['guests'] = [];
             foreach ($guests as $g) {
-                $members['guests'][] = "$g->name<br>&nbsp;&nbsp;&nbsp;<small>($g->fullname)</small>";
+                $members['guests'][] = "$g->name <small>($g->fullname)</small>";
             }
             $members['guests'] = implode(": ", $members['guests']);
         }
