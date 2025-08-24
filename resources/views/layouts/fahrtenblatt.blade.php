@@ -151,12 +151,12 @@
         <tr>
             <td>
                 <b>Schiffsführer:</b><br/>- {{ $members['captain'] }}<br/>
-                <b>Crew:</b><br/>- {!! str_replace(',', '<br/>- ', $members['crew']) !!}<br/>
-                <b>Service:</b><br/>- {!! str_replace(',', '<br/>- ', $members['service']) !!}
+                <b>Crew:</b><br/>- {!! str_replace(':', '<br/>- ', $members['crew']) !!}<br/>
+                <b>Service:</b><br/>- {!! str_replace(':', '<br/>- ', $members['service']) !!}
             </td>
             <td>
-                - {!! str_replace(',', '<br/>- ', $members['teilnehmer']) !!}<br/>
-                <b>Gäste</b><br/>- {!! str_replace(',','<br/>- ', $members['guests']) !!}<br/>
+                - {!! str_replace(':', '<br/>- ', $members['teilnehmer']) !!}<br/>
+                <b>Gäste</b><br/>- {!! str_replace(':','<br/>- ', $members['guests']) !!}<br/>
             </td>
         </tr>
         </tbody>

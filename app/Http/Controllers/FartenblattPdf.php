@@ -48,7 +48,7 @@ class FartenblattPdf extends Controller
             foreach ($crew as $cr) {
                 $members['crew'][] = "$cr->fullname<br>&nbsp;&nbsp;&nbsp;<small>($cr->mobile)</small>";
             }
-            $members['crew'] = implode(", ", $members['crew']);
+            $members['crew'] = implode(": ", $members['crew']);
         }
         //Log::debug($members['crew']);
 
@@ -67,11 +67,11 @@ class FartenblattPdf extends Controller
             foreach ($service as $sv) {
                 $members['service'][] = "$sv->fullname<br>&nbsp;&nbsp;&nbsp;<small>($sv->mobile)</small>";
             }
-            $members['service'] = implode(", ", $members['service']);
+            $members['service'] = implode(": ", $members['service']);
         }
         //Log::debug($members['service']);
 
-        // Nicknames der Service-Mitglieder holen (Gästefahrt, Vereinsfahrt, Ausbildungsfahrt)
+        // Nicknames der Teilnehmer holen (Gästefahrt, Vereinsfahrt, Ausbildungsfahrt)
         $teilnehmer = DB::table('action_members')
             ->join('members', 'members.webid', '=', 'action_members.web_id')
             ->where('action_members.action_id', $actionId)
@@ -85,7 +85,7 @@ class FartenblattPdf extends Controller
             foreach ($teilnehmer as $tn) {
                 $members['teilnehmer'][] = $tn->fullname;
             }
-            $members['teilnehmer'] = implode(", ", $members['teilnehmer']);
+            $members['teilnehmer'] = implode(": ", $members['teilnehmer']);
         }
 
         // Namen der Gäste
@@ -103,7 +103,7 @@ class FartenblattPdf extends Controller
             foreach ($guests as $g) {
                 $members['guests'][] = "$g->name<br>&nbsp;&nbsp;&nbsp;<small>($g->fullname)</small>";
             }
-            $members['guests'] = implode(", ", $members['guests']);
+            $members['guests'] = implode(": ", $members['guests']);
         }
 
         Log::debug("members:" . print_r($members, true));
