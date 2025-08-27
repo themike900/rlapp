@@ -123,8 +123,8 @@
             <td><b>Besatzung</b></td>
             <td>
                 <b>Schiffsführer:</b><br/>- {{ $members['captain'] }}<br/>
-                <b>Crew:</b><<br/>- {!! str_replace(',', '<br/>- ', $members['crew']) !!}<br/>
-                <b>Service:</b><br/>- {!! str_replace(',', '<br/>- ', $members['service']) !!}
+                <b>Crew:</b><<br/>- {!! str_replace(':', '<br/>- ', $members['crew']) !!}<br/>
+                <b>Service:</b><br/>- {!! str_replace(':', '<br/>- ', $members['service']) !!}
             </td>
         </tr>
         @endif
