@@ -14,9 +14,10 @@
                 <div class="py-2">
                     Bei MeinVerein eine Mitgliederliste mit allen aktiven Mitgliedern exportieren.<br>
                     Es müssen mindestens folgende Spalten enthalten sein:<br>
-                    <b>Vorname, Nachname, E-Mail, Mobile, Mannschaft, Aufentern</b><br>
+                    <b>Nr., Vorname, Nachname, E-Mail, Mobile, Mannschaft, Aufentern</b><br>
                     Reihenfolge ist egal, und mehr Spalten stören nicht.<br>
-                    Dann Datei hier auswählen und importieren. Fertig.
+                    Dann Datei hier auswählen und das Hochladen abwarten. Erst dann importieren.
+                    Wenn das Importieren erfolgreich war, springt die Ansicht kommentarlos zurück zur Aktivitätenliste.
                 </div>
 
                 <form action="{{ route('import') }}" method="POST" enctype="multipart/form-data">

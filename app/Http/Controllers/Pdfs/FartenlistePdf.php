@@ -30,6 +30,9 @@ class FartenlistePdf extends Controller
         } else {
             $fahrten = ['vf', 'af'];
         }
+        if (str_contains($member->groups,'sh')) {
+            $fahrten[] = 'sh';
+        }
 
         $actions = DB::table("actions")
             //->leftJoin('action_members', 'actions.id', '=', 'action_members.action_id')
