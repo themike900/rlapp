@@ -35,5 +35,18 @@ Route::fallback(function () {
     return redirect('/login');
 });
 
+// Cron-Endpoints (gesichert mit Secret-Token)
+Route::get('/cron/schedule/{token}', function (string $token) {
+    if ($token !== config('app.cron_secret')) abort(403);
+    Artisan::call('schedule:run');
+    return 'OK';
+});
+
+Route::get('/cron/queue/{token}', function (string $token) {
+    if ($token !== config('app.cron_secret')) abort(403);
+    Artisan::call('queue:work', ['--stop-when-empty' => true]);
+    return 'OK';
+});
+
 require __DIR__.'/auth.php';
 # require __DIR__.'/api.php';
