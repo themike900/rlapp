@@ -48,5 +48,17 @@ Route::get('/cron/queue/{token}', function (string $token) {
     return 'OK';
 });
 
+use Illuminate\Support\Facades\Artisan;
+
+Route::get('/cron/schedule', function () {
+    Artisan::call('schedule:run');
+    return 'OK';
+});
+
+Route::get('/cron/queue', function () {
+    Artisan::call('queue:work', ['--stop-when-empty' => true]);
+    return 'OK';
+});
+
 require __DIR__.'/auth.php';
 # require __DIR__.'/api.php';
