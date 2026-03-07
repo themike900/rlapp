@@ -625,7 +625,7 @@ class RlCrewEdit extends Component
                     'action_members.group',
                     'members.groups',
                     'members.fullname')
-                ->get();
+                ->get() ?? collect();
             $this->crewCount = count($this->crew);
 
             $crewGpl = DB::table('action_members')
