@@ -96,7 +96,8 @@ class RlCrewEdit extends Component
             $this->selectActions->push($otherAction);
         }
         Log::debug('actions für select aus DB : '.print_r($this->selectActions, true));
-        if (!empty($this->selectActions)) {
+        Log::debug('count selectActions : '. count($this->selectActions));
+        if (count($this->selectActions)>0) {
             $this->actionId = (empty($this->actionId)) ? $this->selectActions[0]->id : $this->actionId;
         }
 
