@@ -30,8 +30,11 @@ class FartenlistePdf extends Controller
         } else {
             $fahrten = ['vf', 'af'];
         }
-        if (str_contains($member->groups,'sh')) {
-            $fahrten[] = 'sh';
+        if (str_contains($member->groups,'sc')) {
+            $fahrten[] = 'sc';
+        }
+        if (str_contains($member->groups,'wa')) {
+            $fahrten[] = 'wa';
         }
 
         $actions = DB::table("actions")
@@ -43,6 +46,7 @@ class FartenlistePdf extends Controller
             ->orderBy('action_date')
             ->orderBy('action_start_at')
             ->get();
+        Log::debug('actions für PDF : '.print_r($actions, true));
 
         foreach ($actions as $action) {
             $action->week = date('W', strtotime($action->action_date));
