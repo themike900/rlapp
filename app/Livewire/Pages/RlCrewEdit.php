@@ -86,7 +86,7 @@ class RlCrewEdit extends Component
             ->whereIn('action_type_sc', ['vf', 'af', 'uf', 'gfx','bf'])
             ->orderBy('action_date')
             ->orderBy('action_start_at')
-            ->get(['id', 'action_name', 'action_date', 'action_start_at', 'action_end_at']);
+            ->get(['id', 'action_name', 'action_date', 'action_start_at', 'action_end_at']) ?? collect();
         $otherAction = DB::table("actions")
             ->where('id', $this->actionId)
             ->whereIn('action_state_sc', ['iv', 'br'])
@@ -98,7 +98,7 @@ class RlCrewEdit extends Component
         Log::debug('actions für select aus DB : '.print_r($this->selectActions, true));
         Log::debug('count selectActions : '. count($this->selectActions));
         if (count($this->selectActions)>0) {
-            $this->actionId = (empty($this->actionId)) ? $this->selectActions[0]->id : $this->actionId;
+            $this->actionId = (empty($this->actionId)) ? $this->selectActions->first()->id : $this->actionId;
         }
 
         $this->captains = DB::table('members')
