@@ -96,7 +96,9 @@ class RlCrewEdit extends Component
             $this->selectActions->push($otherAction);
         }
         Log::debug('actions für select aus DB : '.print_r($this->selectActions, true));
-        $this->actionId = (empty($this->actionId)) ? $this->selectActions[0]->id : $this->actionId;
+        if (!empty($this->selectActions)) {
+            $this->actionId = (empty($this->actionId)) ? $this->selectActions[0]->id : $this->actionId;
+        }
 
         $this->captains = DB::table('members')
             ->whereLike('groups', '%sf%')
