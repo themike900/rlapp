@@ -30,7 +30,7 @@ class FartenlistePdf extends Controller
         } else {
             $fahrten = ['vf', 'af'];
         }
-        if (str_contains($member->groups,'sc')) {
+        if (str_contains($member->groups,'sh')) {
             $fahrten[] = 'sc';
         }
         if (str_contains($member->groups,'wa')) {
