@@ -80,7 +80,9 @@ class RlCrewEdit extends Component
             $this->actionId = session()->get('actionID') ?? 0;
             Log::debug('actionId aus session: '.$this->actionId);
             if ($this->actionId == 0) {
-                $this->actionId = DB::table('actions')->first()->id;
+                $this->actionId = DB::table('actions')
+                    ->where('action_type_sc', 'sc')
+                    ->first()->id;
             }
         }
 
