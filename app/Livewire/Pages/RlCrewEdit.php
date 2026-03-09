@@ -96,7 +96,7 @@ class RlCrewEdit extends Component
             $this->selectActions->push($otherAction);
         }
         Log::debug('actions für select aus DB : '.print_r($this->selectActions, true));
-        Log::debug('count selectActions : '. count($this->selectActions));
+        // Log::debug('count selectActions : '. count($this->selectActions));
         if (count($this->selectActions)>0) {
             $this->actionId = (empty($this->actionId)) ? $this->selectActions->first()->id : $this->actionId;
         }
@@ -483,7 +483,7 @@ class RlCrewEdit extends Component
             ->whereNot('firstname','-')
             ->orderBy('firstname')
             ->get();
-        Log::debug(count($this->suchErgebnisse));
+        //Log::debug(count($this->suchErgebnisse));
 
         $this->savedCrew = false;
         $this->sentEmailsCrew = false;
@@ -625,7 +625,7 @@ class RlCrewEdit extends Component
                     'action_members.group',
                     'members.groups',
                     'members.fullname')
-                ->get() ?? collect();
+                ->get() ?? collect() ?? collect();
             $this->crewCount = count($this->crew);
 
             $crewGpl = DB::table('action_members')
@@ -680,7 +680,7 @@ class RlCrewEdit extends Component
                     'action_members.created_at',
                     'action_members.reg_state',
                     'members.fullname')
-                ->get();
+                ->get() ?? collect();
             $this->serviceCount = count($this->service);
 
             $serviceGpl = DB::table('action_members')
