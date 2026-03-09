@@ -5,6 +5,11 @@
         <p class="text-2xl font-bold mb-0">Crew-/Service-Planung</p>
     </div>
 
+    @if($actionId == 0)
+        <div class="flex py-4 space-x-4">
+            Keine Fahrten mit Crew-Mitgliedern im System
+        </div>
+    @else
     <div class="flex py-4 space-x-4">
         <main class="rounded-lg shadow-lg p-6 min-w-3xl max-w-7xl mx-auto mt-3 space-y-6">
             <div>
@@ -253,4 +258,6 @@
             </div>
         </main>
     </div>
+    @endif
+
 </div>
