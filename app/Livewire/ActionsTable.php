@@ -88,6 +88,7 @@ class ActionsTable extends Component
         $actions = Action::query()
             ->join('action_states', 'actions.action_state_sc', '=', 'action_states.sc')
             ->whereIn('action_state_sc', explode(',',$this->filter))
+            ->whereYear('action_date', now()->year)
             ->orderBy('action_date')
             ->orderBy('action_start_at')
             ->select('actions.*', 'action_states.name as action_state_name')
