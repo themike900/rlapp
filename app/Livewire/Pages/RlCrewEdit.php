@@ -79,6 +79,9 @@ class RlCrewEdit extends Component
             // actionId aus session holen, wenn vorhanden
             $this->actionId = session()->get('actionID') ?? 0;
             Log::debug('actionId aus session: '.$this->actionId);
+            if ($this->actionId == 0) {
+                $this->actionId = DB::table('actions')->first()->id;
+            }
         }
 
         $this->selectActions = DB::table("actions")
