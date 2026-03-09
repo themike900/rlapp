@@ -7,7 +7,7 @@
 
     @if($actionId == 0)
         <div class="flex py-4 space-x-4">
-            Keine Fahrten mit Crew-Mitgliedern im System
+            Keine Fahrten für Crew-Mitgliedern aktiv
         </div>
     @else
     <div class="flex py-4 space-x-4">
