@@ -173,6 +173,7 @@ class ApiRegController extends Controller
                         $reg_opts = ($request->input('groups') == ['sv']) ? ['sv', 'br'] : $reg_opts;
                     }
 
+                    Log::debug("--- ApiRegController: Mitglied anmelden");
                     Log::debug("ApiRegController.reg_opts: " . print_r($reg_opts, true));
 
                     DB::table('action_members')->insert([
@@ -186,6 +187,7 @@ class ApiRegController extends Controller
 
 
                     // Aktivität war nur noch ein Platz frei, Teilnehmeranmeldung schließen
+                    Log::debug(" --- ApiReg Controller: das war letzter Platz, Anmeldung schließen");
                     if (in_array($action['action_type_sc'], ['vf','af','bf','vr','wa']) && $cnt->tn_free == 1 && $reg_opts[0] == 'tn') {
                         Log::debug('ApiRegController.set_tnoff');
                         DB::table('actions')
@@ -206,7 +208,7 @@ class ApiRegController extends Controller
             } elseif (!empty($request->input('abmeldung'))) {
 
                 //TODO prüfen ob abmelden überhaupt noch erlaubt ist
-                Log::debug('ApiRegController.abmelden');
+                Log::debug('ApiRegController: Mitglied abmelden');
 
                 $reg_id = DB::table('action_members')
                     ->where('web_id', $request->input('webid'))

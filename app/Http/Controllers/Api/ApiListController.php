@@ -169,7 +169,7 @@ class ApiListController extends Controller
             ->orderBy('action_date')
             ->orderBy('action_start_at')
             ->get();
-        Log::debug("actions:\n" . print_r($actions, true));
+        // Log::debug("actions:\n" . print_r($actions, true));
 
         $reg_ids = DB::table('list_actions')
             ->join('action_members', 'action_members.action_id', '=', 'list_actions.action_id')

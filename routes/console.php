@@ -4,7 +4,9 @@ use App\Jobs\SendEmail;
 use Illuminate\Support\Facades\Schedule;
 
 // ---------------------------------------------------------------------------
+// täglich neues Log anfangen, altes mit Datum umbenennen
 Schedule::call(function () {
+    Log::debug("Neues log starten, altes umbenennen");
     $logPath = storage_path('logs/laravel.log');
     if (file_exists($logPath)) {
         $date = now()->format('Y-m-d');
@@ -13,10 +15,12 @@ Schedule::call(function () {
 })->daily();
 
 // ---------------------------------------------------------------------------
+// täglich log-Files auf 14 Stück beschränken
 Schedule::call(function () {
+    Log::debug("nicht mehr als 14 log files");
     $files = glob(storage_path('logs/laravel-*.log'));
-    if (count($files) > 7) { // Maximal 7 Log-Dateien behalten
-        array_map('unlink', array_slice($files, 0, count($files) - 7));
+    if (count($files) > 14) { // Maximal 14 Log-Dateien behalten
+        array_map('unlink', array_slice($files, 0, count($files) - 14));
     }
 })->daily();
 
@@ -26,7 +30,7 @@ Schedule::call(function () {
     Log::debug("--- Fahrtenblatt per Email senden now+1---");
 
     $tomorrow = now()->addDay()->format('Y-m-d');
-    Log::debug("tomorrow: $tomorrow");
+    Log::debug("now+1: $tomorrow");
 
     $actions = DB::table('actions')
         ->whereDate('action_date', $tomorrow)
@@ -66,7 +70,7 @@ Schedule::call(function () {
     Log::debug("--- Fahrtenblatt per Email senden now+4---");
 
     $fourDaysAhead = now()->addDays(4)->format('Y-m-d');
-    Log::debug("tomorrow: $fourDaysAhead");
+    Log::debug("now+4 : $fourDaysAhead");
 
     $actions = DB::table('actions')
         ->whereDate('action_date', $fourDaysAhead)
@@ -107,7 +111,7 @@ Schedule::call(function () {
     Log::debug("--- Planungserinnerung per Email senden now+10 ---");
 
     $tenDaysAhead = now()->addDays(10)->format('Y-m-d');
-    Log::debug("tenDaysAhead: $tenDaysAhead");
+    Log::debug("now+10: $tenDaysAhead");
 
     $actions = DB::table('actions')
         ->whereDate('action_date', $tenDaysAhead)

@@ -25,5 +25,5 @@ Route::post('rlreg', ApiRegController::class)->name('api.rlreg');
 // Teilnahme an einer Aktivität anmelden
 Route::post('gstreg', ApiGuestRegController::class)->name('api.gst_reg');
 
-// Teilnahme an einer Aktivität anmelden
+// Fahrt auf geschlossen setzen, wenn weniger als 5 Tage entfernt
 Route::get('cron', ApiCronController::class)->name('api.cron');
