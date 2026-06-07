@@ -153,11 +153,13 @@ class ApiDetailsController extends Controller
                 ->where('id', $action_id)
                 ->update(['ac_reg_state_tn' => 'tnoff']);
             $action['ac_reg_state_tn'] = 'tnoff';
+            Log::debug("set ac_reg_state_tn = tnoff");
         } else {
             DB::table('actions')
                 ->where('id', $action_id)
                 ->update(['ac_reg_state_tn' => 'tnon']);
             $action['ac_reg_state_tn'] = 'tnon';
+            Log::debug("set ac_reg_state_tn = tnon");
         }
 
 

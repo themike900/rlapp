@@ -15,7 +15,7 @@ class FartenlistePdf extends Controller
 
         $decoded = base64_decode($webId_enc);
         list($webId,$rand) = explode('/', $decoded);
-        Log::debug("$webId,$rand");
+        Log::debug("----- PDF-Liste für $webId, $rand");
 
         $member = DB::table('members')
             ->where('webid', $webId)
@@ -46,7 +46,7 @@ class FartenlistePdf extends Controller
             ->orderBy('action_date')
             ->orderBy('action_start_at')
             ->get();
-        Log::debug('actions für PDF : '.print_r($actions, true));
+        //Log::debug('actions für PDF : '.print_r($actions, true));
 
         foreach ($actions as $action) {
             $action->week = date('W', strtotime($action->action_date));
