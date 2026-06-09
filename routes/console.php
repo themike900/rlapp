@@ -181,4 +181,4 @@ Schedule::call(function () {
     foreach ($actions as $action) {
         dispatch(new SendEmail($schatzmeister, 'sm-abrechnung', ['action_id' => $action->id,'preis' => $action->invoice_amount]));
     }
-})->dailyAt('13:50');
+})->dailyAt('15:15');
