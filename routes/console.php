@@ -147,7 +147,7 @@ Schedule::call(function () {
 // ---------------------------------------------------------------------------
 // Jeden Abend um 22:00 alle offenen und geschlossenen Aktivitäten auf durchgeführt setzen und Schatzmeister benachrichtigen
 Schedule::call(function () {
-    Log::debug("--- Fahrten auf durchgeführt setzen ---");
+    Log::debug("------ Fahrten auf durchgeführt setzen ------");
 
     $today = now()->format('Y-m-d');
     DB::table('actions')
@@ -158,8 +158,21 @@ Schedule::call(function () {
     $actions = DB::table('actions')
         ->whereDate('action_date', $today)
         ->where('action_state_sc', 'df')
+        ->get();
+
+    Log::debug("actions heute durchgeführt: " . print_r($actions, true));
+
+
+
+    Log::debug("------ Email an Schatzmeister ------");
+
+    $actions = DB::table('actions')
+        ->whereDate('action_date', $today)
+        ->where('action_state_sc', 'df')
         ->where('action_type_sc', 'gfx' )
         ->get();
+
+    Log::debug("actions for email: " . print_r($actions, true));
 
     $schatzmeister = DB::table('members')
         ->where('email', 'schatzmeister@royal-louise.de')
@@ -168,4 +181,4 @@ Schedule::call(function () {
     foreach ($actions as $action) {
         dispatch(new SendEmail($schatzmeister, 'sm-abrechnung', ['action_id' => $action->id,'preis' => $action->invoice_amount]));
     }
-})->dailyAt('22:00');
+})->dailyAt('13:50');
