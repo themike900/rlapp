@@ -60,7 +60,16 @@ class AcCancelModal extends Component
             ->get();
 
         foreach ($alle_tn as $tn) {
+            // Absage-Email senden
             dispatch(new SendEmail($tn->web_id, 'fahrt-absage', ['action_id' => $this->actionId]));
+
+            // Absage-SMS senden
+            //TODO
+            if (in_array($tn->mobile, ['015','016','017'])){
+                // comment
+            }
+
+            // Alle tn,crew, service aus der Fahrt löschen
             ActionMember::deleteRecord($this->actionId, $tn->web_id);
         }
 
