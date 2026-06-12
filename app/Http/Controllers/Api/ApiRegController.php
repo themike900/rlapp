@@ -243,13 +243,14 @@ class ApiRegController extends Controller
                         Log::debug('ApiRegController.wl_first');
                         //Log::debug("ApiRegController.wl_first $wl_first->id");
 
-                        if (!empty($wl_first)) {
-                            DB::table('action_members')
-                                ->where('id', $wl_first->id)
-                                ->update(['reg_state' => 'ang','updated_at' => Carbon::now()]);
-                            Log::debug('ApiRegController.tn_wl to tn_ang');
-                            dispatch(new SendEmail($wl_first->web_id, 'wl-zu-tn', ['action_id' => $action_id]));
-                        }
+//  Nachrücken Warteliste auskommentiert
+//                        if (!empty($wl_first)) {
+//                            DB::table('action_members')
+//                                ->where('id', $wl_first->id)
+//                                ->update(['reg_state' => 'ang','updated_at' => Carbon::now()]);
+//                            Log::debug('ApiRegController.tn_wl to tn_ang');
+//                            dispatch(new SendEmail($wl_first->web_id, 'wl-zu-tn', ['action_id' => $action_id]));
+//                        }
                     }
                 }
             }
