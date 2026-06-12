@@ -62,15 +62,12 @@ Schedule::call(function () {
 
         }
     }
-})->dailyAt('10:00');
 
-// ---------------------------------------------------------------------------
-// Jeden morgen um 10:05 Fahrtenblätter für in 4 Tagen versenden
-Schedule::call(function () {
-    Log::debug("--- Fahrtenblatt per Email senden now+4---");
+    // ---------------------------------------------------------------------------------
+    Log::debug("--- Fahrtenblatt per Email senden now+5---");
 
-    $fourDaysAhead = now()->addDays(4)->format('Y-m-d');
-    Log::debug("now+4 : $fourDaysAhead");
+    $fourDaysAhead = now()->addDays(5)->format('Y-m-d');
+    Log::debug("now+5 : $fourDaysAhead");
 
     $actions = DB::table('actions')
         ->whereDate('action_date', $fourDaysAhead)
@@ -78,10 +75,10 @@ Schedule::call(function () {
 
     Log::debug("actions: " . print_r($actions, true));
 
-    // Für alle Fahrten in 4 Tagen
+    // Für alle Fahrten in 5 Tagen
     foreach ($actions as $action) {
 
-        // Nur wenn Fahrtenblatt 4 Tge vorher noch nicht gesendet ist
+        // Nur wenn Fahrtenblatt 5 Tge vorher noch nicht gesendet ist
         if ($action->sent_fb < 2) {
 
             // sende Fahrtenblatt an Service-Teilnehmer
@@ -103,11 +100,9 @@ Schedule::call(function () {
 
         }
     }
-})->dailyAt('10:05');
 
-// ---------------------------------------------------------------------------
-// Jeden morgen um 10:10
-Schedule::call(function () {
+
+    // ---------------------------------------------------------------------------------
     Log::debug("--- Planungserinnerung per Email senden now+10 ---");
 
     $tenDaysAhead = now()->addDays(10)->format('Y-m-d');
@@ -142,7 +137,7 @@ Schedule::call(function () {
             }
         }
     }
-})->dailyAt('10:10');
+})->dailyAt('10:00');
 
 // ---------------------------------------------------------------------------
 // Jeden Abend um 22:00 alle offenen und geschlossenen Aktivitäten auf durchgeführt setzen und Schatzmeister benachrichtigen
@@ -163,7 +158,7 @@ Schedule::call(function () {
     Log::debug("actions heute durchgeführt: " . print_r($actions, true));
 
 
-
+    // ---------------------------------------------------------------------------------
     Log::debug("------ Email an Schatzmeister ------");
 
     $actions = DB::table('actions')
