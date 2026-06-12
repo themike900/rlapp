@@ -44,6 +44,7 @@ class SendEmail implements ShouldQueue
         $member = DB::table('members')->where('webid',$this->web_id)->first();
         if (empty($member)) { return; }
         if (empty($member->email)) { return; }
+        if ( $member->name == '-') { return; }
 
         // Schiffsführer holen
         $captain = DB::table('action_members')

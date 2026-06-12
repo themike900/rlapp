@@ -137,7 +137,7 @@ Schedule::call(function () {
             }
         }
     }
-})->dailyAt('11:20');
+})->dailyAt('10:00');
 
 // ---------------------------------------------------------------------------
 // Jeden Abend um 22:00 alle offenen und geschlossenen Aktivitäten auf durchgeführt setzen und Schatzmeister benachrichtigen
