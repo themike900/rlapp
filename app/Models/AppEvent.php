@@ -11,6 +11,7 @@ class AppEvent extends Model
     protected $fillable = [
         'text',
         'web_id',
+        'action_id',
     ];
 
     public $timestamps = true;
@@ -19,11 +20,12 @@ class AppEvent extends Model
      * Einfacher Log-Aufruf:
      * AppEvent::log('Text', $optionalWebId);
      */
-    public static function log(string $text, ?string $webId = null): void
+    public static function log(string $text, ?int $action_id = null, ?int $webId = null): void
     {
         self::create([
             'text'   => $text,
             'web_id' => $webId,
+            'action_id' => $action_id,
         ]);
     }
 }

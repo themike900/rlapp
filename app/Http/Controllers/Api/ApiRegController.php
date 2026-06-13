@@ -186,7 +186,7 @@ class ApiRegController extends Controller
                         'reg_state' => $reg_opts[1],
                     ]);
 
-                    AppEvent::log("Fahrtenanmeldung ".$action['action_date'],$web_id);
+                    AppEvent::log("Fahrtenanmeldung", $action_id, $web_id);
 
 
                     // Aktivität war nur noch ein Platz frei, Teilnehmeranmeldung schließen
@@ -198,6 +198,7 @@ class ApiRegController extends Controller
                             ->update(['ac_reg_state_tn' => 'tnoff', 'updated_at' => Carbon::now()]);
                     }
                     // ub,gf keine TN, vt,sh,mv,afr,abr keine Maximalzahl
+                    AppEvent::log("letzter Platz, Anmeldung geschlossen", $action_id, $web_id);
 
                 } else {
                     // action doch schon geschlossen
@@ -222,10 +223,12 @@ class ApiRegController extends Controller
                     ->where('id', $reg_id)
                     ->delete();
                 Log::debug('ApiRegController.deleted Mitglied');
+                AppEvent::log("Abmeldung", $action_id, $web_id);
 
                 DB::table('guests')
                     ->where('reg_id', $reg_id)->delete();
                 Log::debug('ApiRegController.deleted guests');
+                AppEvent::log("eventuelle Gäste gelöscht", $action_id, $web_id);
 
                 // Aktivität war Teilnehmeranmeldung geschlossen, wieder öffnen, oder WL nachrücken
                 Log::debug('action_type_sc: '.$action['action_type_sc']);
@@ -237,13 +240,25 @@ class ApiRegController extends Controller
                             ->where('id', $action_id)
                             ->update(['ac_reg_state_tn' => 'tnon', 'updated_at' => Carbon::now()]);
                         Log::debug('ApiRegController.nowl set tnon');
+                        AppEvent::log("Teilnehmeranmeldung wieder geöffnet", $action_id, $web_id);
                     } else {
-                        $wl_first = DB::table('action_members')
+                        $wl_count = DB::table('action_members')
                             ->where('reg_state', 'wl')
                             ->where('action_id', $action_id)
                             ->orderBy('created_at')
-                            ->first();
-                        Log::debug('ApiRegController.wl_first');
+                            ->count();
+
+                        // wenn Warteliste leer
+                        if ($wl_count == 0) {
+                            DB::table('actions')
+                                ->where('id', $action_id)
+                                ->update(['ac_reg_state_tn' => 'tnon', 'updated_at' => Carbon::now()]);
+                            Log::debug('ApiRegController.wlempty set tnon');
+                            AppEvent::log("Teilnehmeranmeldung wieder geöffnet", $action_id, $web_id);
+
+                        }
+
+                        //Log::debug('ApiRegController.wl_first');
                         //Log::debug("ApiRegController.wl_first $wl_first->id");
 
 //  Nachrücken Warteliste auskommentiert
