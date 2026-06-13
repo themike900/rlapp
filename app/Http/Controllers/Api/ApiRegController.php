@@ -186,19 +186,26 @@ class ApiRegController extends Controller
                         'reg_state' => $reg_opts[1],
                     ]);
 
-                    AppEvent::log("Fahrtenanmeldung", $action_id, $web_id);
+                    if ($anm_opt == 'bereit_cr') {AppEvent::log("Crew-Anmeldung", $action_id, $web_id);}
+                    if ($anm_opt == 'bereit_sv') {AppEvent::log("Service-Anmeldung", $action_id, $web_id);}
+                    if ($anm_opt == 'anm_tn') {AppEvent::log("Teilnehmer-Anmeldung", $action_id, $web_id);}
+                    if ($anm_opt == 'anm_wl') {AppEvent::log("Wartelisten-Anmeldung", $action_id, $web_id);}
+                    if ($anm_opt == 'bereit_crsv') {AppEvent::log("Crew/Service-Anmeldung", $action_id, $web_id);}
 
 
                     // Aktivität war nur noch ein Platz frei, Teilnehmeranmeldung schließen
-                    Log::debug(" --- ApiReg Controller: das war letzter Platz, Anmeldung schließen");
                     if (in_array($action['action_type_sc'], ['vf','af','bf','vr','wa']) && $cnt->tn_free == 1 && $reg_opts[0] == 'tn') {
+
+                        Log::debug(" --- ApiReg Controller: das war letzter Platz, Anmeldung schließen");
                         Log::debug('ApiRegController.set_tnoff');
+
                         DB::table('actions')
                             ->where('id', $action_id)
                             ->update(['ac_reg_state_tn' => 'tnoff', 'updated_at' => Carbon::now()]);
+
+                        AppEvent::log("letzter Platz, Anmeldung geschlossen", $action_id, $web_id);
                     }
                     // ub,gf keine TN, vt,sh,mv,afr,abr keine Maximalzahl
-                    AppEvent::log("letzter Platz, Anmeldung geschlossen", $action_id, $web_id);
 
                 } else {
                     // action doch schon geschlossen
@@ -223,7 +230,12 @@ class ApiRegController extends Controller
                     ->where('id', $reg_id)
                     ->delete();
                 Log::debug('ApiRegController.deleted Mitglied');
-                AppEvent::log("Abmeldung", $action_id, $web_id);
+
+                if ($anm_opt == 'bereit_cr') {AppEvent::log("Crew-Abmeldung", $action_id, $web_id);}
+                if ($anm_opt == 'bereit_sv') {AppEvent::log("Service-Abmeldung", $action_id, $web_id);}
+                if ($anm_opt == 'anm_tn') {AppEvent::log("Teilnehmer-Abmeldung", $action_id, $web_id);}
+                if ($anm_opt == 'anm_wl') {AppEvent::log("Wartelisten-Abmeldung", $action_id, $web_id);}
+                if ($anm_opt == 'bereit_crsv') {AppEvent::log("Crew/Service-Abmeldung", $action_id, $web_id);}
 
                 DB::table('guests')
                     ->where('reg_id', $reg_id)->delete();
