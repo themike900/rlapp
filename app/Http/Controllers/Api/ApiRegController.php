@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Jobs\SendEmail;
 use App\Models\Action;
+use App\Models\AppEvent;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -184,6 +185,8 @@ class ApiRegController extends Controller
                         'updated_at' => Carbon::now(),
                         'reg_state' => $reg_opts[1],
                     ]);
+
+                    AppEvent::log("Fahrtenanmeldung ".$action['action_date'],$web_id);
 
 
                     // Aktivität war nur noch ein Platz frei, Teilnehmeranmeldung schließen
