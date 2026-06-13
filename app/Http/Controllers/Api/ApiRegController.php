@@ -186,7 +186,7 @@ class ApiRegController extends Controller
                         'reg_state' => $reg_opts[1],
                     ]);
 
-                    // AppEvent::log("Fahrtenanmeldung ".$action['action_date'],$web_id);
+                    AppEvent::log("Fahrtenanmeldung ".$action['action_date'],$web_id);
 
 
                     // Aktivität war nur noch ein Platz frei, Teilnehmeranmeldung schließen
