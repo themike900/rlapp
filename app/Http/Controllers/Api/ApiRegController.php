@@ -231,11 +231,11 @@ class ApiRegController extends Controller
                     ->delete();
                 Log::debug('ApiRegController.deleted Mitglied');
 
-                if ($anm_opt == 'bereit_cr') {AppEvent::log("Crew-Abmeldung", $action_id, $web_id);}
-                if ($anm_opt == 'bereit_sv') {AppEvent::log("Service-Abmeldung", $action_id, $web_id);}
-                if ($anm_opt == 'anm_tn') {AppEvent::log("Teilnehmer-Abmeldung", $action_id, $web_id);}
-                if ($anm_opt == 'anm_wl') {AppEvent::log("Wartelisten-Abmeldung", $action_id, $web_id);}
-                if ($anm_opt == 'bereit_crsv') {AppEvent::log("Crew/Service-Abmeldung", $action_id, $web_id);}
+                if ($anm_opt == 'abm_cr') {AppEvent::log("Crew-Abmeldung", $action_id, $web_id);}
+                if ($anm_opt == 'abm_sv') {AppEvent::log("Service-Abmeldung", $action_id, $web_id);}
+                if ($anm_opt == 'abm_tn') {AppEvent::log("Teilnehmer-Abmeldung", $action_id, $web_id);}
+                if ($anm_opt == 'abm_tn_wl') {AppEvent::log("Wartelisten-Abmeldung", $action_id, $web_id);}
+                if ($anm_opt == 'abm_crsv') {AppEvent::log("Crew/Service-Abmeldung", $action_id, $web_id);}
 
                 DB::table('guests')
                     ->where('reg_id', $reg_id)->delete();
