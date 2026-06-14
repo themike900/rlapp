@@ -237,10 +237,20 @@ class ApiRegController extends Controller
                 if ($anm_opt == 'abm_tn_wl') {AppEvent::log("Wartelisten-Abmeldung", $action_id, $web_id);}
                 if ($anm_opt == 'abm_crsv') {AppEvent::log("Crew/Service-Abmeldung", $action_id, $web_id);}
 
-                DB::table('guests')
-                    ->where('reg_id', $reg_id)->delete();
-                Log::debug('ApiRegController.deleted guests');
-                AppEvent::log("eventuelle Gäste gelöscht", $action_id, $web_id);
+                $guest_count=DB::table('guests')
+                    ->where('reg_id', $reg_id)
+                    ->count();
+
+                if ($guest_count > 0) {
+
+                    DB::table('guests')
+                        ->where('reg_id', $reg_id)
+                        ->delete();
+
+                    Log::debug('ApiRegController.deleted guests');
+                    AppEvent::log("$guest_count Gäste gelöscht", $action_id, $web_id);
+
+                }
 
                 // Aktivität war Teilnehmeranmeldung geschlossen, wieder öffnen, oder WL nachrücken
                 Log::debug('action_type_sc: '.$action['action_type_sc']);
