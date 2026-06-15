@@ -27,10 +27,12 @@ class RlCrewEdit extends Component
     public $savedCrew = false;
     public $sentEmailsCrew = false;
     public $closedCrew = false;
+    public $reopenedCrew = false;
     public $crewEmailsCount = 0;
     public $crewEmailsSent = 0;
     public $crewCount = 0;
     public $crewCloseBtn = false;
+    public $crewReopenBtn = false;
 
     // Service -----------------------
     public $service = null;
@@ -122,6 +124,7 @@ class RlCrewEdit extends Component
         $this->sentEmailsService = false;
         $this->closedService = false;
         $this->savedCaptain = false;
+        $this->reopenedCrew = false;
 
     }
 
@@ -240,7 +243,9 @@ class RlCrewEdit extends Component
         $this->savedCrew = false;
         $this->sentEmailsCrew = false;
         $this->closedCrew = false;
+        $this->reopenedCrew = false;
         $this->savedService = false;
+        $this->closedService = false;
         $this->sentEmailsService = false;
     }
 
@@ -263,7 +268,9 @@ class RlCrewEdit extends Component
             $this->closedCrew = false;
             $this->savedService = false;
             $this->sentEmailsService = false;
+            $this->closedService = false;
             $this->savedCaptain = false;
+            $this->reopenedCrew = false;
         }
 
     }
@@ -317,6 +324,7 @@ class RlCrewEdit extends Component
         $this->sentEmailsService = false;
         $this->closedService = false;
         $this->savedCaptain = false;
+        $this->reopenedCrew = false;
     }
 
     /* **************************************
@@ -350,6 +358,7 @@ class RlCrewEdit extends Component
         $this->savedService = false;
         $this->sentEmailsService = false;
         $this->savedCaptain = false;
+        $this->reopenedCrew = false;
     }
 
     /* **************************************
@@ -370,6 +379,28 @@ class RlCrewEdit extends Component
         $this->sentEmailsService = false;
         $this->closedService = false;
         $this->savedCaptain = false;
+        $this->reopenedCrew = false;
+    }
+
+    /* **************************************
+    *    reopenCrew()
+    ****************************************/
+    public function reopenCrew(): void
+    {
+        Log::debug("--- RlCrewEdit.reopenCrew ------------------------------");
+
+        DB::table('actions')
+            ->where('id', $this->actionId)
+            ->update(['ac_reg_state_cr' => 'crbr']);
+
+        $this->savedCrew = false;
+        $this->sentEmailsCrew = false;
+        $this->closedCrew = false;
+        $this->savedService = false;
+        $this->sentEmailsService = false;
+        $this->closedService = false;
+        $this->savedCaptain = false;
+        $this->reopenedCrew = true;
     }
 
     /* **************************************
@@ -420,6 +451,7 @@ class RlCrewEdit extends Component
         $this->sentEmailsService = false;
         $this->closedService = false;
         $this->savedCaptain = false;
+        $this->reopenedCrew = false;
     }
 
     /* **************************************
@@ -454,6 +486,7 @@ class RlCrewEdit extends Component
         $this->sentEmailsService = true;
         $this->closedService = false;
         $this->savedCaptain = false;
+        $this->reopenedCrew = false;
     }
 
     /* **************************************
@@ -474,6 +507,7 @@ class RlCrewEdit extends Component
         $this->sentEmailsService = false;
         $this->closedService = true;
         $this->savedCaptain = false;
+        $this->reopenedCrew = false;
     }
 
     /* **************************************
@@ -498,6 +532,7 @@ class RlCrewEdit extends Component
         $this->savedService = false;
         $this->sentEmailsService = false;
         $this->savedCaptain = false;
+        $this->reopenedCrew = false;
     }
 
     /* **************************************
@@ -645,7 +680,8 @@ class RlCrewEdit extends Component
                 ->whereLike('group', '%cr%')
                 ->where('reg_state', 'br')
                 ->count();
-            $this->crewCloseBtn = ($crewGpl >= 5 && $crewBr == 0);
+            $this->crewCloseBtn = ($crewGpl >= 5 && $crewBr == 0 && $this->action->ac_reg_state_cr == 'crbr');
+            $this->crewReopenBtn = $this->action->ac_reg_state_cr == 'crgpl';
 
             //Log::debug('crew: '.print_r($this->crew, true));
 

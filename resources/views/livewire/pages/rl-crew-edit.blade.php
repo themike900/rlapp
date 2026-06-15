@@ -122,11 +122,16 @@
                         <div class="flex flex-row">
                             @if($action->ac_reg_state_cr == 'crbr' and $crewCloseBtn)
                                 <button wire:click="closeCrew" class="w-60 px-4 py-2 mt-2 bg-blue-500 text-white hover:bg-blue-700 rounded">Abschließen</button>
+                            @elseif($action->ac_reg_state_cr == 'crgpl' and $crewReopenBtn)
+                                <button wire:click="reopenCrew" class="w-60 px-4 py-2 mt-2 bg-blue-500 text-white hover:bg-blue-700 rounded">Wieder eröffnen</button>
                             @else
                                 <button class="w-60 px-4 py-2 mt-2 bg-gray-300 text-white rounded">Abschließen</button>
                             @endif
                             @if($closedCrew)
                                 <div class="px-4 pt-3 font-bold text-blue-500">Planung abgeschlossen</div>
+                            @endif
+                            @if($reopenedCrew)
+                                <div class="px-4 pt-3 font-bold text-blue-500">Planung wieder geöffnet</div>
                             @endif
                         </div>
 
