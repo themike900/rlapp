@@ -17,7 +17,7 @@
 
          </div>
 
-        <button wire:click="save" wire:confirm="Änderung speichern?"
+        <button wire:click="save"
                 class="px-4 py-2 bg-indigo-300 rounded hover:bg-indigo-400">
             Änderung speichern
         </button>

@@ -3,7 +3,7 @@
 namespace App\Livewire;
 
 use App\Jobs\SendEmail;
-use App\Jobs\SendSMS;
+use App\Jobs\SendSms;
 use App\Models\Action;
 use App\Models\ActionMember;
 use Carbon\Carbon;
