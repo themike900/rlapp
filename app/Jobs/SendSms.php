@@ -86,16 +86,26 @@ class SendSms implements ShouldQueue
         $smsText = Blade::render($template->text, $data);
         Log::debug(''.$smsText);
 
-        Log::debug("SMS $this->templateName an $member->fullname ($member->mobile)");
+        Log::debug("SMS $this->templateName an $member->fullname ($number)");
 
-        // SMS senden via SMSAPI
-        $response = Http::withToken(env('GbmTdaAhrkmOhu944sRGjnovw82nOma6QNfbbAz3'))
+        // SMS senden via smsapi.com
+
+/*        $response = Http::withToken(env('GbmTdaAhrkmOhu944sRGjnovw82nOma6QNfbbAz3'))
             ->asForm()
             ->post('https://api.smsapi.com/sms.do', [
                 'to' => $number,
                 'message' => $smsText,
                 'from' => 'RL-Info', // optional
             ]);
+*/
+        $response = Http::withToken(env('GbmTdaAhrkmOhu944sRGjnovw82nOma6QNfbbAz3'))
+            ->post('https://api.smsapi.com/sms', [
+                'to' => $number,
+                'message' => $smsText,
+                'from' => 'RL-Info'
+            ]);
+
+        Log::debug('SMSAPI Response: ' . $response->body());
 
         if ($response->failed()) {
 
@@ -106,7 +116,7 @@ class SendSms implements ShouldQueue
             // Versand protokollieren
             DB::table('sent_emails')->insert([
                 'receiver' => "$member->fullname",
-                'subject' => 'SMS',
+                'subject' => 'SMS an '. $member->mobile,
                 'text' => $smsText,
                 'created_at' => now(),
                 'updated_at' => now()

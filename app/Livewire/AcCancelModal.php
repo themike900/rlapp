@@ -52,6 +52,7 @@ class AcCancelModal extends Component
     {
 
         $action = Action::find($this->actionId);
+        $this->cancel_reason = (empty($this->cancel_reason)) ? '' : $this->cancel_reason;
 
         Log::debug('fahrt abgesagt: '.$this->actionId);
         DB::table('actions')
