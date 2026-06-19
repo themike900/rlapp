@@ -3,12 +3,15 @@
 namespace App\Livewire;
 
 use App\Jobs\SendEmail;
+use App\Jobs\SendSMS;
 use App\Models\Action;
 use App\Models\ActionMember;
 use Carbon\Carbon;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Livewire\Component;
+use Illuminate\Support\Facades\Http;
 
 class AcCancelModal extends Component
 {
@@ -47,6 +50,7 @@ class AcCancelModal extends Component
 
     public function save(): void
     {
+        Log::debug('fahrt abgesagt: '.$this->actionId);
         DB::table('actions')
             ->where('id', $this->actionId)
             ->update([
@@ -58,19 +62,24 @@ class AcCancelModal extends Component
             ->where('action_id', $this->actionId)
             ->whereIn('reg_state',['br','ang','gpl'])
             ->get();
+        Log::debug('alle_tn: '.$alle_tn);
 
         foreach ($alle_tn as $tn) {
+
             // Absage-Email senden
-            dispatch(new SendEmail($tn->web_id, 'fahrt-absage', ['action_id' => $this->actionId]));
+            //dispatch(new SendEmail($tn->web_id, 'fahrt-absage', ['action_id' => $this->actionId]));
+            Log::debug('Absage-Email an TN: '.$tn->web_id);
 
             // Absage-SMS senden
-            //TODO
-            if (in_array($tn->mobile, ['015','016','017'])){
-                // comment
+            if (in_array(substr($tn->mobile,0,3), ['015','016','017'])){
+
+                //dispatch(new SendSms($tn->web_id, 'fahrt-absage-sms', ['action_id' => $this->actionId]));
+                Log::debug('Absage-SMS an TN: '.$tn->web_id);
+
             }
 
             // Alle tn,crew, service aus der Fahrt löschen
-            ActionMember::deleteRecord($this->actionId, $tn->web_id);
+            //ActionMember::deleteRecord($this->actionId, $tn->web_id);
         }
 
         $this->dispatch('refreshTable');
