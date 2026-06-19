@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use Carbon\Carbon;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Foundation\Queue\Queueable;
@@ -41,6 +42,15 @@ class SendSms implements ShouldQueue
         // Alles entfernen außer + und Ziffern
         $number = preg_replace('/[^0-9+]/', '', $member->mobile);
 
+        // Schiffsführer holen
+        $captain = DB::table('action_members')
+            ->where('action_id',$this->data['action_id'])
+            ->where('group','sf')
+            ->join('members','members.webid','=','action_members.web_id')
+            ->first();
+        $sf_name = (!empty($captain)) ? $captain->firstname : 'noch offen';
+        $sf_mobile = (!empty($captain)) ? $captain->mobile : '';
+
         // Wenn die Nummer mit 0 beginnt → deutsche Nummer → +49 draus machen
         if (str_starts_with($number, '0')) {
             $number = '+49' . substr($number, 1);
@@ -56,16 +66,25 @@ class SendSms implements ShouldQueue
 
         // Fahrt holen
         $action = DB::table('actions')->where('id', $this->data['action_id'])->first();
+        // Daten vorbereiten
+
+        $action_date = Carbon::createFromFormat('Y-m-d', $action->action_date)->isoFormat('dddd DD.MM.');
+        //$template->subject = "$template->subject für $action_date";
+        //$gst_name = (!empty($this->data['gst_name'])) ? $this->data['gst_name'] : '';
 
         // Daten für Template
         $data = array_merge($this->data, [
             'firstname' => $member->firstname,
             'action_name' => $action->action_name,
-            'action_date' => $action->action_date,
+            'action_date' => $action_date,
+            'captain' => $sf_name,
+            'sf_mobile' => $sf_mobile,
+            'cancel_reason' => $action->cancel_reason
         ]);
 
         // Template rendern
         $smsText = Blade::render($template->text, $data);
+        Log::debug(''.$smsText);
 
         Log::debug("SMS $this->templateName an $member->fullname ($member->mobile)");
 
