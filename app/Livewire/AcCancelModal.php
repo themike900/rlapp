@@ -75,7 +75,7 @@ class AcCancelModal extends Component
                 ->first();
 
             // Absage-Email senden
-            //dispatch(new SendEmail($tn->web_id, 'fahrt-absage', ['action_id' => $this->actionId]));
+            dispatch(new SendEmail($tn->web_id, 'fahrt-absage', ['action_id' => $this->actionId]));
             Log::debug('Absage-Email an TN: '.$member->email);
 
             // Absage-SMS senden
@@ -92,11 +92,12 @@ class AcCancelModal extends Component
 
         if ($action->action_type_sc == 'gfx') {
             // Absage-Email an Schatzmeister
-            //dispatch(new SendEmail(998, 'sm-fahrt-absage', ['action_id' => $this->actionId]));
+            dispatch(new SendEmail(998, 'sm-fahrt-absage', ['action_id' => $this->actionId]));
             Log::debug('Absage-Email an Schatzmeister ');
         }
 
-        dispatch(new SendSms(322, 'fahrt-absage-sms', ['action_id' => $this->actionId]));
+        // Test SMS an mich
+        //dispatch(new SendSms(322, 'fahrt-absage-sms', ['action_id' => $this->actionId]));
         Log::debug('Test-Absage-SMS an Michael ');
 
 
