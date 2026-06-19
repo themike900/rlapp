@@ -50,6 +50,9 @@ class AcCancelModal extends Component
 
     public function save(): void
     {
+
+        $action = Action::find($this->actionId);
+
         Log::debug('fahrt abgesagt: '.$this->actionId);
         DB::table('actions')
             ->where('id', $this->actionId)
@@ -66,17 +69,28 @@ class AcCancelModal extends Component
 
         foreach ($alle_tn as $tn) {
 
+            $member = DB::table('action_members')
+                ->where('webid', $tn->webid)
+                ->first();
+
             // Absage-Email senden
             //dispatch(new SendEmail($tn->web_id, 'fahrt-absage', ['action_id' => $this->actionId]));
-            Log::debug('Absage-Email an TN: '.$tn->web_id);
+            Log::debug('Absage-Email an TN: '.$member->email);
 
             // Absage-SMS senden
-            if (in_array(substr($tn->mobile,0,3), ['015','016','017'])){
+            if (in_array(substr($member->mobile,0,3), ['015','016','017'])){
 
                 //dispatch(new SendSms($tn->web_id, 'fahrt-absage-sms', ['action_id' => $this->actionId]));
-                Log::debug('Absage-SMS an TN: '.$tn->web_id);
+                Log::debug('Absage-SMS an TN: '.$member->mobile);
 
             }
+
+            if ($action->action_type_sc == 'gfx') {
+                // Absage-Email an Schatzmeister
+                //dispatch(new SendEmail(998, 'sm-fahrt-absage', ['action_id' => $this->actionId]));
+                Log::debug('Absage-Email an Schatzmeister: ');
+            }
+
 
             // Alle tn,crew, service aus der Fahrt löschen
             //ActionMember::deleteRecord($this->actionId, $tn->web_id);
