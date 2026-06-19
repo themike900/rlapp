@@ -69,8 +69,8 @@ class AcCancelModal extends Component
 
         foreach ($alle_tn as $tn) {
 
-            $member = DB::table('action_members')
-                ->where('webid', $tn->webid)
+            $member = DB::table('members')
+                ->where('webid', $tn->web_id)
                 ->first();
 
             // Absage-Email senden
