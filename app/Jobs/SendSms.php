@@ -90,7 +90,7 @@ class SendSms implements ShouldQueue
 
         // SMS senden via smsapi.com
 
-       $response = Http::withToken(env('GbmTdaAhrkmOhu944sRGjnovw82nOma6QNfbbAz3'))
+       $response = Http::withToken(env('SMSAPI_TOKEN'))
             ->asForm()
             ->post('https://api.smsapi.com/sms.do', [
                 'to' => $number,
