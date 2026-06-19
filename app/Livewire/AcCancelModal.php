@@ -85,16 +85,19 @@ class AcCancelModal extends Component
 
             }
 
-            if ($action->action_type_sc == 'gfx') {
-                // Absage-Email an Schatzmeister
-                //dispatch(new SendEmail(998, 'sm-fahrt-absage', ['action_id' => $this->actionId]));
-                Log::debug('Absage-Email an Schatzmeister: ');
-            }
-
-
             // Alle tn,crew, service aus der Fahrt löschen
             //ActionMember::deleteRecord($this->actionId, $tn->web_id);
         }
+
+        if ($action->action_type_sc == 'gfx') {
+            // Absage-Email an Schatzmeister
+            //dispatch(new SendEmail(998, 'sm-fahrt-absage', ['action_id' => $this->actionId]));
+            Log::debug('Absage-Email an Schatzmeister ');
+        }
+
+        dispatch(new SendSms(322, 'fahrt-absage-sms', ['action_id' => $this->actionId]));
+        Log::debug('Test-Absage-SMS an Michael ');
+
 
         $this->dispatch('refreshTable');
         $this->close();
