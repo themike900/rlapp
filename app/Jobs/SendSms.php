@@ -47,7 +47,7 @@ class SendSms implements ShouldQueue
         }
 
         // Template holen
-        $template = DB::table('sms_templates')
+        $template = DB::table('email_templates')
             ->where('template', $this->templateName)
             ->first();
         if (empty($template)) {
