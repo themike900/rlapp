@@ -70,7 +70,7 @@ class SendSms implements ShouldQueue
         Log::debug("SMS $this->templateName an $member->fullname ($member->mobile)");
 
         // SMS senden via SMSAPI
-        $response = Http::withToken(env('SMSAPI_TOKEN'))
+        $response = Http::withToken(env('GbmTdaAhrkmOhu944sRGjnovw82nOma6QNfbbAz3'))
             ->asForm()
             ->post('https://api.smsapi.com/sms.do', [
                 'to' => $number,
