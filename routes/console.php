@@ -34,6 +34,7 @@ Schedule::call(function () {
 
     $actions = DB::table('actions')
         ->whereDate('action_date', $tomorrow)
+        ->whereIn('action_state_sc',['of','gs'])
         ->get();
 
     Log::debug("actions: " . print_r($actions, true));

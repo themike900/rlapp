@@ -40,8 +40,8 @@ class NewGf extends Component
         $this->action_name = DB::table('action_types')->where('sc', "$selectedForm")->value('name');
         $this->selectedForm = $selectedForm;
         $this->action_type_sc = $selectedForm;
-        if ($selectedForm == "gfx") $this->invoice_amount = "800";
-        if ($selectedForm == "gfm") $this->invoice_amount = "400";
+        //if ($selectedForm == "gfx") $this->invoice_amount = "800";
+        //if ($selectedForm == "gfm") $this->invoice_amount = "400";
     }
 
     public function save(): void
