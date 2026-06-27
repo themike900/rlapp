@@ -87,7 +87,7 @@ class AcCancelModal extends Component
             }
 
             // Alle tn,crew, service aus der Fahrt löschen
-            //ActionMember::deleteRecord($this->actionId, $tn->web_id);
+            ActionMember::deleteRecord($this->actionId, $tn->web_id);
         }
 
         if ($action->action_type_sc == 'gfx') {

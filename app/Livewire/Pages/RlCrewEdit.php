@@ -288,9 +288,11 @@ class RlCrewEdit extends Component
 
             //Log::debug("foreach: ".$web_id.','.$reg_state);
 
+            // Nur verändern, wenn ungleich
             if ( $reg_state != $this->crewSelections[$web_id]) {
                 Log::debug("foreach change: ".$web_id.','.$reg_state);
 
+                // wenn geplant gesetzt
                 if ($reg_state == 'gpl') {
                     ActionMember::updateRecord($this->actionId, $web_id,[
                         'reg_state' => $reg_state,
@@ -306,6 +308,13 @@ class RlCrewEdit extends Component
                         'reg_state' => 'br',
                         'group' => 'sv',
                         'reg_email' => 'crew-zu-service'
+                    ]);
+                // Wenn zu Teilnehmer gesetzt
+                } elseif ($reg_state == 'tn') {
+                    ActionMember::updateRecord($this->actionId, $web_id,[
+                        'reg_state' => 'ang',
+                        'group' => 'tn',
+                        'reg_email' => 'crew-zu-tn'
                     ]);
                 } else {
                     ActionMember::updateRecord($this->actionId, $web_id,[

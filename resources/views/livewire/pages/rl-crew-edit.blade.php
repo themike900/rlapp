@@ -87,6 +87,9 @@
                                             @if(in_array($action->action_type_sc,['vf','gfx']))
                                                 <option value="sv">&#x2B07; zum Service</option>
                                             @endif
+                                            @if(in_array($action->action_type_sc,['vf','af']))
+                                                <option value="tn">&#x2B07; zu Teilnehmer</option>
+                                            @endif
                                         </select>
                                     </td>
                                     <td class="text-center px-2 py-1 border">{{ $cr->count }}</td>
