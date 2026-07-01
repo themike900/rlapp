@@ -27,7 +27,7 @@
                 </form>
 
                 <div class="py-5 flex flex-row">
-                    <button wire:click="testSMS" class="w-60 px-4 py-2 mt-2 bg-blue-500 text-white hover:bg-blue-700 rounded">Test-SMS versenden</button>
+                    <button wire:click="testSMS" class="w-60 px-4 py-2 mt-2 bg-blue-500 text-white hover:bg-blue-700 rounded">Test-SMS an Michael senden</button>
                 </div>
 
             </main>
