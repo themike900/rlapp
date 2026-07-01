@@ -25,6 +25,11 @@
                     <input id="file-upload" type="file" name="file" class="cursor-pointer space-x-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
                     <button type="submit" class="px-4 py-2 border text-white bg-blue-600 rounded-md">Import Excel</button>
                 </form>
+
+                <div class="py-5 flex flex-row">
+                    <button wire:click="testSMS" class="w-60 px-4 py-2 mt-2 bg-blue-500 text-white hover:bg-blue-700 rounded">Test-SMS versenden</button>
+                </div>
+
             </main>
 
         </div>
