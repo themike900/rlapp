@@ -95,7 +95,7 @@ class SendSms implements ShouldQueue
             ->post('https://api.smsapi.com/sms.do', [
                 'to' => $number,
                 'message' => $smsText,
-                'from' => 'RL-Info',
+                'from' => 'RoyalLouise',
                 'format' => 'json'
             ]);
 
