@@ -169,9 +169,9 @@ class ApiListController extends Controller
             ->orderBy('action_date')
             ->orderBy('action_start_at')
             ->get();
-        // Log::debug("actions:\n" . print_r($actions, true));
+        Log::debug("actions:\n" . print_r($actions, true));
 
-        $reg_ids = DB::table('list_actions')
+/*        $reg_ids = DB::table('list_actions')
             ->join('action_members', 'action_members.action_id', '=', 'list_actions.action_id')
             ->where('action_members.web_id', $web_id)
             ->whereIn('action_members.group', ['cr','sv'])
@@ -186,31 +186,57 @@ class ApiListController extends Controller
             if ($reg_id->action_id == '???') {
                 Log::debug("reg_action_id: " . $reg_id->action_id);
             }
-        }
 
+        }
+*/
         /* -----------------------
             in allen Fahrten Datum umformatieren und Anmeldestaus holen
         ------------------------- */
         foreach ($actions as $action) {
             $action->action_date = Carbon::createFromFormat('Y-m-d', $action->action_date)->isoFormat('dd DD.MM.');
-            $action->start_at_text = (empty($action->crew_start_at)) ? 'Beginn' : 'an Bord';
-            $action->end_at_text = (empty($action->crew_end_at)) ? 'Ende' : 'von Bord';
-            $action->start_at = (empty($action->crew_start_at)) ? $action->action_start_at : $action->crew_start_at;
-            $action->end_at = (empty($action->crew_end_at)) ? $action->action_end_at : $action->crew_end_at;
+            if ($request->input('list_type') == 'Segeltermine') {
+                $action->start_at_text = 'Ablegen';
+                $action->end_at_text = 'Anlegen';
+                $action->start_at = $action->action_start_at;
+                $action->end_at = $action->action_end_at;
+            }
+            if ($request->input('list_type') == 'Bereitschaft') {
+                $action->start_at_text = 'an Bord';
+                $action->end_at_text = 'von Bord';
+                $action->start_at = $action->crew_start_at;
+                $action->end_at = $action->crew_end_at;
+            }
+            if ($request->input('list_type') == 'Veranstaltungen') {
+                $action->start_at_text = 'Beginn';
+                $action->end_at_text = 'Ende';
+                $action->start_at = $action->action_start_at;
+                $action->end_at = $action->action_end_at;
+            }
+            //$action->start_at_text = (empty($action->crew_start_at)) ? 'Beginn' : 'an Bord';
+            //$action->end_at_text = (empty($action->crew_end_at)) ? 'Ende' : 'von Bord';
+            //$action->start_at = (empty($action->crew_start_at)) ? $action->action_start_at : $action->crew_start_at;
+            //$action->end_at = (empty($action->crew_end_at)) ? $action->action_end_at : $action->crew_end_at;
 
             $reg = DB::table('action_members')
                 ->where("web_id", $web_id)
                 ->where('action_id', $action->action_id)
                 ->first();
-            Log::debug('action_members: ' . print_r($reg, true));
+            //Log::debug('reg: ' . print_r($reg, true));
+
+            log::debug('list_type: ' . $request->input('list_type'));
+            log::debug('action ' . print_r($action, true));
+            Log::debug('reg: ' . print_r($reg, true));
 
             $action->reg_state_name = '&nbsp;';
+            $action->action_state_name = 'offen';
             if (!empty($reg)) {
                 $reg_state = DB::table('reg_state')
                     ->where('sc', $reg->reg_state)
                     ->where('grp', $reg->group)
                     ->first();
                 Log::debug('reg_state: ' . print_r($reg_state, true));
+
+                log::debug('--- set reg_state_name');
 
                 if ($request->input('list_type') == 'Segeltermine'
                     && $reg->group == 'tn')
@@ -229,14 +255,40 @@ class ApiListController extends Controller
                 {
                     $action->reg_state_name = $reg_state->name ?? '&nbsp;';
                 }
+
+
+                log::debug('--- set action_state_name');
+
+                if ($request->input('list_type') == 'Bereitschaft') {
+                    if ($action->ac_reg_state_cr == 'crgpl' && $reg->group == 'cr' ) {
+                        $action->action_state_name = 'geplant';
+                    }
+                    if ($action->ac_reg_state_sv == 'svgpl' && $reg->group == 'sv') {
+                        $action->action_state_name = 'geplant';
+                    }
+                }
+            }
+            if ($request->input('list_type') == 'Segeltermine') {
+                if ($action->ac_reg_state_tn == 'tnoff') {
+                    $action->action_state_name = 'belegt';
+                }
+            }
+            if ($request->input('list_type') == 'Veranstaltungen') {
+                if ($action->ac_reg_state_tn == 'tnoff') {
+                    $action->action_state_name = 'belegt';
+                }
+            }
+            if ($action->action_state_sc == 'gs') {
+                $action->action_state_name = 'geschlossen';
             }
 
-            if ($request->input('list_type') != 'Bereitschaft'
+/*            if ($request->input('list_type') != 'Bereitschaft'
                 && $action->ac_reg_state_tn == 'tnoff'
                 && $action->action_state_sc == 'of' )
             {
                 $action->action_state_name = 'belegt';
             }
+*/
 
         }
         //Log::debug("--- actions:\n " . print_r($actions, true));
