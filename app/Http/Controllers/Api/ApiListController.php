@@ -256,16 +256,24 @@ class ApiListController extends Controller
                     $action->reg_state_name = $reg_state->name ?? '&nbsp;';
                 }
 
-
-                log::debug('--- set action_state_name');
-
-                if ($request->input('list_type') == 'Bereitschaft') {
+/*                if ($request->input('list_type') == 'Bereitschaft') {
                     if ($action->ac_reg_state_cr == 'crgpl' && $reg->group == 'cr' ) {
                         $action->action_state_name = 'geplant';
                     }
                     if ($action->ac_reg_state_sv == 'svgpl' && $reg->group == 'sv') {
                         $action->action_state_name = 'geplant';
                     }
+                }
+*/
+            }
+
+            log::debug('--- set action_state_name');
+
+            if ($request->input('list_type') == 'Bereitschaft') {
+                if ($action->ac_reg_state_cr == 'crgpl' && in_array('cr',$member_groups_array) ) {
+                    $action->action_state_name = 'abgeschlossen';
+                } else if ($action->ac_reg_state_sv == 'svgpl' && in_array('sv',$member_groups_array) ) {
+                    $action->action_state_name = 'abgeschlossen';
                 }
             }
             if ($request->input('list_type') == 'Segeltermine') {
