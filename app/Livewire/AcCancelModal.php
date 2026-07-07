@@ -48,7 +48,7 @@ class AcCancelModal extends Component
         $this->show = false;
     }
 
-    public function save(): void
+    public function save($withSMS): void
     {
 
         $action = Action::find($this->actionId);
@@ -79,10 +79,13 @@ class AcCancelModal extends Component
             Log::debug('Absage-Email an TN: '.$member->email);
 
             // Absage-SMS senden
-            if (in_array(substr($member->mobile,0,3), ['015','016','017'])){
+            if ($withSMS == 'sms') {
+                if (in_array(substr($member->mobile,0,3), ['015','016','017'])){
 
-                dispatch(new SendSms($tn->web_id, 'fahrt-absage-sms', ['action_id' => $this->actionId]));
-                Log::debug('Absage-SMS an TN: '.$member->mobile);
+                    dispatch(new SendSms($tn->web_id, 'fahrt-absage-sms', ['action_id' => $this->actionId]));
+                    Log::debug('Absage-SMS an TN: '.$member->mobile);
+
+                }
 
             }
 

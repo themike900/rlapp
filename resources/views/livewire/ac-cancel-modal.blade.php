@@ -17,9 +17,14 @@
 
          </div>
 
-        <button wire:click="save"
-                class="px-4 py-2 bg-indigo-300 rounded hover:bg-indigo-400">
-            Änderung speichern
+        <button wire:click="save('nosms')"
+                class="px-4 py-2 mb-2 bg-indigo-300 rounded hover:bg-indigo-400">
+            Absage ausführen, ohne SMS-Versand
+        </button>
+
+        <button wire:click="save('sms')"
+                class="px-4 py-2 mb-2 bg-indigo-300 rounded hover:bg-indigo-400">
+            Absage ausführen, mit SMS-Versand
         </button>
 
         <button wire:click="close" class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">
