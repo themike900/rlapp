@@ -138,7 +138,7 @@ Schedule::call(function () {
             }
         }
     }
-})->dailyAt('10:00');
+})->between('10:00','15:05');
 
 // ---------------------------------------------------------------------------
 // Jeden Abend um 22:00 alle offenen und geschlossenen Aktivitäten auf durchgeführt setzen und Schatzmeister benachrichtigen
@@ -177,4 +177,4 @@ Schedule::call(function () {
     foreach ($actions as $action) {
         dispatch(new SendEmail($schatzmeister, 'sm-abrechnung', ['action_id' => $action->id,'preis' => $action->invoice_amount]));
     }
-})->dailyAt('22:00');
+})->between('22:00','22:05');
