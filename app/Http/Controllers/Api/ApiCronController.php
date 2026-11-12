@@ -3,15 +3,21 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-//use Illuminate\Http\Request;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
 class ApiCronController extends Controller
 {
 
-    public function __invoke()
+    public function __invoke(Request $request)
     {
+        $secret = (string) config('app.cron_secret');
+        $given = (string) $request->query('token', '');
+        if ($secret === '' || !hash_equals($secret, $given)) {
+            abort(403);
+        }
+
         $closeDate = Carbon::now()->addDays(5);
 
         $closedActions = DB::table('actions')

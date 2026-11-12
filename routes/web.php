@@ -37,30 +37,34 @@ Route::fallback(function () {
     return redirect('/login');
 });
 
-// Cron-Endpoints (gesichert mit Secret-Token)
+// Cron-Endpoints. Ohne passendes CRON_SECRET passiert nichts.
+Route::get('/cron/schedule', function () {
+    abort(403);
+});
+
+Route::get('/cron/queue', function () {
+    abort(403);
+});
+
 Route::get('/cron/schedule/{token}', function (string $token) {
-    if ($token !== config('app.cron_secret')) abort(403);
+    $secret = (string) config('app.cron_secret');
+    if ($secret === '' || !hash_equals($secret, $token)) {
+        abort(403);
+    }
     Artisan::call('schedule:run');
     return 'OK';
 });
 
 Route::get('/cron/queue/{token}', function (string $token) {
-    if ($token !== config('app.cron_secret')) abort(403);
+    $secret = (string) config('app.cron_secret');
+    if ($secret === '' || !hash_equals($secret, $token)) {
+        abort(403);
+    }
     Artisan::call('queue:work', ['--stop-when-empty' => true]);
     return 'OK';
 });
 
 use Illuminate\Support\Facades\Artisan;
-
-Route::get('/cron/schedule', function () {
-    Artisan::call('schedule:run');
-    return 'OK';
-});
-
-Route::get('/cron/queue', function () {
-    Artisan::call('queue:work', ['--stop-when-empty' => true]);
-    return 'OK';
-});
 
 require __DIR__.'/auth.php';
 # require __DIR__.'/api.php';
