@@ -155,7 +155,7 @@ Nachher:
 
 Vorher, auf dem alten Stand, lieferte `/cron/schedule` ohne Token ebenfalls `OK`.
 
-**Risiko.** Wer den neuen Code auf den Server legt, bevor der Cron die Token-Adresse benutzt, bleiben die Erinnerungsmails aus, bis die Cron-URL nachgezogen ist. Die Reihenfolge steht in der Checkliste. Rückgängig: alter Code, oder die Token-URL ist schon umgestellt und bleibt gültig.
+**Risiko.** Wenn der neue Code auf dem Server liegt, bevor der Cron die Token-Adresse benutzt, bleiben die Erinnerungsmails aus, bis die Cron-URL nachgezogen ist. Die Reihenfolge steht in der Checkliste. Rückgängig: alter Code, oder die Token-URL ist schon umgestellt und bleibt gültig.
 
 ## 4. E-Mail- und SMS-Texte werden nicht mehr als Programm ausgeführt
 
