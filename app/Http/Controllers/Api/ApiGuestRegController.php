@@ -144,8 +144,13 @@ class ApiGuestRegController extends Controller
                 // wenn Fahrt noch offen
                 if ($action->action_state_sc == 'of') {
 
-                    // Anmeldung nur, wenn TN und Gäste noch frei Plätze haben
-                    if ($cnt->tn_free > 0 and $cnt->guest_free > 0 ) {
+                    $regBelongsToAction = DB::table('action_members')
+                        ->where('id', $reg_id)
+                        ->where('action_id', $action_id)
+                        ->exists();
+
+                    // Anmeldung nur, wenn TN und Gäste noch frei Plätze haben und die Anmeldung zu dieser Fahrt gehört
+                    if ($cnt->tn_free > 0 and $cnt->guest_free > 0 && $regBelongsToAction) {
                         DB::table('guests')->insert([
                             'reg_id' => $reg_id,
                             'gst_action_id' => $action_id,
@@ -162,6 +167,8 @@ class ApiGuestRegController extends Controller
                                 ->update(['ac_reg_state_tn' => 'tnoff']);
                         }
 
+                    } elseif (!$regBelongsToAction) {
+                        Log::info('Gast abgelehnt, reg_id passt nicht zur Fahrt');
                     } else {
                         // Fehlermeldung: gäste doch schon voll
                         DB::table('action_members')
@@ -181,6 +188,12 @@ class ApiGuestRegController extends Controller
                 // wenn Fahrt tatsächlich noch offen
                 if ($action->action_state_sc == 'of') {
 
+                    $guestBelongs = DB::table('guests')
+                        ->where('id', $guest_id)
+                        ->where('gst_action_id', $action_id)
+                        ->exists();
+
+                    if ($guestBelongs) {
                     // Gast löschen
                     DB::table('guests')
                         ->where('id', $guest_id)
@@ -192,6 +205,9 @@ class ApiGuestRegController extends Controller
                         DB::table('actions')
                             ->where('id', $action_id)
                             ->update(['ac_reg_state_tn' => 'tnon']);
+                    }
+                    } else {
+                        Log::info('Gast-Abmeldung abgelehnt, falsche Fahrt');
                     }
 
                     // Wenn Fahrt doch schon geschlossen war Fehlermeldung kein Löschen mehr möglich

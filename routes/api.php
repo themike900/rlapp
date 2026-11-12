@@ -13,17 +13,19 @@ use Illuminate\Support\Facades\Route;
 //    return $request->user();
 //})->middleware('auth:sanctum');
 
-// Holen der Aktivitätenliste für den aktuellen Webuser
-Route::post('list', ApiListController::class)->name('api.list');
+Route::middleware('rlweb.token')->group(function () {
+    // Holen der Aktivitätenliste für den aktuellen Webuser
+    Route::post('list', ApiListController::class)->name('api.list');
 
-// Holen der Detail-Informationen einer Aktivität und der Anmelde-Informationen für das Anmelde-Formular
-Route::get('details/{webid}/{actionid}', ApiDetailsController::class)->name('api.details');
+    // Holen der Detail-Informationen einer Aktivität und der Anmelde-Informationen für das Anmelde-Formular
+    Route::get('details/{webid}/{actionid}', ApiDetailsController::class)->name('api.details');
 
-// Teilnahme an einer Aktivität anmelden
-Route::post('rlreg', ApiRegController::class)->name('api.rlreg');
+    // Teilnahme an einer Aktivität anmelden
+    Route::post('rlreg', ApiRegController::class)->name('api.rlreg');
 
-// Teilnahme an einer Aktivität anmelden
-Route::post('gstreg', ApiGuestRegController::class)->name('api.gst_reg');
+    // Gast anmelden oder abmelden
+    Route::post('gstreg', ApiGuestRegController::class)->name('api.gst_reg');
+});
 
 // Fahrt auf geschlossen setzen, wenn weniger als 5 Tage entfernt
 Route::get('cron', ApiCronController::class)->name('api.cron');
