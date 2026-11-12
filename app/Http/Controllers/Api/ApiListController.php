@@ -52,6 +52,7 @@ class ApiListController extends Controller
                 ->value('id');
         }
 
+        $touchLastAccess = true;
         if ( empty($member_id)) {
 
             $member_id = DB::table('members')->insertGetId([
@@ -69,21 +70,32 @@ class ApiListController extends Controller
             $webid_old =DB::table('members')
                 ->where('id', $member_id)
                 ->value('webid');
-            if (!empty($webid_old) && $webid_old >= 10000) {
-                DB::table('action_members')
-                    ->where('web_id', $webid_old)
-                    ->update(['web_id' => $web_id]);
-            }
-            if ( empty($webid_old) || $webid_old != $web_id) {
-                DB::table('members')
-                    ->where('id', $member_id)
-                    ->update(['webid' => $web_id]);
-                Log::info('User webid aktualisiert');
+            // Schon vergebene webid unter 10000 nicht umhängen. Leer und Alt-IDs ab 10000 weiter verknüpfen.
+            $stableMismatch = !empty($webid_old)
+                && (int) $webid_old < 10000
+                && (string) $webid_old !== (string) $web_id;
+            if ($stableMismatch) {
+                $touchLastAccess = false;
+                Log::info('webid-Wechsel abgelehnt');
+            } else {
+                if (!empty($webid_old) && (int) $webid_old >= 10000 && (string) $webid_old !== (string) $web_id) {
+                    DB::table('action_members')
+                        ->where('web_id', $webid_old)
+                        ->update(['web_id' => $web_id]);
+                }
+                if ( empty($webid_old) || (string) $webid_old !== (string) $web_id) {
+                    DB::table('members')
+                        ->where('id', $member_id)
+                        ->update(['webid' => $web_id]);
+                    Log::info('User webid aktualisiert');
+                }
             }
         }
-        DB::table('members')
-            ->where('id', $member_id)
-            ->update(['last_access' => Carbon::now()]);
+        if ($touchLastAccess) {
+            DB::table('members')
+                ->where('id', $member_id)
+                ->update(['last_access' => Carbon::now()]);
+        }
 
         // Log::debug($member_id);
 

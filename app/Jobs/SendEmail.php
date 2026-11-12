@@ -7,7 +7,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Support\Facades\Blade;
+use App\Support\SafeTemplate;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -84,7 +84,7 @@ class SendEmail implements ShouldQueue
         Log::debug("data: " . print_r($data, true));
 
         // Text rendern
-        $emailText = Blade::render($template->text,$data);
+        $emailText = SafeTemplate::render($template->text, $data);
 
         // Absender festlegen
         $sender = 'Royal-Louise Planung';

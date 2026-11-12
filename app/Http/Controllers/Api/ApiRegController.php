@@ -165,8 +165,11 @@ class ApiRegController extends Controller
                         'bereit_cr' => ['cr', 'br'],
                         'bereit_sv' => ['sv', 'br'],
                     ];
+                    if (!isset($opt_array[$anm_opt])) {
+                        Log::debug('ApiRegController: unbekannte anm_opt');
+                    } else {
                     // anm_opt im Request übersetzen zu reg_opt gem opt_array
-                    $reg_opts = $opt_array[$request->input('anm_opt')];
+                    $reg_opts = $opt_array[$anm_opt];
 
                     // Überschreiben bei anm_opt = bereit_crsv
                     if ($request->input('anm_opt') == 'bereit_crsv') {
@@ -174,6 +177,9 @@ class ApiRegController extends Controller
                         $reg_opts = ($request->input('groups') == ['sv']) ? ['sv', 'br'] : $reg_opts;
                     }
 
+                    if (!$this->groupAllowsRegistration($web_id, $reg_opts[0], $action['action_type_sc'])) {
+                        Log::info('ApiRegController: Anmeldung abgelehnt, Gruppe fehlt');
+                    } else {
                     Log::debug("--- ApiRegController: Mitglied anmelden");
                     Log::debug("ApiRegController.reg_opts: " . print_r($reg_opts, true));
 
@@ -206,6 +212,8 @@ class ApiRegController extends Controller
                         AppEvent::log("letzter Platz, Anmeldung geschlossen", $action_id, $web_id);
                     }
                     // ub,gf keine TN, vt,sh,mv,afr,abr keine Maximalzahl
+                    }
+                    }
 
                 } else {
                     // action doch schon geschlossen
@@ -300,5 +308,29 @@ class ApiRegController extends Controller
 
         //return;
         return redirect()->away("https://".$hostname."/intern/details?id=".$request->input("actionid")."&anm=true");
+    }
+
+    /**
+     * Teilnehmer bleiben für jede webid möglich. Crew und Service nur mit der passenden Gruppe,
+     * dieselbe Regel wie die Knöpfe in der Webseite.
+     */
+    private function groupAllowsRegistration($webId, string $group, ?string $actionType): bool
+    {
+        if ($group === 'tn') {
+            return true;
+        }
+
+        $member = DB::table('members')->where('webid', $webId)->first();
+        $groups = $member ? array_map('trim', explode(',', (string) $member->groups)) : [];
+        $canCrew = in_array('cr', $groups, true)
+            || (in_array('tr', $groups, true) && in_array($actionType, ['vf', 'gfx'], true));
+        $canService = in_array('sv', $groups, true);
+
+        return match ($group) {
+            'cr' => $canCrew,
+            'sv' => $canService,
+            'cr,sv' => $canCrew && $canService,
+            default => false,
+        };
     }
 }
