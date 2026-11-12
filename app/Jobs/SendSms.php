@@ -10,7 +10,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Blade;
+use App\Support\SafeTemplate;
 
 class SendSms implements ShouldQueue
 {
@@ -83,7 +83,7 @@ class SendSms implements ShouldQueue
         ]);
 
         // Template rendern
-        $smsText = Blade::render($template->text, $data);
+        $smsText = SafeTemplate::render($template->text, $data);
         Log::debug(''.$smsText);
 
         Log::debug("SMS $this->templateName an $member->fullname ($number)");
