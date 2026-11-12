@@ -26,7 +26,9 @@ Route::get('/members/import', function () {
     })->middleware(['auth', 'verified'])
     ->name('members.import');
 
-Route::post('/import', [ImportController::class, 'importMembers'])->name('import');
+Route::post('/import', [ImportController::class, 'importMembers'])
+    ->middleware(['auth'])
+    ->name('import');
 
 Route::get('/rl/fahrtenblatt/{actionId}', [FartenblattPdf::class, 'generatePdf'])->name('rl-fahrtenblatt');
 Route::get('/rl/fahrtenliste/{webId}', [FartenlistePdf::class, 'generatePdf'])->name('rl-fahrtenliste');
